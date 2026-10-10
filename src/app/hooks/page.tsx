@@ -50,10 +50,10 @@ export default function HooksPage(): ReactNode {
           marked Community listing come from a third party and are not published by Anthropic.
         </p>
         <p>
-          Mods are on by default from Claude Code v2.1.287 in the terminal and v2.1.286 in the Desktop app. Those
-          versions ignore <InlineCode>CLAUDE_CODE_ENABLE_FUNCTION_HOOKS</InlineCode>, so if you set it during early
-          access, remove it: setting it to <InlineCode>0</InlineCode> does not turn mods off. Events and methods can
-          still change between releases.
+          Mods are on by default from Claude Code v2.1.287 in the terminal and v2.1.286 in the Desktop app. Claude
+          Code v2.1.287 and later ignores <InlineCode>CLAUDE_CODE_ENABLE_FUNCTION_HOOKS</InlineCode>, so if you set it
+          during early access, remove it: setting it to <InlineCode>0</InlineCode> does not turn mods off. Events and
+          methods can still change between releases.
         </p>
       </Callout>
       <DocSection id="events" title="Every hook event">

@@ -108,7 +108,7 @@ describe("hooks page", () => {
     const { container } = render(<HooksPage />);
     const text = container.textContent ?? "";
     expect(text).toMatch(/on by default from Claude Code v2\.1\.287 in the terminal and v2\.1\.286 in the Desktop app/);
-    expect(text).toMatch(/ignore\s*CLAUDE_CODE_ENABLE_FUNCTION_HOOKS/);
+    expect(text).toMatch(/v2\.1\.287 and later ignores\s*CLAUDE_CODE_ENABLE_FUNCTION_HOOKS/);
     expect(text).not.toMatch(/Mods are early access/);
     expect(text).not.toMatch(/only where function hooks are enabled/);
   });
