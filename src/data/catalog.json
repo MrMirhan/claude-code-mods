@@ -745,6 +745,491 @@
       }
     },
     {
+      "slug": "token-weather",
+      "name": "token-weather",
+      "kind": "mod",
+      "categories": [
+        "observability"
+      ],
+      "summary": "Anthropic's sample mod that draws a live forecast of the context window in the band above the prompt, with a chart of the last turns.",
+      "description": [
+        "A sample mod from Anthropic's claude-code-playground repository. After each turn it draws one line above the prompt: a weather icon and word for how full the context window is, the percentage used, the tokens used out of the window, a chart of the last 12 turns in block characters, and how much the last turn added.",
+        "The README says the numbers are real, not estimated: after each main-loop turn the mod calls $.session.usage() and reads the same figures the status line shows. The call sends no token-count request.",
+        "It is the smallest of the three sample mods: one hooks module that draws one line of UI. The set up commands below run from the claude-code/mods folder of a clone of the repository."
+      ],
+      "publisher": {
+        "name": "Anthropic",
+        "url": "https://github.com/anthropics",
+        "kind": "anthropic"
+      },
+      "repositoryUrl": "https://github.com/anthropics/claude-code-playground/tree/main/claude-code/mods/token-weather",
+      "license": "Apache-2.0",
+      "availability": "source-only",
+      "installCommands": [],
+      "notice": "Anthropic shares this sample mod as it is, without support. Its README says it is not an official Anthropic product and that no support or maintenance is implied. It needs Claude Code 2.1.287 or later, where mods load by default.",
+      "stars": null,
+      "isFeatured": false,
+      "verification": {
+        "status": "verified",
+        "checkedAt": "2026-10-10",
+        "sourceUrl": "https://github.com/anthropics/claude-code-playground/tree/main/claude-code/mods/token-weather"
+      },
+      "details": [
+        {
+          "label": "Version",
+          "value": "0.1.0",
+          "isCommand": false
+        },
+        {
+          "label": "Author in plugin.json",
+          "value": "Claude Code DevRel",
+          "isCommand": false
+        },
+        {
+          "label": "Needs",
+          "value": "Claude Code 2.1.287 or later",
+          "isCommand": false
+        },
+        {
+          "label": "Built and tested on",
+          "value": "Claude Code 2.1.280. claude plugin validate passes on 2.1.285.",
+          "isCommand": false
+        },
+        {
+          "label": "Draws in",
+          "value": "The band above the prompt (AbovePrompt), on the terminal surface only",
+          "isCommand": false
+        },
+        {
+          "label": "Run from source",
+          "value": "claude --plugin-dir ./token-weather",
+          "isCommand": true
+        }
+      ],
+      "guide": [
+        {
+          "title": "What it does",
+          "paragraphs": [
+            "After each turn, the band above the prompt shows a weather icon and word for how full the window is, the percentage used, the tokens used out of the window, a chart of the last 12 turns drawn with block characters, and how much the last turn added.",
+            "The forecast follows the share of the window used: under 25% is Clear, 25 to 49% is Cloudy, 50 to 74% is Showers, 75 to 89% is Storm, and 90% and up is Compact soon.",
+            "The figures come from $.session.usage(). tokens is the input tokens the last response was answered over (uncached, cache-written and cache-read together), window is the context window of the session's model, and percent is tokens over window. The README says these are the same figures the status line shows, and that the call is free because the mod asks for no breakdown."
+          ],
+          "commands": []
+        },
+        {
+          "title": "How it works",
+          "paragraphs": [
+            "The hooks module is hooks/token-weather.mjs, and hooks/hooks.json points to it. It registers three hooks.",
+            "session.start: takes a first reading, so the band shows before the first turn.",
+            "turn.complete: takes a reading after each main-loop turn. Subagent turns are skipped. It keeps the last 12 readings and asks Claude Code to draw again.",
+            "ui.render on the AbovePrompt component: draws the band as one line. In a terminal narrower than 60 columns it leaves out the chart and the trend."
+          ],
+          "commands": []
+        },
+        {
+          "title": "Set up",
+          "paragraphs": [
+            "The README asks for Claude Code 2.1.287 or later, where mods load by default. Check yours with claude --version. It needs no environment variables or configuration.",
+            "Run these from the claude-code/mods folder of a clone (see Download the source). The first command checks the plugin and lists its hooks. The second loads it for one session only.",
+            "To keep it, add the folder as a local marketplace and install it from claude-code-playground-mods, as the last two commands do. The official mods overview notes that this marketplace points at your clone, so the mod stops loading if you move or delete the clone.",
+            "If you install it from your shell while a session is open, run /reload-plugins in that session to load it. To confirm it loaded, run /plugin: a dim line under the tabs names the mods the session loaded.",
+            "It needs a terminal: the README says AbovePrompt is drawn on the terminal surface only. Then work as normal. The band updates after each turn."
+          ],
+          "commands": [
+            "claude plugin validate ./token-weather",
+            "claude --plugin-dir ./token-weather",
+            "claude plugin marketplace add ./",
+            "claude plugin install token-weather@claude-code-playground-mods --scope user"
+          ]
+        },
+        {
+          "title": "Download the source",
+          "paragraphs": [
+            "The source lives in the claude-code/mods/token-weather folder of the anthropics/claude-code-playground repository, beside the two other sample mods. The README's steps clone the whole repository and go to the mods folder, which is the folder the set up commands run from.",
+            "The repository's LICENSE is the Apache License 2.0, and the hooks module carries the header SPDX-License-Identifier: Apache-2.0. The repository README says the DevRel team maintains it, that entries are provided as is with no support and no guarantee they still work, and that it is not accepting outside contributions yet."
+          ],
+          "commands": [
+            "git clone https://github.com/anthropics/claude-code-playground.git",
+            "cd claude-code-playground/claude-code/mods"
+          ]
+        },
+        {
+          "title": "Limitations",
+          "paragraphs": [
+            "The percentage is of the full window. Claude Code's own context used notice counts against the auto-compact point, which is lower, so the two can differ. In the README's testing, the band read 81% when the notice read 90%.",
+            "The band updates once per turn, not during a turn. The chart's bars are relative to the fullest turn shown, and the percentage is the absolute figure. The history resets when the session starts or the plugin reloads, and before the first response the band reads 0%.",
+            "Only one band shows per session: another plugin that draws AbovePrompt competes for it."
+          ],
+          "commands": []
+        }
+      ],
+      "hooks": [
+        "session.start",
+        "turn.complete",
+        "ui.render"
+      ],
+      "tags": [
+        "context-window",
+        "tokens",
+        "above-prompt",
+        "sample-mod",
+        "function-hooks"
+      ],
+      "links": [
+        {
+          "label": "Mod README",
+          "url": "https://github.com/anthropics/claude-code-playground/blob/main/claude-code/mods/token-weather/README.md"
+        },
+        {
+          "label": "Hooks module",
+          "url": "https://github.com/anthropics/claude-code-playground/blob/main/claude-code/mods/token-weather/hooks/token-weather.mjs"
+        },
+        {
+          "label": "Sample mods README",
+          "url": "https://github.com/anthropics/claude-code-playground/blob/main/claude-code/mods/README.md"
+        },
+        {
+          "label": "Mods overview (Claude Code docs)",
+          "url": "https://code.claude.com/docs/en/plugins/mods/overview"
+        }
+      ]
+    },
+    {
+      "slug": "blast-radius",
+      "name": "blast-radius",
+      "kind": "mod",
+      "categories": [
+        "security"
+      ],
+      "summary": "Anthropic's sample mod that holds a risky Bash command, such as rm -rf or a force push, and shows what it would change, with Proceed and Cancel.",
+      "description": [
+        "A sample mod from Anthropic's claude-code-playground repository. When Claude calls Bash with a risky command, it stops the call, works out what the command would touch, and opens a pane with two buttons: Proceed runs the command, Cancel refuses it, and Claude sees the refusal and the reason.",
+        "It covers rm with -r or -f, git reset --hard, git checkout -- . and git restore ., git clean, force pushes and common migration commands. Every other command runs as normal.",
+        "The README calls it a safety net, not a permission system, and points to permission rules for a hard block. The set up commands below run from the claude-code/mods folder of a clone of the repository."
+      ],
+      "publisher": {
+        "name": "Anthropic",
+        "url": "https://github.com/anthropics",
+        "kind": "anthropic"
+      },
+      "repositoryUrl": "https://github.com/anthropics/claude-code-playground/tree/main/claude-code/mods/blast-radius",
+      "license": "Apache-2.0",
+      "availability": "source-only",
+      "installCommands": [],
+      "notice": "Anthropic shares this sample mod as it is, without support. Its README says it is not an official Anthropic product and that no support or maintenance is implied. It needs Claude Code 2.1.287 or later, where mods load by default.",
+      "stars": null,
+      "isFeatured": false,
+      "verification": {
+        "status": "verified",
+        "checkedAt": "2026-10-10",
+        "sourceUrl": "https://github.com/anthropics/claude-code-playground/tree/main/claude-code/mods/blast-radius"
+      },
+      "details": [
+        {
+          "label": "Version",
+          "value": "0.1.0",
+          "isCommand": false
+        },
+        {
+          "label": "Author in plugin.json",
+          "value": "Claude Code DevRel",
+          "isCommand": false
+        },
+        {
+          "label": "Needs",
+          "value": "Claude Code 2.1.287 or later",
+          "isCommand": false
+        },
+        {
+          "label": "Built and tested on",
+          "value": "Claude Code 2.1.280. claude plugin validate passes on 2.1.285.",
+          "isCommand": false
+        },
+        {
+          "label": "Also needs",
+          "value": "bash, git, find and du on your PATH, and for migrations the project's own tool",
+          "isCommand": false
+        },
+        {
+          "label": "Draws in",
+          "value": "A pane, or the band above the prompt when the terminal is too narrow for one",
+          "isCommand": false
+        },
+        {
+          "label": "Run from source",
+          "value": "claude --plugin-dir ./blast-radius",
+          "isCommand": true
+        }
+      ],
+      "guide": [
+        {
+          "title": "What it does",
+          "paragraphs": [
+            "For rm -r, rm -f and rm -rf, the pane lists the files it would delete, with the count and total size. For git reset --hard, it lists the files with uncommitted changes and the git diff --shortstat. For git checkout -- . and git restore ., the files with unstaged changes. For git clean, the untracked paths it would remove, from git clean -n with the same flags.",
+            "For git push --force (also -f, --force-with-lease and +ref), it lists the commits on the remote branch that your HEAD doesn't have, which the push would drop. For manage.py migrate, db:migrate, alembic upgrade and prisma migrate, it lists the pending migrations from the tool's own status command. Any other migrate gets a note that it can't list them.",
+            "If the command line moves first, with cd dir &&, pushd or popd, or git -C dir, it measures in that folder."
+          ],
+          "commands": []
+        },
+        {
+          "title": "How it works",
+          "paragraphs": [
+            "The hooks module is hooks/blast-radius.mjs, and hooks/hooks.json points to it. It registers three hooks.",
+            "tool.call on the Bash tool: holds a risky call until you answer, then lets it run or returns { deny } with a reason Claude can act on. The README says a hook has a 10-second budget for its own code and that time inside a $ call doesn't count, so the hold is a loop that waits on $.process.run with sleep until a button sets the decision.",
+            "ui.render on the Pane component: draws the report and the two buttons in a pane opened with $.ui.open.",
+            "ui.render on the AbovePrompt component: draws the same report in the band above the prompt when the terminal is too narrow for a pane.",
+            "It measures with $.process.run, passing paths as arguments so nothing in them runs as shell."
+          ],
+          "commands": []
+        },
+        {
+          "title": "Set up",
+          "paragraphs": [
+            "The README asks for Claude Code 2.1.287 or later, where mods load by default. Check yours with claude --version. It needs no environment variables or configuration.",
+            "Run these from the claude-code/mods folder of a clone (see Download the source). The first command checks the plugin and lists its hooks. The second loads it for one session only.",
+            "To keep it, add the folder as a local marketplace and install it from claude-code-playground-mods, as the last two commands do. The official mods overview notes that this marketplace points at your clone, so the mod stops loading if you move or delete the clone.",
+            "If you install it from your shell while a session is open, run /reload-plugins in that session to load it. To confirm it loaded, run /plugin: a dim line under the tabs names the mods the session loaded.",
+            "It also needs bash, git, find and du on your PATH, and for migrations the project's own tool (for example python3 manage.py showmigrations). For the side pane, a terminal about 144 columns wide or more. Narrower terminals get the band above the prompt.",
+            "The README suggests trying it in a throwaway repository, for example by asking Claude to delete the build folder with rm -rf build. To remove it, run claude plugin uninstall blast-radius@claude-code-playground-mods --scope user."
+          ],
+          "commands": [
+            "claude plugin validate ./blast-radius",
+            "claude --plugin-dir ./blast-radius",
+            "claude plugin marketplace add ./",
+            "claude plugin install blast-radius@claude-code-playground-mods --scope user"
+          ]
+        },
+        {
+          "title": "Download the source",
+          "paragraphs": [
+            "The source lives in the claude-code/mods/blast-radius folder of the anthropics/claude-code-playground repository, beside the two other sample mods. The README's steps clone the whole repository and go to the mods folder, which is the folder the set up commands run from.",
+            "The repository's LICENSE is the Apache License 2.0, and the hooks module carries the header SPDX-License-Identifier: Apache-2.0. The repository README says the DevRel team maintains it, that entries are provided as is with no support and no guarantee they still work, and that it is not accepting outside contributions yet."
+          ],
+          "commands": [
+            "git clone https://github.com/anthropics/claude-code-playground.git",
+            "cd claude-code-playground/claude-code/mods"
+          ]
+        },
+        {
+          "title": "Using the pane",
+          "paragraphs": [
+            "Press 1 for Proceed or 2 for Cancel. You can also click a button, or Tab to it and press Enter. Cancel has the focus when the pane opens, so Enter refuses the command. In the band above the prompt, 1 or 2 works while the input is empty.",
+            "If nobody answers within 10 minutes, or you interrupt the turn with Esc, the command is refused. One command is held at a time: a second risky call waits until the first is answered."
+          ],
+          "commands": []
+        },
+        {
+          "title": "Limitations",
+          "paragraphs": [
+            "It reads the command text and doesn't parse shell fully. The README lists what it misses, including $(...), aliases, eval, bash -c, xargs rm, find -delete, scripts that call rm, and wrappers such as timeout or env.",
+            "Only the first risky part of a command line is measured, and Proceed runs the whole line as written. It only watches the Bash tool: file edits and other tools aren't held. It holds a call but doesn't sandbox it.",
+            "To list pending migrations it runs the tool's own status command, which loads your project's code before you choose. In a narrow terminal it needs the band above the prompt, which only one mod can use at a time: if another mod takes the band, the buttons may not show and the command is refused after 10 minutes."
+          ],
+          "commands": []
+        }
+      ],
+      "hooks": [
+        "tool.call",
+        "ui.render"
+      ],
+      "tags": [
+        "safety",
+        "git",
+        "bash",
+        "pane",
+        "sample-mod",
+        "function-hooks"
+      ],
+      "links": [
+        {
+          "label": "Mod README",
+          "url": "https://github.com/anthropics/claude-code-playground/blob/main/claude-code/mods/blast-radius/README.md"
+        },
+        {
+          "label": "Hooks module",
+          "url": "https://github.com/anthropics/claude-code-playground/blob/main/claude-code/mods/blast-radius/hooks/blast-radius.mjs"
+        },
+        {
+          "label": "Sample mods README",
+          "url": "https://github.com/anthropics/claude-code-playground/blob/main/claude-code/mods/README.md"
+        },
+        {
+          "label": "Mods overview (Claude Code docs)",
+          "url": "https://code.claude.com/docs/en/plugins/mods/overview"
+        }
+      ]
+    },
+    {
+      "slug": "replay-theater",
+      "name": "replay-theater",
+      "kind": "mod",
+      "categories": [
+        "workflow",
+        "quality"
+      ],
+      "summary": "Anthropic's sample mod that adds /replay, a pane that steps through the file edits Claude made in the last turn, one diff at a time.",
+      "description": [
+        "A sample mod from Anthropic's claude-code-playground repository. While a turn runs, it records each file edit Claude makes with the Edit, Write and MultiEdit tools: the file, and the text before and after. When the turn ends, a hint appears above the prompt.",
+        "Open it with /replay or the hint's Replay button, and a pane shows one edit at a time: the file, the tool, a count of added and removed lines, and a short diff, with Prev, Next and Close buttons.",
+        "The README says it only watches: it never blocks, changes or delays an edit. The set up commands below run from the claude-code/mods folder of a clone of the repository."
+      ],
+      "publisher": {
+        "name": "Anthropic",
+        "url": "https://github.com/anthropics",
+        "kind": "anthropic"
+      },
+      "repositoryUrl": "https://github.com/anthropics/claude-code-playground/tree/main/claude-code/mods/replay-theater",
+      "license": "Apache-2.0",
+      "availability": "source-only",
+      "installCommands": [],
+      "notice": "Anthropic shares this sample mod as it is, without support. Its README says it is not an official Anthropic product and that no support or maintenance is implied. It needs Claude Code 2.1.287 or later, where mods load by default.",
+      "stars": null,
+      "isFeatured": false,
+      "verification": {
+        "status": "verified",
+        "checkedAt": "2026-10-10",
+        "sourceUrl": "https://github.com/anthropics/claude-code-playground/tree/main/claude-code/mods/replay-theater"
+      },
+      "details": [
+        {
+          "label": "Version",
+          "value": "0.1.0",
+          "isCommand": false
+        },
+        {
+          "label": "Author in plugin.json",
+          "value": "Claude Code DevRel",
+          "isCommand": false
+        },
+        {
+          "label": "Needs",
+          "value": "Claude Code 2.1.287 or later",
+          "isCommand": false
+        },
+        {
+          "label": "Built and tested on",
+          "value": "Claude Code 2.1.280. claude plugin validate passes on 2.1.285.",
+          "isCommand": false
+        },
+        {
+          "label": "Command",
+          "value": "/replay",
+          "isCommand": false
+        },
+        {
+          "label": "Draws in",
+          "value": "A pane, inline above the prompt or docked to the right in the fullscreen layout",
+          "isCommand": false
+        },
+        {
+          "label": "Run from source",
+          "value": "claude --plugin-dir ./replay-theater",
+          "isCommand": true
+        }
+      ],
+      "guide": [
+        {
+          "title": "What it does",
+          "paragraphs": [
+            "While a turn runs, it records each Edit, Write and MultiEdit call: the file, and the text before and after. When the turn ends, a one-line hint above the prompt gives the number of edits and a Replay button.",
+            "The pane shows one edit at a time: the file, the tool, a count of added and removed lines, and a diff in red and green. A strip of numbered cells shows every step with the current one highlighted, and the header reads, for example, step 2 of 5."
+          ],
+          "commands": []
+        },
+        {
+          "title": "How it works",
+          "paragraphs": [
+            "The hooks module is hooks/replay-theater.mjs, and hooks/hooks.json points to it.",
+            "session.start: registers the /replay command with $.command.register. command.run on replay: opens the pane and replies with the number of edits, or says there were no edits in the last turn.",
+            "tool.call: records each file edit and always passes the call on with next(e). For Write, it reads the old text from disk just before the write.",
+            "turn.start and turn.complete: group the edits by turn and skip subagent turns. When a turn with edits completes, the hint is drawn.",
+            "ui.render on the AbovePrompt component draws the hint, and ui.render on the Pane component draws the replay with Button elements. ui.close notes that the pane was closed, so the hint can show again."
+          ],
+          "commands": []
+        },
+        {
+          "title": "Set up",
+          "paragraphs": [
+            "The README asks for Claude Code 2.1.287 or later, where mods load by default. Check yours with claude --version. It needs no environment variables or configuration.",
+            "Run these from the claude-code/mods folder of a clone (see Download the source). The first command checks the plugin and lists its hooks. The second loads it for one session only.",
+            "To keep it, add the folder as a local marketplace and install it from claude-code-playground-mods, as the last two commands do. The official mods overview notes that this marketplace points at your clone, so the mod stops loading if you move or delete the clone.",
+            "If you install it from your shell while a session is open, run /reload-plugins in that session to load it. To confirm it loaded, run /plugin: a dim line under the tabs names the mods the session loaded.",
+            "It needs a terminal. The pane is placed inline above the prompt, or docked to the right in the fullscreen layout.",
+            "Ask Claude for a change that edits files, for example to rename a function everywhere. When the turn ends, type /replay and press Enter, or press ctrl+x then Tab to focus the band above the prompt and press r."
+          ],
+          "commands": [
+            "claude plugin validate ./replay-theater",
+            "claude --plugin-dir ./replay-theater",
+            "claude plugin marketplace add ./",
+            "claude plugin install replay-theater@claude-code-playground-mods --scope user"
+          ]
+        },
+        {
+          "title": "Download the source",
+          "paragraphs": [
+            "The source lives in the claude-code/mods/replay-theater folder of the anthropics/claude-code-playground repository, beside the two other sample mods. The README's steps clone the whole repository and go to the mods folder, which is the folder the set up commands run from.",
+            "The repository's LICENSE is the Apache License 2.0, and the hooks module carries the header SPDX-License-Identifier: Apache-2.0. The repository README says the DevRel team maintains it, that entries are provided as is with no support and no guarantee they still work, and that it is not accepting outside contributions yet."
+          ],
+          "commands": [
+            "git clone https://github.com/anthropics/claude-code-playground.git",
+            "cd claude-code-playground/claude-code/mods"
+          ]
+        },
+        {
+          "title": "Using the pane",
+          "paragraphs": [
+            "Press n for the next step, p for the previous step, and c or Escape to close the pane. Mouse clicks on the buttons work too.",
+            "The replay stays available until the next turn that edits files. A turn with no edits keeps the previous replay."
+          ],
+          "commands": []
+        },
+        {
+          "title": "Limitations",
+          "paragraphs": [
+            "The diff shows up to 12 lines per step. For Edit, it is between old_string and new_string, not the whole file, and line numbers aren't shown. For Write, files over 400 lines are shown as all removed, then all added.",
+            "Edits are recorded when the tool is called, so an edit you then deny, or that fails, still shows. Edits made by subagents are included in the main turn's replay. The replay is kept in memory for the current session only.",
+            "The README says the MultiEdit path and the fallback to the band above the prompt are untested, and that the band is shared: if another mod also draws there, only one of them shows."
+          ],
+          "commands": []
+        }
+      ],
+      "hooks": [
+        "session.start",
+        "command.run",
+        "tool.call",
+        "turn.start",
+        "turn.complete",
+        "ui.render",
+        "ui.close"
+      ],
+      "tags": [
+        "diff",
+        "review",
+        "slash-command",
+        "pane",
+        "sample-mod",
+        "function-hooks"
+      ],
+      "links": [
+        {
+          "label": "Mod README",
+          "url": "https://github.com/anthropics/claude-code-playground/blob/main/claude-code/mods/replay-theater/README.md"
+        },
+        {
+          "label": "Hooks module",
+          "url": "https://github.com/anthropics/claude-code-playground/blob/main/claude-code/mods/replay-theater/hooks/replay-theater.mjs"
+        },
+        {
+          "label": "Sample mods README",
+          "url": "https://github.com/anthropics/claude-code-playground/blob/main/claude-code/mods/README.md"
+        },
+        {
+          "label": "Mods overview (Claude Code docs)",
+          "url": "https://code.claude.com/docs/en/plugins/mods/overview"
+        }
+      ]
+    },
+    {
       "slug": "commit-commands",
       "name": "commit-commands",
       "kind": "plugin",

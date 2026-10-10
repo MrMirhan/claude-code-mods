@@ -10,6 +10,8 @@ An unofficial community directory of Claude Code mods and extensions: mods, plug
 
 A mod is a Claude Code plugin whose behaviour lives in a hooks module. Anthropic publishes four in [anthropics/claude-code](https://github.com/anthropics/claude-code/tree/main/mods): `sec-default`, `diff`, `telemetry` and `agents-md`. They ship inside Claude Code, and `/plugin` lists them on the Installed tab under Built-in. Mods are on by default in Claude Code v2.1.287 and later in the terminal, and from v2.1.286 in the Code tab of the Desktop app ([mods overview](https://code.claude.com/docs/en/plugins/mods/overview)). The mods README in that repository says the API they are written against may change between releases without notice. Each has its own page here with what it does, how to turn it off, how to run it from source and where to download it.
 
+Anthropic also shares three sample mods in [anthropics/claude-code-playground](https://github.com/anthropics/claude-code-playground/tree/main/claude-code/mods): `token-weather`, `blast-radius` and `replay-theater`. They are shared as they are, without support, under Apache-2.0. Their pages give the clone, `--plugin-dir` and local marketplace commands from each README.
+
 ## What is real
 
 Every entry in the directory has public source.
