@@ -1,0 +1,125 @@
+{
+  "slug": "claude-devtools",
+  "name": "Claude DevTools",
+  "kind": "mod",
+  "categories": [
+    "observability",
+    "development"
+  ],
+  "summary": "A debugger for Claude Code tool calls: breakpoints, pause/continue/reject/step, a timeline, an inspector, Error Lens failure diagnosis and sanitized exports.",
+  "description": [
+    "Claude DevTools is a debugger for the agent's tool level, built on Claude Code's native Mods API. It sets breakpoints on tools, command patterns, path globs and failures. When a call matches a pause breakpoint, Claude Code asks you to Continue, Step (pause on the next call too) or Reject with a note Claude reads.",
+    "Error Lens explains a failed tool call: the kind of failure, what is confirmed, possible or unknown, each with its evidence, read-only file checks (stat only, never contents) and fixes to try. Repeats are grouped and counted.",
+    "A dashboard pane holds a timeline and an inspector with the status, duration, agent, permission verdict and breakpoint of every call. Exports are versioned JSON and Markdown, with secrets redacted and file contents omitted.",
+    "It never approves a tool call: Claude Code's permission rules still decide after Continue. It makes no network calls and no model calls. It works at the tool level only and does not show hidden reasoning or model internals. It is a community project, not made or endorsed by Anthropic."
+  ],
+  "publisher": {
+    "name": "NMenzel",
+    "url": "https://github.com/NMenzel",
+    "kind": "community"
+  },
+  "repositoryUrl": "https://github.com/NMenzel/claude-devtools-mod",
+  "license": "MIT",
+  "availability": "source-only",
+  "installCommands": [],
+  "notice": "Early access. Mods need Claude Code 2.1.287 or later, and their API can change between releases without notice. Built and tested on 2.1.294. It installs from its own repository's marketplace, not from Anthropic's.",
+  "details": [
+    {
+      "label": "Version",
+      "value": "0.1.3",
+      "isCommand": false
+    },
+    {
+      "label": "Plugin id",
+      "value": "devtools",
+      "isCommand": false
+    },
+    {
+      "label": "Surfaces",
+      "value": "The terminal and the Code tab of Claude Desktop. In the VS Code chat panel and in claude -p the hooks run but nothing is drawn.",
+      "isCommand": false
+    },
+    {
+      "label": "Run from source",
+      "value": "claude --plugin-dir claude-devtools-mod",
+      "isCommand": true
+    }
+  ],
+  "guide": [
+    {
+      "title": "What it does",
+      "paragraphs": [
+        "Permission rules decide whether a call may run. Claude DevTools lets you stop the agent at a point you choose, look at what it is about to do, and step through it: stop before any npm publish, whenever it touches src/auth/**, or on the next call after a failure.",
+        "Examples: /devtools-break command npm install pauses before any npm install. /bp command git push does the same, short. /devtools-break file src/auth/** pauses before reading or editing auth code. /devtools-break error Bash --action pause pauses the next call after a failed Bash call. /devtools opens the pane."
+      ],
+      "commands": []
+    },
+    {
+      "title": "How it works",
+      "paragraphs": [
+        "tool.check decides nothing: it passes every permission check on unchanged and reads the verdict to show it. tool.call records each call and holds it only when a breakpoint you set matches. command.run answers only its own commands (/devtools, /devtools-*, /bp, /bpl, /bpn, /bpc, /bpe). session.start and ui.render register the commands and draw the pane, the transcript gutter and the bar above the prompt.",
+        "It writes files only when you run /devtools-export or press Export: a .json (and .md) trace, by default in .claude-devtools/. Breakpoint rules and the debugger mode persist in the plugin store; the timeline stays in the session's memory."
+      ],
+      "commands": []
+    },
+    {
+      "title": "Set up",
+      "paragraphs": [
+        "Inside Claude Code, add the marketplace and install the mod. Then run /reload-plugins in an open session, or start a new one, and run /devtools. Run /plugin and look for devtools in the mods active line to check that it loaded."
+      ],
+      "commands": [
+        "/plugin marketplace add NMenzel/claude-devtools-mod",
+        "/plugin install devtools@claude-devtools-mod"
+      ]
+    },
+    {
+      "title": "Download the source",
+      "paragraphs": [
+        "Clone the repository and load it from the folder. Nothing needs to be built, and it needs no npm packages. To run its tests, run claude plugin test in the clone."
+      ],
+      "commands": [
+        "git clone https://github.com/NMenzel/claude-devtools-mod",
+        "claude --plugin-dir claude-devtools-mod"
+      ]
+    }
+  ],
+  "hooks": [
+    "tool.check",
+    "tool.call",
+    "classic.SessionStart",
+    "command.run",
+    "session.start",
+    "ui.render"
+  ],
+  "tags": [
+    "debugger",
+    "breakpoints",
+    "tool-calls",
+    "error-diagnosis",
+    "trace",
+    "pane",
+    "slash-command",
+    "function-hooks"
+  ],
+  "links": [
+    {
+      "label": "README",
+      "url": "https://github.com/NMenzel/claude-devtools-mod/blob/main/README.md"
+    },
+    {
+      "label": "Security and privacy",
+      "url": "https://github.com/NMenzel/claude-devtools-mod/blob/main/docs/SECURITY.md"
+    },
+    {
+      "label": "Changelog",
+      "url": "https://github.com/NMenzel/claude-devtools-mod/blob/main/CHANGELOG.md"
+    }
+  ],
+  "stars": null,
+  "isFeatured": false,
+  "verification": {
+    "status": "verified",
+    "checkedAt": "2026-10-10",
+    "sourceUrl": "https://github.com/NMenzel/claude-devtools-mod"
+  }
+}
