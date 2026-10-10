@@ -2,6 +2,7 @@ import { SITE_URL } from "@/lib/site";
 import { render, screen, within } from "@testing-library/react";
 import { beforeAll, describe, expect, it } from "vitest";
 import { DASH_PATTERN, stubIntersectionObserver } from "@/components/ui/testSupport";
+import { BUILT_IN_EXPLANATION, NO_INSTALL_COMMAND } from "@/components/detail/InstallSection";
 import { buildExtensionMetadata } from "@/lib/seo/metadata";
 import { getAllExtensions } from "@/lib/catalog";
 import ExtensionPage, { dynamicParams, generateMetadata, generateStaticParams } from "./page";
@@ -82,7 +83,9 @@ describe("extension detail route", () => {
         }
         expect(container.textContent).not.toMatch(DASH_PATTERN);
         expect(screen.getByRole("heading", { level: 2, name: "Install" })).toBeInTheDocument();
-        expect(screen.getByText(/^Built in\. This ships inside Claude Code/)).toBeInTheDocument();
+        // Community mods must be source only, so only Anthropic's built-in mods carry the built-in copy.
+        const expectedInstallCopy = mod?.availability === "built-in" ? BUILT_IN_EXPLANATION : NO_INSTALL_COMMAND;
+        expect(screen.getByText(expectedInstallCopy)).toBeInTheDocument();
       },
     );
   });

@@ -62,6 +62,7 @@ The format is based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.
 ### Fixed
 
 - Sections that fade in as they scroll into view stayed invisible when they were taller than five windows. The wrapper waited for 20 percent of a section to be on screen, which a section that tall can never reach, so the whole event reference on `/hooks/` (over 12,000 pixels on a desktop and 16,000 on a phone) was blank however far you scrolled. A section now fades in as soon as any part of it is on screen. A test holds the setting, and a scroll check in a real browser confirmed that no section on any main page stays hidden at desktop and phone widths.
+- The mod page test expected every mod to say "Built in", so the first community mod could never pass it: community mods must be source only. The test now expects the built-in text for built-in mods and the "No install command listed" text for the rest.
 
 ### Security
 
