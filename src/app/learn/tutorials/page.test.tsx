@@ -31,7 +31,7 @@ describe("tutorials page", () => {
     const note = screen.getByRole("note");
     expect(note).toHaveTextContent(NOT_RE_HOSTED_NOTE);
     expect(note).toHaveTextContent(NO_CAPTIONS_NOTE);
-    expect(note).toHaveTextContent(/early access/);
+    expect(note).toHaveTextContent(/made during early access, and what one shows may have changed/);
     expect(within(note).getByRole("link", { name: /announcement issue/ })).toHaveAttribute("href", ANNOUNCEMENT_ISSUE_URL);
   });
 

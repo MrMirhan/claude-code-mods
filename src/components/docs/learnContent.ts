@@ -15,13 +15,21 @@ export const LEARN_SOURCES = {
   pluginsDocs: "https://code.claude.com/docs/en/plugins",
   skillsDocs: "https://code.claude.com/docs/en/skills",
   mcpDocs: "https://code.claude.com/docs/en/mcp",
+  modsOverviewDocs: "https://code.claude.com/docs/en/plugins/mods/overview",
+  modsCreateDocs: "https://code.claude.com/docs/en/plugins/mods/create",
 } as const;
 
-/** The environment variable that turns function hooks on, as the announcement issue's Sep 9 update names it. */
-export const FUNCTION_HOOKS_FLAG = "CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1";
+/**
+ * The first Claude Code versions where mods are on by default, from "Turn mods on or off" in the mods
+ * overview docs. The Desktop app ships its own copy of Claude Code, so its version is given apart.
+ */
+export const MODS_MIN_VERSION = { terminal: "2.1.287", desktop: "2.1.286" } as const;
+
+/** The variable early access used. The overview docs say v2.1.287 and later ignore it, so the site only tells readers to remove it. */
+export const RETIRED_FLAG_NAME = "CLAUDE_CODE_ENABLE_FUNCTION_HOOKS";
 
 /** What the commands on the Getting started page were run against, so a reader knows how old they are. */
-export const TESTED_WITH = { claudeCodeVersion: "2.1.278", date: "2026-09-21" } as const;
+export const TESTED_WITH = { claudeCodeVersion: "2.1.296", date: "2026-10-10" } as const;
 
 export interface LearnSource {
   readonly label: string;
@@ -47,7 +55,7 @@ export const KIND_COMPARISON: readonly KindComparison[] = [
     whatItIs: "A plugin whose behaviour lives in a hooks module.",
     howYouWriteIt: "TypeScript functions shaped ($, e, next), registered with on(event, hook) in one register entry.",
     whatItCanDo:
-      "Hooks the engine's own events: refuse or answer a tool call, add commands, draw interface elements. Early access.",
+      "Hooks the engine's own events: refuse or answer a tool call, add commands, draw interface elements. Its events and methods can change between releases.",
     source: { label: "Mods README", href: LEARN_SOURCES.modsReadme },
   },
   {
@@ -162,7 +170,7 @@ export const LEARN_FAQ: readonly FaqEntry[] = [
     id: "faq-are-mods-ready",
     question: "Are Claude Mods ready to use?",
     answer:
-      "They are early access. Anthropic says the API a mod is written against may change between releases without notice, and a mod's hooks module loads only where function hooks are enabled.",
+      `Yes. Mods are on by default in Claude Code v${MODS_MIN_VERSION.terminal} or later in the terminal, and from v${MODS_MIN_VERSION.desktop} in the Code tab of the Desktop app. They are new, and Anthropic's docs say their events and methods can change between releases.`,
   },
   {
     id: "faq-mod-vs-plugin",
@@ -211,7 +219,6 @@ export const HOOKS_ENVIRONMENT_LIMITS: readonly string[] = [
 export const RUN_WARNING: readonly string[] = [
   "Testing a mod, or loading it with --plugin-dir, runs its code with your permissions. validate reads its source and reports what it hooks without loading it.",
   "Read every file of a folder before you run it, and run only folders you trust. A mod can refuse or change any tool call and reach the outside world through $.",
-  "Put the enable variable in front of the command, as the examples here do, so it is not left on for every later Claude Code session in your shell.",
 ];
 
 /** What the starter's force push check does and does not catch, checked against the helper's own tests. */

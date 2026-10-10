@@ -4,13 +4,14 @@ import { STARTER_MOD_FILES } from "@/lib/starter-mod";
 import { ALLOWED_CATALOG_HOSTS } from "@/lib/url";
 import {
   CONCEPTS,
-  FUNCTION_HOOKS_FLAG,
   HOOKS_ENVIRONMENT_LIMITS,
   KIND_COMPARISON,
   KIND_COMPARISON_COLUMNS,
   LEARN_FAQ,
   LEARN_SOURCES,
   MOD_FOLDER_TREE,
+  MODS_MIN_VERSION,
+  RETIRED_FLAG_NAME,
   RUN_WARNING,
   STARTER_LIMITS,
   TESTED_WITH,
@@ -28,9 +29,24 @@ describe("LEARN_SOURCES", () => {
   });
 });
 
-describe("the enable flag and the tested version", () => {
-  it("is the variable the announcement issue names, set to 1", () => {
-    expect(FUNCTION_HOOKS_FLAG).toBe("CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1");
+/** A dotted version as one number, so two versions compare with a plain comparison. */
+function versionNumber(version: string): number {
+  const [major = 0, minor = 0, patch = 0] = version.split(".").map(Number);
+  return major * 1_000_000 + minor * 1_000 + patch;
+}
+
+describe("the versions, the retired flag and the tested version", () => {
+  it("gives the terminal and Desktop versions the overview docs name, apart", () => {
+    expect(MODS_MIN_VERSION).toEqual({ terminal: "2.1.287", desktop: "2.1.286" });
+  });
+
+  it("names the retired variable only by name, never as a setting to use", () => {
+    expect(RETIRED_FLAG_NAME).toBe("CLAUDE_CODE_ENABLE_FUNCTION_HOOKS");
+    expect(RETIRED_FLAG_NAME).not.toContain("=");
+  });
+
+  it("was tested on a version where mods are on by default", () => {
+    expect(versionNumber(TESTED_WITH.claudeCodeVersion)).toBeGreaterThanOrEqual(versionNumber(MODS_MIN_VERSION.terminal));
   });
 
   it("names a Claude Code version and a date", () => {
@@ -54,10 +70,11 @@ describe("KIND_COMPARISON", () => {
     }
   });
 
-  it("says a mod is early access, and does not say it of the others", () => {
+  it("says a mod's events and methods can change, says it of no other row, and never says early access", () => {
     const [mod, ...others] = KIND_COMPARISON;
-    expect(mod.whatItCanDo).toContain("Early access");
-    for (const row of others) expect(row.whatItCanDo, row.id).not.toContain("Early access");
+    expect(mod.whatItCanDo).toContain("can change between releases");
+    for (const row of others) expect(row.whatItCanDo, row.id).not.toContain("can change between releases");
+    for (const row of KIND_COMPARISON) expect(row.whatItCanDo, row.id).not.toMatch(/early access/i);
   });
 
   it("says custom commands were merged into skills instead of listing them apart", () => {
@@ -132,10 +149,12 @@ describe("LEARN_FAQ", () => {
     }
   });
 
-  it("restates the Callout's own words for early access and the enable flag", () => {
+  it("restates the Callout's own version facts, and no longer says early access or names an enable flag", () => {
     const allAnswers = LEARN_FAQ.map((entry) => entry.answer).join(" ");
-    expect(allAnswers).toMatch(/early access/i);
-    expect(allAnswers).toMatch(/function hooks are enabled/);
+    expect(allAnswers).toContain(`v${MODS_MIN_VERSION.terminal} or later in the terminal`);
+    expect(allAnswers).toContain(`from v${MODS_MIN_VERSION.desktop} in the Code tab of the Desktop app`);
+    expect(allAnswers).toMatch(/can change between releases/);
+    expect(allAnswers).not.toMatch(/early access|without notice|function hooks are enabled/i);
   });
 
   it("keeps the mod vs plugin answer's phrasing in sync with the comparison table's own plugin row, not just approximately similar", () => {

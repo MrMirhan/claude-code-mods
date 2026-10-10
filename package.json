@@ -15,7 +15,7 @@
     "sync:events": "node scripts/sync-events.mjs",
     "typecheck:templates": "node scripts/typecheck-templates.mjs",
     "indexnow:submit": "node scripts/submit-indexnow.mjs",
-    "test:starter": "CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1 claude plugin test templates/mod-starter"
+    "test:starter": "claude plugin test templates/mod-starter"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",

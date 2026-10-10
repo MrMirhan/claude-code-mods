@@ -14,6 +14,7 @@ import {
   KIND_COMPARISON_COLUMNS,
   LEARN_FAQ,
   LEARN_SOURCES,
+  MODS_MIN_VERSION,
 } from "@/components/docs/learnContent";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { Button } from "@/components/ui/Button";
@@ -41,9 +42,10 @@ export default function LearnPage(): ReactNode {
       <JsonLd data={buildLearnGraph(LEARN_FAQ)} />
       <Callout>
         <p>
-          Claude Mods are early access. Anthropic says the API a mod is written against may change between releases
-          without notice, and hooks modules load only where function hooks are enabled. This site is unofficial: the
-          sources are linked beside each idea and in the table, so you can check them.
+          Mods are on by default in Claude Code {`v${MODS_MIN_VERSION.terminal}`} or later in the terminal, and from{" "}
+          {`v${MODS_MIN_VERSION.desktop}`} in the Code tab of the Desktop app. They are new, and Anthropic&apos;s docs say
+          their events and methods can change between releases. This site is unofficial: the sources are linked beside
+          each idea and in the table, so you can check them.
         </p>
       </Callout>
       <div className="flex flex-wrap items-center gap-3">

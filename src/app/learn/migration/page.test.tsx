@@ -35,7 +35,7 @@ describe("migration page", () => {
     expect(note).toHaveTextContent(NO_OFFICIAL_GUIDE);
     expect(within(note).getByRole("link", { name: /plugin-dev migration guide/ })).toHaveAttribute("href", PLUGIN_DEV_MIGRATION_URL);
     expect(note).toHaveTextContent(SCOPE_NOTE);
-    expect(note).toHaveTextContent(/early access/);
+    expect(note).toHaveTextContent(/can change between releases/);
   });
 
   it("shows every difference with the sources it comes from", () => {
@@ -113,7 +113,7 @@ describe("migration page", () => {
     expect(section.textContent).toContain(source.syncedAt);
     expect(section.textContent).toMatch(/Not checked: how the engine behaves at run time/);
     expect(within(section).getByText("npm run typecheck:templates")).toBeInTheDocument();
-    expect(within(section).getByText(`CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1 claude plugin validate ${MIGRATION_EXAMPLE_DIRECTORY}`)).toBeInTheDocument();
+    expect(within(section).getByText(`claude plugin validate ${MIGRATION_EXAMPLE_DIRECTORY}`)).toBeInTheDocument();
   });
 
   it("does not recommend one route over the other or claim the example was tested", () => {

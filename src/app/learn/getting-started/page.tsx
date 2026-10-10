@@ -7,10 +7,11 @@ import { DocSection, Prose } from "@/components/docs/DocSection";
 import { InlineCode } from "@/components/docs/InlineCode";
 import { TextLink } from "@/components/docs/TextLink";
 import {
-  FUNCTION_HOOKS_FLAG,
   HOOKS_ENVIRONMENT_LIMITS,
   LEARN_SOURCES,
   MOD_FOLDER_TREE,
+  MODS_MIN_VERSION,
+  RETIRED_FLAG_NAME,
   RUN_WARNING,
   STARTER_LIMITS,
   TEST_KIT_NOTES,
@@ -32,31 +33,49 @@ export default function GettingStartedPage(): ReactNode {
   return (
     <DocPage
       title="Build your first Claude Mod"
-      description="Turn on function hooks, then test and run a small starter mod that refuses force pushes."
+      description="Check that mods are on, then test and run a small starter mod that refuses force pushes."
     >
       <JsonLd data={buildDocPageGraph(PAGE_SEO.learnGettingStarted)} />
       <Callout tone="warning">
         <p>
-          Function hooks are early access, and Anthropic says the API may change between releases without notice. The
-          commands here were run with Claude Code {TESTED_WITH.claudeCodeVersion} on {TESTED_WITH.date}. If your version
-          is newer, check them against the <TextLink href={LEARN_SOURCES.modsReadme}>Mods README</TextLink>.
+          Mods are new, and Anthropic&apos;s docs say their events and methods can change between releases. The commands
+          here were run with Claude Code {TESTED_WITH.claudeCodeVersion} on {TESTED_WITH.date}. If your version is newer,
+          check them against <TextLink href={LEARN_SOURCES.modsCreateDocs}>Create a mod</TextLink> in the official docs.
         </p>
       </Callout>
-      <DocSection id="enable" title="Turn function hooks on">
-        <Prose>
-          <p>Hooks modules load only where function hooks are enabled. Start Claude Code with this environment variable set:</p>
-        </Prose>
-        <CopyCommand command={`${FUNCTION_HOOKS_FLAG} claude`} label="Start Claude Code with function hooks on" />
+      <DocSection id="enable" title="Check that mods are on">
         <Prose>
           <p>
-            The flag is named in the Sep 9 update of the <TextLink href={LEARN_SOURCES.announcementIssue}>announcement issue</TextLink>,
-            not in documentation, so it may change. Put it in front of each command that needs it, as the examples below
-            do, instead of exporting it. On Claude Code {TESTED_WITH.claudeCodeVersion},{" "}
-            <InlineCode>claude plugin test</InlineCode> does not exist until the variable is set (the command answers{" "}
-            <InlineCode>unknown command &apos;test&apos;</InlineCode>), while <InlineCode>claude plugin validate</InlineCode>{" "}
-            works either way.
+            Mods are on by default. In the terminal, use Claude Code v{MODS_MIN_VERSION.terminal} or later. The Desktop
+            app ships its own copy of Claude Code, and mods work in its Code tab from v{MODS_MIN_VERSION.desktop}. Check
+            the version where you use mods. In the terminal, run:
           </p>
         </Prose>
+        <CopyCommand command="claude --version" label="Check the terminal version" />
+        <Prose>
+          <p>
+            In the Desktop app, enter <InlineCode>/status</InlineCode> in a local session in the Code tab and read the{" "}
+            <strong>Claude Code</strong> row.
+          </p>
+          <p>
+            To see which mods a terminal session loaded, run <InlineCode>/plugin</InlineCode> at the Claude Code prompt. A
+            dim line under the tabs gives the count and the names, such as{" "}
+            <InlineCode>1 mod active · first-mod</InlineCode>. Built-in mods are left out of that line.
+          </p>
+          <p>
+            To turn mods off, disable one in <InlineCode>/plugin</InlineCode>, start one session with{" "}
+            <InlineCode>--safe-mode</InlineCode>, or set <InlineCode>&quot;disableAllHooks&quot;: true</InlineCode> in{" "}
+            <InlineCode>~/.claude/settings.json</InlineCode>, which also stops your settings hooks. The{" "}
+            <TextLink href={LEARN_SOURCES.modsOverviewDocs}>mods overview</TextLink> covers each one.
+          </p>
+        </Prose>
+        <Callout>
+          <p>
+            If you set <InlineCode>{RETIRED_FLAG_NAME}</InlineCode> during early access, remove it.{" "}
+            {`Claude Code v${MODS_MIN_VERSION.terminal} and later ignores it`}, so setting it to{" "}
+            <InlineCode>0</InlineCode> does not keep mods off.
+          </p>
+        </Callout>
       </DocSection>
       <DocSection id="folder" title="What a mod folder holds">
         <Prose>
@@ -107,7 +126,7 @@ export default function GettingStartedPage(): ReactNode {
             <p key={paragraph}>{paragraph}</p>
           ))}
         </Callout>
-        <CopyCommand command={`${FUNCTION_HOOKS_FLAG} claude plugin test ${STARTER_MOD_DIRECTORY}`} label="Run the starter's tests" />
+        <CopyCommand command={`claude plugin test ${STARTER_MOD_DIRECTORY}`} label="Run the starter's tests" />
         <Prose>
           <p>All of the starter&apos;s tests passed on Claude Code {TESTED_WITH.claudeCodeVersion}. What to know about the test kit:</p>
           <ul className="flex list-disc flex-col gap-2 pl-5">
@@ -119,7 +138,7 @@ export default function GettingStartedPage(): ReactNode {
       </DocSection>
       <DocSection id="run" title="Check it and run it">
         <CopyCommand command={`claude plugin validate ${STARTER_MOD_DIRECTORY}`} label="Validate the manifest and the hooks module" />
-        <CopyCommand command={`${FUNCTION_HOOKS_FLAG} claude --plugin-dir ${STARTER_MOD_DIRECTORY}`} label="Run Claude Code with the mod loaded from source" />
+        <CopyCommand command={`claude --plugin-dir ${STARTER_MOD_DIRECTORY}`} label="Run Claude Code with the mod loaded from source" />
         <Prose>
           <p>
             <InlineCode>validate</InlineCode> reads the manifest and the module the way the engine will. For the

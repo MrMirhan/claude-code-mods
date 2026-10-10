@@ -1,7 +1,7 @@
 import { render, screen, within } from "@testing-library/react";
 import { beforeAll, describe, expect, it } from "vitest";
 import { DASH_PATTERN, stubIntersectionObserver } from "@/components/docs/testSupport";
-import { CONCEPTS, KIND_COMPARISON, LEARN_FAQ, LEARN_SOURCES } from "@/components/docs/learnContent";
+import { CONCEPTS, KIND_COMPARISON, LEARN_FAQ, LEARN_SOURCES, MODS_MIN_VERSION } from "@/components/docs/learnContent";
 import { getEvents, getEventsSource } from "@/lib/events";
 import { PAGE_SEO } from "@/lib/seo/pages";
 import { SITE_URL } from "@/lib/site";
@@ -25,10 +25,13 @@ describe("learn page", () => {
     });
   });
 
-  it("says up front that mods are early access and the site is unofficial", () => {
+  it("says up front which versions have mods on, that the API can change, and that the site is unofficial", () => {
     render(<LearnPage />);
     const note = screen.getByRole("note");
-    expect(note).toHaveTextContent(/early access/);
+    expect(note).toHaveTextContent(`Claude Code v${MODS_MIN_VERSION.terminal} or later in the terminal`);
+    expect(note).toHaveTextContent(`from v${MODS_MIN_VERSION.desktop} in the Code tab of the Desktop app`);
+    expect(note).toHaveTextContent(/can change between releases/);
+    expect(note).not.toHaveTextContent(/early access|without notice|function hooks are enabled/);
     expect(note).toHaveTextContent(/unofficial/);
   });
 
