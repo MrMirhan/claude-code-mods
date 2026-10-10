@@ -57,7 +57,7 @@ export const CLASSIC_DIFFERENCES: readonly ConceptItem[] = [
     id: "checking",
     term: "Types and tests",
     description:
-      "A function hook is typed against the declarations that /plugin-types writes. claude plugin test can run a mod's tests, but the kit's $ has no call that fires a classic event, so a hook on a classic.* event is checked by its types and by claude plugin validate, not by a test.",
+      "A function hook is typed against the declarations Claude Code writes into the mod's .claude-plugin/types/ folder when it loads the mod with --plugin-dir in an interactive session. claude plugin test can run a mod's tests, but the kit's $ has no call that fires a classic event, so a hook on a classic.* event is checked by its types and by claude plugin validate, not by a test.",
     sources: [MODS_README, MODS_TYPES],
   },
 ];
