@@ -187,8 +187,11 @@ export default function GettingStartedPage(): ReactNode {
           <p>
             <InlineCode>validate</InlineCode> reads the manifest and the module the way the engine will. For the
             starter it reports that the module hooks <InlineCode>tool.call</InlineCode> and calls nothing on{" "}
-            <InlineCode>$</InlineCode>. The starter was checked by its tests and by <InlineCode>validate</InlineCode>; it
-            was not run in a live session for this page.
+            <InlineCode>$</InlineCode>. It also prints{" "}
+            <InlineCode>gating hook without .catch: tool.call</InlineCode>: the hook can refuse a call and has no{" "}
+            <InlineCode>.catch</InlineCode> handler for when it fails. The starter&apos;s hook has none. The
+            starter was checked by its tests and by <InlineCode>validate</InlineCode>; it was not run in a live session
+            for this page.
           </p>
         </Prose>
       </DocSection>

@@ -168,6 +168,12 @@ describe("getting started page", () => {
     expect(container.textContent).toMatch(/in this site.s repository when the site is built/);
   });
 
+  it("explains the gating hook line validate prints for the starter", () => {
+    const { container } = render(<GettingStartedPage />);
+    const section = within(container.querySelector("#run") as HTMLElement);
+    expect(section.getByText("gating hook without .catch: tool.call")).toBeInTheDocument();
+  });
+
   it("does not claim the starter was run in a live session", () => {
     const { container } = render(<GettingStartedPage />);
     expect(container.textContent).toMatch(/was not run in a live session/);
