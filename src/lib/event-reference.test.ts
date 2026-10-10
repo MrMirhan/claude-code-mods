@@ -7,7 +7,7 @@ import {
   type EventReferenceRow,
 } from "@/lib/event-reference";
 import { eventAnchorId, eventNamedBy, hookEventHrefs, hookSelectsEvent, isWildcardHook, patternMatchesEvent } from "@/lib/event-names";
-import type { EventsFile, Extension, HookEvent } from "@/lib/types";
+import type { EventsFile, Extension, HookEvent, SupplementEvent } from "@/lib/types";
 
 const SOURCE: EventsFile["source"] = {
   repository: "anthropics/claude-code",
@@ -285,5 +285,59 @@ describe("groupEventRows", () => {
   it("leaves out a family with no rows, and returns nothing for no rows", () => {
     expect(groupEventRows(rows.filter((row) => row.family === "op")).map((group) => group.family)).toEqual(["op"]);
     expect(groupEventRows([])).toEqual([]);
+  });
+});
+
+describe("buildEventReference with supplement names from the docs", () => {
+  const SUPPLEMENT: readonly SupplementEvent[] = [
+    { name: "ui.notify", family: "op", since: "2.1.295", docsUrl: "https://code.claude.com/docs/en/changelog#2-1-295" },
+    { name: "telemetry.log", family: "engine", since: null, docsUrl: "https://code.claude.com/docs/en/plugins/mods/reference#telemetry" },
+    // Declared too: the declared row must win.
+    { name: "tool.call", family: "engine", since: "2.1.290", docsUrl: "https://code.claude.com/docs/en/plugins/mods/reference#tools" },
+  ];
+  const mod = entry(builtInModExtension, "mod-a", "Mod A", ["telemetry.*", "ui.notify"]);
+  const built = buildEventReference(SOURCE, EVENTS, [mod], SUPPLEMENT);
+  const row = (name: string): EventReferenceRow => {
+    const found = built.rows.find((candidate) => candidate.name === name);
+    if (found === undefined) throw new Error(`no row ${name}`);
+    return found;
+  };
+
+  it("adds names from the docs among the declared ones, sorted by name, once each", () => {
+    const names = built.rows.map((candidate) => candidate.name);
+    expect(names).toEqual([...names].sort());
+    expect(names.filter((name) => name === "tool.call")).toHaveLength(1);
+    expect(names).toContain("ui.notify");
+    expect(names).toContain("telemetry.log");
+  });
+
+  it("marks a docs name with its docs link and version, and no line", () => {
+    expect(row("ui.notify")).toMatchObject({
+      origin: "docs",
+      family: "op",
+      noun: "ui",
+      line: null,
+      since: "2.1.295",
+      sourceUrl: "https://code.claude.com/docs/en/changelog#2-1-295",
+      anchorId: "event-ui.notify",
+    });
+  });
+
+  it("keeps the declared row, with its line link, when the supplement repeats a declared name", () => {
+    expect(row("tool.call")).toMatchObject({ origin: "declarations", line: 6, since: null });
+    expect(row("tool.call").sourceUrl).toMatch(/claude-code\.d\.ts#L6$/);
+  });
+
+  it("matches entries against docs names, so a wildcard over a docs noun is no longer an other name", () => {
+    expect(row("telemetry.log").users.map((user) => user.via)).toEqual(["telemetry.*"]);
+    expect(row("ui.notify").users.map((user) => user.via)).toEqual(["ui.notify"]);
+    expect(built.otherNames).toEqual([]);
+  });
+
+  it("adds a description where the docs give one, and a hooks docs link only for classic events", () => {
+    expect(row("ui.notify").summary).toMatch(/native notification/);
+    expect(row("tool.call").summary).toMatch(/about to run/);
+    expect(row("fs.write").hookDocsUrl).toBeNull();
+    expect(row("classic.PreToolUse").hookDocsUrl).toBe("https://code.claude.com/docs/en/hooks#pretooluse");
   });
 });

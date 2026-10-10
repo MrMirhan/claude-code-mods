@@ -246,9 +246,11 @@ export const EVENT_FAMILY_LABELS: Readonly<Record<EventFamily, string>> = {
  * Nothing else from the declarations is stored: they are published under "All rights reserved"
  * terms, so this site links to them at a pinned commit and does not reproduce their text.
  */
+const eventName = z.string().regex(/^[a-z]{1,32}\.[A-Za-z]{1,64}$/, "expected <noun>.<name>, for example tool.call");
+
 export const eventSchema = z
   .object({
-    name: z.string().regex(/^[a-z]{1,32}\.[A-Za-z]{1,64}$/, "expected <noun>.<name>, for example tool.call"),
+    name: eventName,
     family: z.enum(EVENT_FAMILIES),
     /** One-based line in the declarations file at the pinned commit. */
     line: z.number().int().positive().max(1_000_000),
@@ -280,6 +282,50 @@ export const eventsFileSchema = z.object({
     .refine((events) => new Set(events.map((event) => event.name)).size === events.length, "duplicate event name"),
 });
 export type EventsFile = z.infer<typeof eventsFileSchema>;
+
+const claudeCodeVersion = z.string().regex(/^\d{1,4}\.\d{1,4}\.\d{1,6}$/, "expected a Claude Code version such as 2.1.290");
+const officialDocsUrl = z
+  .url()
+  .refine((value) => value.startsWith("https://code.claude.com/docs/en/"), "must be a page of Anthropic's Claude Code docs");
+
+/**
+ * An event that Anthropic's mods reference or changelog names but the pinned declarations do not
+ * declare yet, because the copy on GitHub trails the release. Hand-kept in `event-supplement.json`
+ * and dropped once a sync brings the name into `events.json`.
+ */
+export const supplementEventSchema = z
+  .object({
+    name: eventName,
+    family: z.enum(["engine", "op"]),
+    /** The Claude Code version the docs say the name arrived in, or null when they name none. */
+    since: claudeCodeVersion.nullable(),
+    /** The section of Anthropic's docs that lists the name. */
+    docsUrl: officialDocsUrl,
+  })
+  .strict();
+export type SupplementEvent = z.infer<typeof supplementEventSchema>;
+
+export const supplementFileSchema = z
+  .object({
+    version: z.literal(1),
+    source: z
+      .object({
+        referenceUrl: officialDocsUrl,
+        /** The Claude Code version the mods reference says it describes. */
+        referenceVersion: claudeCodeVersion,
+        changelogUrl: officialDocsUrl,
+        /** The newest changelog entry that was read. */
+        changelogThrough: claudeCodeVersion,
+        checkedAt: isoDate,
+      })
+      .strict(),
+    events: z
+      .array(supplementEventSchema)
+      .max(200)
+      .refine((events) => new Set(events.map((event) => event.name)).size === events.length, "duplicate event name"),
+  })
+  .strict();
+export type SupplementFile = z.infer<typeof supplementFileSchema>;
 
 /** Filters accepted by the browse page and hero search. All fields are optional. */
 export interface SearchFilters {

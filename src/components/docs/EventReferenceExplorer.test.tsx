@@ -12,9 +12,30 @@ function row(name: string, family: EventReferenceRow["family"], line: number, us
     family,
     noun: name.slice(0, name.indexOf(".")),
     anchorId: `event-${name}`,
+    origin: "declarations",
     sourceUrl: `https://github.com/anthropics/claude-code/blob/${SHA}/mods/types/claude-code.d.ts#L${line}`,
     line,
+    since: null,
+    summary: null,
+    hookDocsUrl: null,
     users,
+  };
+}
+
+/** A name Anthropic's docs list ahead of the pinned declarations. */
+function docsRow(name: string, family: "engine" | "op", since: string | null, summary: string | null = null): EventReferenceRow {
+  return {
+    name,
+    family,
+    noun: name.slice(0, name.indexOf(".")),
+    anchorId: `event-${name}`,
+    origin: "docs",
+    sourceUrl: "https://code.claude.com/docs/en/changelog#2-1-292",
+    line: null,
+    since,
+    summary,
+    hookDocsUrl: null,
+    users: [],
   };
 }
 
@@ -214,5 +235,65 @@ describe("EventReferenceExplorer, filtered (a query or a family is set)", () => 
     expect(container.querySelector("script")).toBeNull();
     expect(screen.getByText("<img src=x onerror=alert(1)>")).toBeInTheDocument();
     expect(screen.getByText("<script>x</script>")).toBeInTheDocument();
+  });
+});
+
+describe("EventReferenceExplorer, descriptions and docs links", () => {
+  it("shows a row's description, and says a name from the docs is not in the pinned declarations yet", () => {
+    const rows = [
+      docsRow("prompt.autocomplete", "engine", "2.1.292", "Lets a mod add its own rows to the prompt box's autocomplete list."),
+      docsRow("ui.copy", "op", null),
+    ];
+    render(<EventReferenceExplorer rows={rows} />);
+    const autocomplete = document.getElementById("event-prompt.autocomplete") as HTMLElement;
+    expect(within(autocomplete).getByText("Lets a mod add its own rows to the prompt box's autocomplete list.")).toBeInTheDocument();
+    expect(autocomplete.textContent).toContain("Not in the pinned declarations yet.");
+    expect(autocomplete.textContent).toContain("from Claude Code 2.1.292.");
+    expect(within(autocomplete).getByRole("link", { name: /^Anthropic's docs/, hidden: true })).toHaveAttribute("href", rows[0].sourceUrl);
+    expect(within(autocomplete).queryByRole("link", { name: /^line /, hidden: true })).toBeNull();
+    const copy = document.getElementById("event-ui.copy") as HTMLElement;
+    expect(copy.textContent).toContain("Listed in Anthropic's docs (opens in a new tab).");
+    expect(copy.textContent).not.toContain("from Claude Code");
+  });
+
+  it("links a classic event to Anthropic's section on that hook", () => {
+    const classic: EventReferenceRow = { ...row("classic.Stop", "classic", 3), hookDocsUrl: "https://code.claude.com/docs/en/hooks#stop" };
+    render(<EventReferenceExplorer rows={[classic]} />);
+    const item = document.getElementById("event-classic.Stop") as HTMLElement;
+    expect(within(item).getByRole("link", { name: /^Anthropic's section on this hook/, hidden: true })).toHaveAttribute("href", "https://code.claude.com/docs/en/hooks#stop");
+  });
+
+  it("links each family to Anthropic's docs inside its collapsible body, not in the summary", () => {
+    render(<EventReferenceExplorer rows={ROWS} />);
+    const expected: readonly (readonly [string, string])[] = [
+      ["Engine (2)", "https://code.claude.com/docs/en/plugins/mods/reference#events"],
+      ["Calls on $ (1)", "https://code.claude.com/docs/en/plugins/mods/reference#mods-api-methods"],
+      ["Classic (1)", "https://code.claude.com/docs/en/hooks#hook-events"],
+    ];
+    for (const [summaryText, href] of expected) {
+      const details = familyDetails(summaryText);
+      const summary = details.querySelector("summary") as HTMLElement;
+      expect(within(summary).queryAllByRole("link")).toHaveLength(0);
+      const links = Array.from(details.querySelectorAll("a")).map((link) => link.getAttribute("href"));
+      expect(links, summaryText).toContain(href);
+    }
+  });
+
+  it("keeps the family docs link in the filtered view too", async () => {
+    const user = userEvent.setup();
+    render(<EventReferenceExplorer rows={ROWS} />);
+    await user.selectOptions(screen.getByRole("combobox", { name: "Family" }), "op");
+    const links = screen.getAllByRole("link").map((link) => link.getAttribute("href"));
+    expect(links).toContain("https://code.claude.com/docs/en/plugins/mods/reference#mods-api-methods");
+  });
+
+  it("introduces a noun under its heading with a link to the docs that cover it", async () => {
+    const user = userEvent.setup();
+    render(<EventReferenceExplorer rows={ROWS} />);
+    await user.selectOptions(screen.getByRole("combobox", { name: "Family" }), "op");
+    expect(screen.getByRole("link", { name: /^Reach files, processes, and the network/ })).toHaveAttribute(
+      "href",
+      "https://code.claude.com/docs/en/plugins/mods/api#reach-files-processes-and-the-network",
+    );
   });
 });

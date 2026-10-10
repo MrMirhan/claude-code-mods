@@ -6,7 +6,7 @@ import type { EventsFile, HookEvent } from "@/lib/types";
  */
 
 /** The noun an event belongs to: the part of its name before the dot (`fs` for `fs.write`). */
-export function nounOf(event: HookEvent): string {
+export function nounOf<Event extends Pick<HookEvent, "name">>(event: Event): string {
   const dotIndex = event.name.indexOf(".");
   return dotIndex === -1 ? event.name : event.name.slice(0, dotIndex);
 }

@@ -8,7 +8,10 @@ import {
   eventSourceUrl,
   getEvents,
   getEventsSource,
+  getSupplementEvents,
+  getSupplementSource,
   loadEventsFile,
+  loadSupplementFile,
   nounOf,
   patternMatchesEvent,
 } from "@/lib/events";
@@ -43,6 +46,76 @@ describe("the shipped events", () => {
         .map((hook) => `${mod.slug}: ${hook}`),
     );
     expect(unknown).toEqual([]);
+  });
+});
+
+describe("the shipped supplement", () => {
+  it("holds only names the pinned declarations do not declare, so a sync that catches up forces it to be pruned", () => {
+    const declared = new Set(getEvents().map((event) => event.name));
+    expect(getSupplementEvents().filter((event) => declared.has(event.name)).map((event) => event.name)).toEqual([]);
+  });
+
+  it("is sorted by name and has no classic events", () => {
+    const names = getSupplementEvents().map((event) => event.name);
+    expect(names).toEqual([...names].sort());
+    expect(names.some((name) => name.startsWith("classic."))).toBe(false);
+  });
+
+  it("was checked against a reference and changelog no older than the declarations", () => {
+    const declarationsVersion = getEventsSource().claudeCodeVersion;
+    const { referenceVersion, changelogThrough } = getSupplementSource();
+    const asNumbers = (version: string): number[] => version.split(".").map(Number);
+    const isAtLeast = (left: string, right: string): boolean => {
+      const [a, b] = [asNumbers(left), asNumbers(right)];
+      const index = a.findIndex((part, position) => part !== b[position]);
+      return index === -1 || a[index] > b[index];
+    };
+    if (declarationsVersion !== null) expect(isAtLeast(referenceVersion, declarationsVersion)).toBe(true);
+    expect(isAtLeast(changelogThrough, referenceVersion)).toBe(true);
+  });
+});
+
+describe("loadSupplementFile", () => {
+  let dataDirectory: string;
+
+  beforeEach(() => {
+    dataDirectory = mkdtempSync(path.join(tmpdir(), "supplement-loader-"));
+  });
+
+  afterEach(() => {
+    rmSync(dataDirectory, { recursive: true, force: true });
+  });
+
+  const source = {
+    referenceUrl: "https://code.claude.com/docs/en/plugins/mods/reference",
+    referenceVersion: "2.1.290",
+    changelogUrl: "https://code.claude.com/docs/en/changelog",
+    changelogThrough: "2.1.296",
+    checkedAt: "2026-10-10",
+  };
+  const notify = { name: "ui.notify", family: "op", since: "2.1.295", docsUrl: "https://code.claude.com/docs/en/changelog#2-1-295" };
+
+  function writeSupplement(value: unknown): void {
+    writeFileSync(path.join(dataDirectory, "event-supplement.json"), JSON.stringify(value));
+  }
+
+  it("reads a valid file, and an empty list once every name is declared", () => {
+    writeSupplement({ version: 1, source, events: [notify] });
+    expect(loadSupplementFile(dataDirectory).events).toHaveLength(1);
+    writeSupplement({ version: 1, source, events: [] });
+    expect(loadSupplementFile(dataDirectory).events).toEqual([]);
+  });
+
+  it.each([
+    ["a duplicate name", [notify, notify], /duplicate event name/],
+    ["a classic event", [{ ...notify, name: "classic.Stop", family: "classic" }], /events\.0\.family/],
+    ["a link off Anthropic's docs", [{ ...notify, docsUrl: "https://example.com/docs/en/changelog" }], /events\.0\.docsUrl/],
+    ["a plain http link", [{ ...notify, docsUrl: "http://code.claude.com/docs/en/changelog" }], /events\.0\.docsUrl/],
+    ["an unlikely version", [{ ...notify, since: "latest" }], /events\.0\.since/],
+    ["a field the schema does not know", [{ ...notify, description: "copied text" }], /events\.0/],
+  ])("rejects %s and names the field", (_label, events, expected) => {
+    writeSupplement({ version: 1, source, events });
+    expect(() => loadSupplementFile(dataDirectory)).toThrow(expected);
   });
 });
 
