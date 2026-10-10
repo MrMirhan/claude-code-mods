@@ -61,7 +61,7 @@ export function ForOrganizationsSection(): ReactNode {
             settings files. <InlineCode>disableSideloadFlags</InlineCode> rejects <InlineCode>--plugin-dir</InlineCode>{" "}
             and <InlineCode>--plugin-url</InlineCode> at startup, along with <InlineCode>--agents</InlineCode> and{" "}
             <InlineCode>--mcp-config</InlineCode>, and keeps mods Claude writes during a session from
-            loading. Mods built into Claude Code are not affected by any of these settings.
+            loading. Built-in mods keep running under these settings.
           </p>
           <SourceLine sources={[MODS_ADMIN_POLICIES]} />
         </Prose>

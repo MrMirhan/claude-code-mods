@@ -151,7 +151,7 @@ describe("organization content", () => {
   it("does not overstate what deny rules and managed hooks cover", () => {
     const text = ORG_PRECEDENCE.map((fact) => fact.description).join(" ");
     expect(text).toMatch(/Where the guard loads/);
-    expect(text).toMatch(/Neither covers a mod's own \$\.fs and \$\.process calls/);
+    expect(text).toMatch(/cover only Claude's tool calls, not a mod's own \$\.fs and \$\.process calls/);
     expect(text).toMatch(/runs without a classifier check/);
     expect(ORG_MODS_NOTE).toMatch(/counts as a user's, even when managed settings enable it/);
     expect(ORG_MODS_NOTE).toMatch(/writable only by an administrator/);

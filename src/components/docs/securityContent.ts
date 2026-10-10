@@ -447,7 +447,7 @@ export const ORG_PRECEDENCE: readonly OrgFact[] = [
     id: "tool-calls-only",
     term: "Only Claude's tool calls",
     description:
-      "Neither covers a mod's own $.fs and $.process calls: with Read(.env) denied, a mod can still read that file with $.fs.read or start a program that does. To limit those, keep the mod from loading or handle the call in a policy mod.",
+      "Deny rules and managed PreToolUse hooks cover only Claude's tool calls, not a mod's own $.fs and $.process calls. With Read(.env) denied, a mod can still read that file with $.fs.read or start a program that does. To limit those, keep the mod from loading or handle the call in a policy mod.",
   },
   {
     id: "overridable",
