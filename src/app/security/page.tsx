@@ -10,7 +10,6 @@ import { TextLink } from "@/components/docs/TextLink";
 import { Timeline } from "@/components/docs/Timeline";
 import { pickExampleMod, pickSecurityMod, selectAnthropicBuiltInMods } from "@/components/docs/builtInMods";
 import {
-  BEFORE_YOU_INSTALL,
   NO_SCANNER_NOTICE,
   RUNTIME_POINTS,
   RUNTIME_SEATS,
@@ -24,6 +23,7 @@ import { Chip } from "@/components/ui/Chip";
 import { getAllExtensions } from "@/lib/catalog";
 import { cn } from "@/lib/cn";
 import { JsonLd } from "@/components/seo/JsonLd";
+import { BeforeYouInstallSection } from "@/components/security/BeforeYouInstallSection";
 import { buildDocPageGraph } from "@/lib/seo/jsonLd";
 import { buildStaticPageMetadata } from "@/lib/seo/metadata";
 import { PAGE_SEO } from "@/lib/seo/pages";
@@ -39,7 +39,7 @@ export default function SecurityPage(): ReactNode {
   return (
     <DocPage
       title="Security and verification"
-      description="What the checks on this site cover, what the proposed tier model would add, and what to check yourself."
+      description="What the checks on this site cover, what to check yourself before you install a mod or any other extension, and what the proposed tier model would add."
     >
       <JsonLd data={buildDocPageGraph(PAGE_SEO.security)} />
       <DocSection id="what-is-checked" title="What is checked today">
@@ -101,6 +101,8 @@ export default function SecurityPage(): ReactNode {
           </Prose>
         </DocSection>
       ) : null}
+
+      <BeforeYouInstallSection />
 
       <DocSection id="mod-runtime" title="How Claude Code keeps a mod in check">
         <Callout>
@@ -186,29 +188,6 @@ export default function SecurityPage(): ReactNode {
           </Prose>
           <Timeline items={SCAN_PIPELINE} label="Proposed scan pipeline" headingLevel="h4" />
         </div>
-      </DocSection>
-
-      <DocSection id="before-you-install" title="Before you install anything">
-        <Prose>
-          <p>
-            Until something better exists, the checks are yours to make. They take a few minutes and apply to every
-            extension, on this site or anywhere else.
-          </p>
-        </Prose>
-        <ul role="list" className="grid gap-x-12 gap-y-8 md:grid-cols-2">
-          {BEFORE_YOU_INSTALL.map((item) => (
-            <li key={item.title} className="flex max-w-[65ch] flex-col gap-2 border-t border-border pt-4">
-              <h3 className="text-lg font-semibold tracking-tight text-fg">{item.title}</h3>
-              <p className="text-base leading-relaxed text-fg-muted">{item.body}</p>
-            </li>
-          ))}
-        </ul>
-        <Prose>
-          <p>
-            For where the data comes from and what it does and does not check, see{" "}
-            <TextLink href="/about/">About</TextLink>.
-          </p>
-        </Prose>
       </DocSection>
     </DocPage>
   );

@@ -5,7 +5,21 @@ import { DASH_PATTERN, stubIntersectionObserver } from "@/components/docs/testSu
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { pickExampleMod, pickSecurityMod, selectAnthropicBuiltInMods } from "@/components/docs/builtInMods";
-import { RUNTIME_POINTS, RUNTIME_SEATS, RUNTIME_SEAT_NOTE, RUNTIME_SECTION_NOTE, SECURITY_MOD_FACTS } from "@/components/docs/securityContent";
+import {
+  FLAG_RETIRED_NOTE,
+  MOD_OFF_SWITCHES,
+  MOD_REACH,
+  MODS_ADMIN_REVIEW,
+  MODS_OVERVIEW_TRUST,
+  MODS_OVERVIEW_TURN_OFF,
+  RISKY_CALLS,
+  RUNTIME_POINTS,
+  RUNTIME_SEATS,
+  RUNTIME_SEAT_NOTE,
+  RUNTIME_SECTION_NOTE,
+  SECURITY_MOD_FACTS,
+  VALIDATE_COMMAND,
+} from "@/components/docs/securityContent";
 import { getAllExtensions } from "@/lib/catalog";
 import SecurityPage, { metadata } from "./page";
 
@@ -146,7 +160,50 @@ describe("security page", () => {
 
   it("carries no early access or function hooks flag copy now that mods are on by default", () => {
     const { container } = render(<SecurityPage />);
-    expect(container.textContent).not.toMatch(/early access|CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1|function hooks are/i);
+    expect(container.textContent).not.toMatch(/CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1|function hooks are|are early access/i);
+  });
+
+  it("keeps the generic checks first, then a mod trust subsection with what a mod can reach", () => {
+    const { container } = render(<SecurityPage />);
+    const section = container.querySelector("#before-you-install") as HTMLElement;
+    const headings = within(section).getAllByRole("heading").map((heading) => heading.textContent);
+    expect(headings.indexOf("Checks for any extension")).toBeLessThan(headings.indexOf("Before you install a mod"));
+    const mod = within(section.querySelector("#before-you-install-a-mod") as HTMLElement);
+    expect(mod.getByRole("heading", { level: 3, name: "Before you install a mod" })).toBeInTheDocument();
+    for (const item of MOD_REACH) {
+      expect(mod.getByText(item.term)).toBeInTheDocument();
+    }
+    expect(mod.getByText(/Mods are not sandboxed/)).toBeInTheDocument();
+    expect(mod.getByText(/not the permission prompt, so it cannot change what a prompt shows you/)).toBeInTheDocument();
+    expect(mod.getByRole("link", { name: new RegExp(MODS_OVERVIEW_TRUST.label) })).toHaveAttribute("href", MODS_OVERVIEW_TRUST.href);
+  });
+
+  it("shows claude plugin validate with sample hooks and calls lines and the calls to look for", () => {
+    const { container } = render(<SecurityPage />);
+    const mod = within(container.querySelector("#before-you-install-a-mod") as HTMLElement);
+    expect(mod.getByText(VALIDATE_COMMAND)).toBeInTheDocument();
+    const sample = mod.getByRole("group", { name: "Sample hooks and calls output" });
+    expect(sample.textContent).toMatch(/hooks: session\.start, tool\.call/);
+    expect(sample.textContent).toMatch(/calls: \$\.fs\.read, \$\.http\.fetch/);
+    const table = mod.getByRole("table");
+    expect(within(table).getAllByRole("row")).toHaveLength(RISKY_CALLS.length + 1);
+    for (const call of ["$.process.run", "$.http.fetch", "$.env.get", "$.model.complete", "$.prompt.submit"]) {
+      expect(within(table).getByText(call)).toBeInTheDocument();
+    }
+    expect(mod.getByRole("link", { name: new RegExp(MODS_ADMIN_REVIEW.label) })).toHaveAttribute("href", MODS_ADMIN_REVIEW.href);
+  });
+
+  it("lists the three ways to turn mods off and says the old flag no longer keeps them off", () => {
+    const { container } = render(<SecurityPage />);
+    const mod = within(container.querySelector("#before-you-install-a-mod") as HTMLElement);
+    expect(mod.getByRole("heading", { level: 4, name: "Turn mods off" })).toBeInTheDocument();
+    for (const item of MOD_OFF_SWITCHES) {
+      expect(mod.getByText(item.scope)).toBeInTheDocument();
+    }
+    expect(MOD_OFF_SWITCHES.map((item) => item.how).join(" ")).toMatch(/\/plugin[\s\S]*--safe-mode[\s\S]*disableAllHooks/);
+    expect(mod.getByText(FLAG_RETIRED_NOTE)).toBeInTheDocument();
+    expect(FLAG_RETIRED_NOTE).toMatch(/setting it to 0 does not keep mods off/);
+    expect(mod.getByRole("link", { name: new RegExp(MODS_OVERVIEW_TURN_OFF.label) })).toHaveAttribute("href", MODS_OVERVIEW_TURN_OFF.href);
   });
 
   it("never uses concept wording or calls the mods runtime unconfirmed", () => {

@@ -187,3 +187,121 @@ export const SECURITY_MOD_FACTS: SecurityModFacts = {
     "It has three moves and nothing else: continue past the user seat, refuse a user seat caller by name, or pass. Its README seats it first in the prepend seat on a machine with managed settings or for a Team or Enterprise organization, unless managed prependPlugins says otherwise, and says that loading it with --plugin-dir seats a plugin that can only pass.",
   source: SEC_DEFAULT_README,
 };
+
+/** Anthropic's mods documentation, the source for the trust and organization sections below. */
+export const MODS_DOCS_SOURCES = {
+  overview: "https://code.claude.com/docs/en/plugins/mods/overview",
+  admin: "https://code.claude.com/docs/en/plugins/mods/admin",
+} as const;
+
+export const MODS_OVERVIEW_TRUST: LearnSource = {
+  label: "Mods overview: Decide whether to trust a mod",
+  href: `${MODS_DOCS_SOURCES.overview}#decide-whether-to-trust-a-mod`,
+};
+export const MODS_OVERVIEW_TURN_OFF: LearnSource = {
+  label: "Mods overview: Turn mods on or off",
+  href: `${MODS_DOCS_SOURCES.overview}#turn-mods-on-or-off`,
+};
+export const MODS_ADMIN_REVIEW: LearnSource = {
+  label: "Manage mods: Review what a mod can do",
+  href: `${MODS_DOCS_SOURCES.admin}#review-what-a-mod-can-do`,
+};
+
+export interface ModReach {
+  readonly id: string;
+  readonly term: string;
+  readonly description: string;
+}
+
+/** Source: Mods overview, "What a mod can reach". Once it loads, a mod can do each of these. */
+export const MOD_REACH: readonly ModReach[] = [
+  {
+    id: "act-as-you",
+    term: "Act on your machine as you",
+    description: "Read and write files anywhere your user account can, start programs and make network requests.",
+  },
+  {
+    id: "read-secrets",
+    term: "Read your secrets",
+    description: "Environment variables and settings files, including an API key you keep in either.",
+  },
+  { id: "see-session", term: "See your session", description: "Every prompt you send and every tool call Claude makes." },
+  {
+    id: "change-session",
+    term: "Change your session",
+    description:
+      "Rewrite a prompt or a tool call, submit a prompt as if you had typed it, or send a message to another of your sessions.",
+  },
+  { id: "act-without-asking", term: "Act without asking you", description: "Approve a tool call before you are asked." },
+  { id: "spend-usage", term: "Spend your usage", description: "Call a model on your plan or API key." },
+];
+
+/** Source: Mods overview, "What a mod can reach". */
+export const NOT_SANDBOXED_NOTE =
+  "Mods are not sandboxed. If you turn on sandboxing, it isolates the Bash commands Claude runs, and a process a mod starts runs outside it.";
+
+/** Source: Mods overview, "What a mod can reach". */
+export const PERMISSION_PROMPT_NOTE =
+  "A mod can restyle much of Claude Code's interface, but not the permission prompt, so it cannot change what a prompt shows you. It can still approve a tool call before the prompt appears, including one an ask rule would prompt for or one of your own PreToolUse hooks blocked.";
+
+export const VALIDATE_COMMAND = "claude plugin validate ./some-mod";
+
+/** The sample `hooks:` and `calls:` lines from "Review what a mod can do", as Anthropic's docs print them. */
+export const VALIDATE_SAMPLE_OUTPUT = [
+  "  ❯ ./register.js hooks: session.start, tool.call, ui.render{component=Pane}",
+  "  ❯ ./register.js calls: $.fs.read, $.http.fetch, $.store.set, $.ui.open",
+].join("\n");
+
+export interface RiskyCall {
+  /** The calls as `claude plugin validate` prints them. */
+  readonly calls: readonly string[];
+  readonly meaning: string;
+}
+
+/** Source: Manage mods, "Review what a mod can do". The calls to look for on the `calls:` line, shortened. */
+export const RISKY_CALLS: readonly RiskyCall[] = [
+  { calls: ["$.fs.read", "$.fs.write"], meaning: "Reads or writes files anywhere you can." },
+  { calls: ["$.process.run", "$.process.spawn"], meaning: "Starts programs as you." },
+  { calls: ["$.http.fetch"], meaning: "Makes network requests." },
+  {
+    calls: ["$.env.get", "$.settings.read"],
+    meaning: "Reads environment variables and settings, which can hold API keys. An env reads: line names each variable.",
+  },
+  {
+    calls: ["$.env.set"],
+    meaning: "Sets a variable for Claude Code and every command and MCP server it starts afterward. An env writes: line names each one.",
+  },
+  { calls: ["$.mcp.call"], meaning: "Calls a tool on a connected MCP server, under the session's permission rules." },
+  { calls: ["$.model.complete"], meaning: "Uses your plan or API key for model calls." },
+  { calls: ["$.prompt.submit"], meaning: "Submits a prompt, and can send it as your own words." },
+  { calls: ["$.session.send"], meaning: "Sends a message that another session, subagent or teammate reads." },
+];
+
+/** Source: Manage mods, "Review what a mod can do". What the riskier entries on the `hooks:` line mean. */
+export const RISKY_HOOKS_NOTE =
+  "On the hooks: line, tool.call and prompt.submit mean the mod sees every tool call and every prompt and can change them, and tool.check means it can approve or deny a tool call before a permission prompt appears.";
+
+export interface OffSwitch {
+  readonly id: string;
+  readonly scope: string;
+  readonly how: string;
+}
+
+/** Source: Mods overview, "Turn mods on or off". Undo the same change to turn mods back on. */
+export const MOD_OFF_SWITCHES: readonly OffSwitch[] = [
+  { id: "one-mod", scope: "One mod", how: "Disable or uninstall its plugin from the Installed tab in /plugin." },
+  {
+    id: "one-session",
+    scope: "Every installed mod, for one session",
+    how: "Start Claude Code with --safe-mode, which also disables your other customizations.",
+  },
+  {
+    id: "every-session",
+    scope: "Every mod you installed, in every session",
+    how: 'Set "disableAllHooks": true in ~/.claude/settings.json. Your settings hooks and custom status line stop too, and what your organization manages keeps running.',
+  },
+];
+
+/** Source: Mods overview, "Turn mods on or off". The early access variable no longer does anything. */
+export const FLAG_RETIRED_NOTE =
+  "If you set CLAUDE_CODE_ENABLE_FUNCTION_HOOKS while mods were in early access, remove it. Claude Code v2.1.287 and later ignores it, so setting it to 0 does not keep mods off.";
