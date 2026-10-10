@@ -197,7 +197,8 @@ export const BUILT_IN_MODS: readonly BuiltInMod[] = [
   },
   {
     name: "cc-plugin-plugin-authoring",
-    whatItDoes: "Gives Claude the plugin-authoring skill for writing mods. It holds a skill and no mod code.",
+    whatItDoes:
+      "Gives Claude the plugin-authoring skill for writing mods. It holds a skill and no mod code. It is on unless Anthropic has turned installed mods off remotely.",
     sourceFolder: null,
   },
   {
