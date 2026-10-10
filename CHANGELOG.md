@@ -58,6 +58,7 @@ The format is based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.
 - Page titles and descriptions are rewritten for search: titles fit 60 characters with the site name, descriptions are 110 to 160 characters, and extension pages read "<name>, a <kind> for Claude Code".
 - Nothing on the site claims a listing was reviewed or scanned. "Source verified" means the source URL responded on the catalog date, and the proposed security tiers are described as a design with no scanner.
 - The four Anthropic mods are described as their README describes them: early access, shipped inside Claude Code, source published as built, and under "All rights reserved" terms, not open source.
+- The `/hooks/` event reference is synced again and now lists 142 names. Names the published typings do not have yet, such as `prompt.autocomplete` and `$.ui.notify`, come from a hand-kept supplement that links to the official reference or changelog, and a test fails once a later sync declares one of them. Every family links to its docs page.
 
 ### Fixed
 
