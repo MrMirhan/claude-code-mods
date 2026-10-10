@@ -43,8 +43,8 @@ export default function TutorialsPage(): ReactNode {
         <p>{NO_CAPTIONS_NOTE}</p>
         <p>
           Every caption below is quoted exactly from the{" "}
-          <TextLink href={ANNOUNCEMENT_ISSUE_URL}>announcement issue</TextLink>. Function hooks are early access, and
-          what a video shows may have changed since it was made.
+          <TextLink href={ANNOUNCEMENT_ISSUE_URL}>announcement issue</TextLink>. The videos were made during early access, and
+          what one shows may have changed since.
         </p>
       </Callout>
       {GROUP_ORDER.map((group) => (

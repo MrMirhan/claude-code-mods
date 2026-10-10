@@ -1,7 +1,19 @@
 import { render, screen, within } from "@testing-library/react";
 import { beforeAll, describe, expect, it } from "vitest";
 import { DASH_PATTERN, stubIntersectionObserver } from "@/components/docs/testSupport";
-import { FUNCTION_HOOKS_FLAG, LEARN_SOURCES, RUN_WARNING, STARTER_LIMITS, TESTED_WITH } from "@/components/docs/learnContent";
+import {
+  ASK_CLAUDE_EXAMPLE_PROMPT,
+  ASK_CLAUDE_KEEP,
+  ASK_CLAUDE_SKIPPED,
+  ASK_CLAUDE_STEPS,
+  LEARN_SOURCES,
+  MODS_MIN_VERSION,
+  officialModDoc,
+  RETIRED_FLAG_NAME,
+  RUN_WARNING,
+  STARTER_LIMITS,
+  TESTED_WITH,
+} from "@/components/docs/learnContent";
 import { PAGE_SEO } from "@/lib/seo/pages";
 import { COMMUNITY_REPOSITORY_URL, SITE_URL } from "@/lib/site";
 import { STARTER_MOD_DIRECTORY, STARTER_MOD_FILES, loadStarterModFiles } from "@/lib/starter-mod";
@@ -20,30 +32,79 @@ describe("getting started page", () => {
     });
   });
 
-  it("warns first that this is early access and says which Claude Code version the commands were run on", () => {
+  it("warns first that the API is new and can change, and says which Claude Code version the commands were run on", () => {
     render(<GettingStartedPage />);
     const warning = screen.getAllByRole("note").find((note) => note.getAttribute("data-tone") === "warning");
-    expect(warning).toHaveTextContent(/early access/);
+    expect(warning).toHaveTextContent(/can change between releases/);
+    expect(warning).not.toHaveTextContent(/early access|without notice/);
     expect(warning).toHaveTextContent(`Claude Code ${TESTED_WITH.claudeCodeVersion}`);
     expect(warning).toHaveTextContent(TESTED_WITH.date);
+    expect(within(warning as HTMLElement).getByRole("link", { name: /^Create a mod/ })).toHaveAttribute(
+      "href",
+      LEARN_SOURCES.modsCreateDocs,
+    );
   });
 
-  it("gives the enable command and says the flag comes from the issue update, not documentation", () => {
+  it("offers asking Claude for a mod as the first section, before any manual setup", () => {
+    const { container } = render(<GettingStartedPage />);
+    const sectionIds = Array.from(container.querySelectorAll("section[id]")).map((section) => section.id);
+    expect(sectionIds[0]).toBe("ask-claude");
+    expect(sectionIds.indexOf("ask-claude")).toBeLessThan(sectionIds.indexOf("starter"));
+  });
+
+  it("walks through asking Claude for a mod, from the plugin-authoring skill to keeping the mod", () => {
+    const { container } = render(<GettingStartedPage />);
+    const element = container.querySelector("#ask-claude") as HTMLElement;
+    const section = within(element);
+    expect(section.getByText("plugin-authoring")).toBeInTheDocument();
+    expect(section.getByText("/plugin-authoring")).toBeInTheDocument();
+    const steps = section.getByRole("list", { name: "Steps to have Claude write a mod" });
+    for (const step of ASK_CLAUDE_STEPS) expect(within(steps).getByText(step.title)).toBeInTheDocument();
+    expect(element.textContent).toContain(ASK_CLAUDE_EXAMPLE_PROMPT);
+    expect(element.textContent).toContain(ASK_CLAUDE_KEEP);
+    expect(section.getByText("claude --plugin-dir ~/mods/git-branch")).toBeInTheDocument();
+    for (const reason of ASK_CLAUDE_SKIPPED) expect(section.getByText(reason)).toBeInTheDocument();
+    expect(section.getByRole("link", { name: /^Create a mod/ })).toHaveAttribute("href", LEARN_SOURCES.modsCreateDocs);
+    expect(section.getByRole("link", { name: "mods are on" })).toHaveAttribute("href", "#enable");
+  });
+
+  it("warns that a mod Claude writes runs with your permissions, before the command that loads one", () => {
+    const { container } = render(<GettingStartedPage />);
+    const section = within(container.querySelector("#ask-claude") as HTMLElement);
+    const warning = section.getByRole("note");
+    expect(warning).toHaveAttribute("data-tone", "warning");
+    expect(warning).toHaveTextContent(/runs with your permissions/);
+    const command = section.getByText("claude --plugin-dir ~/mods/git-branch");
+    expect(warning.compareDocumentPosition(command) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("gives the terminal and Desktop versions separately, with a way to check each", () => {
     const { container } = render(<GettingStartedPage />);
     const element = container.querySelector("#enable") as HTMLElement;
     const section = within(element);
-    expect(section.getByText(`${FUNCTION_HOOKS_FLAG} claude`)).toBeInTheDocument();
-    expect(section.getByText(/Sep 9 update of the/)).toBeInTheDocument();
-    expect(section.getByText(/not in documentation/)).toBeInTheDocument();
-    expect(element.textContent).not.toMatch(/in a comment/);
-    expect(section.getByRole("link", { name: /announcement issue/ })).toHaveAttribute("href", LEARN_SOURCES.announcementIssue);
+    expect(element.textContent).toContain(`Claude Code v${MODS_MIN_VERSION.terminal} or later`);
+    expect(element.textContent).toContain(`Code tab from v${MODS_MIN_VERSION.desktop}`);
+    expect(section.getByText("claude --version")).toBeInTheDocument();
+    expect(section.getByText("/status")).toBeInTheDocument();
   });
 
-  it("says test needs the flag while validate does not, as run on the tested version", () => {
+  it("shows how to see which mods a session loaded, and how to turn mods off", () => {
     const { container } = render(<GettingStartedPage />);
-    const text = (container.querySelector("#enable") as HTMLElement).textContent ?? "";
-    expect(text).toMatch(/claude plugin test.*does not exist until the variable is set/);
-    expect(text).toMatch(/claude plugin validate.*works either way/);
+    const element = container.querySelector("#enable") as HTMLElement;
+    expect(within(element).getByText("1 mod active · first-mod")).toBeInTheDocument();
+    expect(element.textContent).toMatch(/Built-in mods are left out of that line/);
+    for (const off of ["--safe-mode", "\"disableAllHooks\": true"]) expect(element.textContent).toContain(off);
+    expect(element.textContent).toMatch(/stop the mods you installed, not the ones built into Claude Code/);
+    expect(within(element).getByRole("link", { name: /^mods overview/ })).toHaveAttribute("href", LEARN_SOURCES.modsOverviewDocs);
+  });
+
+  it("tells a reader to remove the retired early access variable, and never gives it as a command", () => {
+    const { container } = render(<GettingStartedPage />);
+    const element = container.querySelector("#enable") as HTMLElement;
+    const note = within(element).getByRole("note");
+    expect(note).toHaveTextContent(`If you set ${RETIRED_FLAG_NAME} during early access, remove it.`);
+    expect(note).toHaveTextContent(/setting it to 0 does not keep mods off/);
+    expect(container.textContent).not.toMatch(new RegExp(`${RETIRED_FLAG_NAME}=`));
   });
 
   it("shows every starter file, exactly as it is on disk, under its own name", () => {
@@ -90,18 +151,12 @@ describe("getting started page", () => {
     expect(warning.compareDocumentPosition(command) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  it("scopes the flag to each command and never tells the reader to export it", () => {
-    const { container } = render(<GettingStartedPage />);
-    expect(container.textContent).not.toMatch(/export CLAUDE_CODE_ENABLE_FUNCTION_HOOKS/);
-    expect(screen.getByText(`${FUNCTION_HOOKS_FLAG} claude plugin test ${STARTER_MOD_DIRECTORY}`)).toBeInTheDocument();
-  });
-
-  it("gives copyable test, validate and run commands for the starter folder", () => {
+  it("gives copyable test, validate and run commands for the starter folder, with no enable variable", () => {
     render(<GettingStartedPage />);
     for (const command of [
-      `${FUNCTION_HOOKS_FLAG} claude plugin test ${STARTER_MOD_DIRECTORY}`,
+      `claude plugin test ${STARTER_MOD_DIRECTORY}`,
       `claude plugin validate ${STARTER_MOD_DIRECTORY}`,
-      `${FUNCTION_HOOKS_FLAG} claude --plugin-dir ${STARTER_MOD_DIRECTORY}`,
+      `claude --plugin-dir ${STARTER_MOD_DIRECTORY}`,
     ]) {
       expect(screen.getByText(command)).toBeInTheDocument();
     }
@@ -113,15 +168,38 @@ describe("getting started page", () => {
     expect(container.textContent).toMatch(/in this site.s repository when the site is built/);
   });
 
+  it("explains the gating hook line validate prints for the starter", () => {
+    const { container } = render(<GettingStartedPage />);
+    const section = within(container.querySelector("#run") as HTMLElement);
+    expect(section.getByText("gating hook without .catch: tool.call")).toBeInTheDocument();
+  });
+
   it("does not claim the starter was run in a live session", () => {
     const { container } = render(<GettingStartedPage />);
     expect(container.textContent).toMatch(/was not run in a live session/);
+  });
+
+  it("says where Claude Code writes a mod's types, and no longer sends readers to /plugin-types", () => {
+    const { container } = render(<GettingStartedPage />);
+    const element = container.querySelector("#types") as HTMLElement;
+    expect(within(element).getByText(".claude-plugin/types/")).toBeInTheDocument();
+    expect(element.textContent).toMatch(/trust the files/);
+    expect(element.textContent).not.toMatch(/\/plugin-types/);
   });
 
   it("names the environment limits and the test kit notes", () => {
     render(<GettingStartedPage />);
     expect(screen.getByText(/no DOM and no Node/)).toBeInTheDocument();
     expect(screen.getByText(/no test\.each/)).toBeInTheDocument();
+  });
+
+  it("links the official Test a mod and Troubleshoot a mod pages where they help", () => {
+    const { container } = render(<GettingStartedPage />);
+    const testSection = within(container.querySelector("#test") as HTMLElement);
+    expect(testSection.getByRole("link", { name: /^Test a mod/ })).toHaveAttribute("href", officialModDoc("test").href);
+    const nextSection = within(container.querySelector("#next") as HTMLElement);
+    expect(nextSection.getByRole("link", { name: /^Troubleshoot a mod/ })).toHaveAttribute("href", officialModDoc("troubleshoot").href);
+    expect(nextSection.getByRole("link", { name: "Learn" }).getAttribute("href")).toMatch(/^\/learn\/?#official-docs$/);
   });
 
   it("links on to the migration guide", () => {

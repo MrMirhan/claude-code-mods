@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# types and tsconfig Claude Code writes when a template loads with --plugin-dir
+templates/*/.claude-plugin/types/
+templates/*/tsconfig.json
