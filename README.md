@@ -83,11 +83,11 @@ CI (`.github/workflows/validate.yml`) runs typecheck, lint, tests and a build on
 `templates/mod-starter/` is a complete mod that refuses a Bash call which force pushes with git. The Getting started page reads its files at build time through `src/lib/starter-mod.ts`, and a test fails if the folder holds a file the page does not show. To check it:
 
 ```bash
-npm run test:starter                          # CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1 claude plugin test templates/mod-starter
+npm run test:starter                          # claude plugin test templates/mod-starter
 claude plugin validate templates/mod-starter
 ```
 
-The script still sets `CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1`, a variable from early access. Claude Code v2.1.287 and later ignores it, so `claude plugin test templates/mod-starter` on its own does the same on a current version. CI does not run it, because the Claude Code CLI is not installed there, so the page dates its claim ("passed on Claude Code X on DATE") and this script is how a maintainer re-checks it.
+It needs Claude Code v2.1.287 or later, where mods are on by default. CI does not run it, because the Claude Code CLI is not installed there, so the page dates its claim ("passed on Claude Code X on DATE") and this script is how a maintainer re-checks it.
 
 Testing a mod runs its code, so read a folder before you run it.
 
