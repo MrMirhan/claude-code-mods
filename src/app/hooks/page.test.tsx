@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { beforeAll, describe, expect, it } from "vitest";
 import { DASH_PATTERN, stubIntersectionObserver } from "@/components/docs/testSupport";
 import { getAllExtensions } from "@/lib/catalog";
-import { buildEventReference } from "@/lib/event-reference";
+import { buildEventReference, docsOnlyCountPhrase } from "@/lib/event-reference";
 import { getEvents, getEventsSource, getSupplementEvents, getSupplementSource } from "@/lib/events";
 import { PAGE_SEO } from "@/lib/seo/pages";
 import { SITE_URL } from "@/lib/site";
@@ -77,7 +77,7 @@ describe("hooks page", () => {
     const { container } = render(<HooksPage />);
     const supplement = getSupplementSource();
     const text = container.textContent ?? "";
-    expect(text).toContain(`${getSupplementEvents().length} names come from`);
+    expect(text).toContain(`${docsOnlyCountPhrase(getSupplementEvents().length)} from`);
     expect(text).toContain(`Claude Code ${supplement.referenceVersion}`);
     expect(text).toContain(`through ${supplement.changelogThrough}`);
     expect(text).toContain(`checked on ${supplement.checkedAt}`);

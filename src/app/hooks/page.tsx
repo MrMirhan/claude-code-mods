@@ -9,7 +9,7 @@ import { InlineCode } from "@/components/docs/InlineCode";
 import { TextLink } from "@/components/docs/TextLink";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { getAllExtensions } from "@/lib/catalog";
-import { buildEventReference } from "@/lib/event-reference";
+import { buildEventReference, docsOnlyCountPhrase } from "@/lib/event-reference";
 import { getEvents, getEventsSource, getSupplementEvents, getSupplementSource } from "@/lib/events";
 import { buildDocPageGraph } from "@/lib/seo/jsonLd";
 import { buildStaticPageMetadata } from "@/lib/seo/metadata";
@@ -23,6 +23,7 @@ export default function HooksPage(): ReactNode {
   const supplementSource = getSupplementSource();
   const { rows, otherNames } = buildEventReference(source, getEvents(), getAllExtensions(), getSupplementEvents());
   const docsOnlyCount = rows.filter((row) => row.origin === "docs").length;
+  const docsOnlyPhrase = docsOnlyCountPhrase(docsOnlyCount);
   const familyCounts = EVENT_FAMILIES.map((family) => ({
     family,
     count: rows.filter((row) => row.family === family).length,
@@ -38,11 +39,16 @@ export default function HooksPage(): ReactNode {
         <p>
           Event names come from Anthropic&apos;s type declarations at commit <InlineCode>{source.sha.slice(0, 7)}</InlineCode>
           {source.claudeCodeVersion === null ? "" : ` (Claude Code ${source.claudeCodeVersion})`}, read on {source.syncedAt}.
-          That copy trails the release, so {docsOnlyCount === 1 ? "1 name" : `${docsOnlyCount} names`} come from{" "}
-          <TextLink href={supplementSource.referenceUrl}>Anthropic&apos;s mods reference</TextLink> (Claude Code{" "}
-          {supplementSource.referenceVersion}) and <TextLink href={supplementSource.changelogUrl}>changelog</TextLink>{" "}
-          (through {supplementSource.changelogThrough}), checked on {supplementSource.checkedAt}, and say so on their
-          row. The short descriptions are this site&apos;s summary of those docs. For the exact inputs and results, read
+          {docsOnlyPhrase === null ? null : (
+            <>
+              That copy trails the release, so {docsOnlyPhrase} from{" "}
+              <TextLink href={supplementSource.referenceUrl}>Anthropic&apos;s mods reference</TextLink> (Claude Code{" "}
+              {supplementSource.referenceVersion}) and <TextLink href={supplementSource.changelogUrl}>changelog</TextLink>{" "}
+              (through {supplementSource.changelogThrough}), checked on {supplementSource.checkedAt}, and say so on their
+              row.{" "}
+            </>
+          )}
+          The short descriptions are this site&apos;s summary of those docs. For the exact inputs and results, read
           the types Claude Code writes for your version.
         </p>
         <p>

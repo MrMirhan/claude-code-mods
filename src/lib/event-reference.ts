@@ -196,3 +196,12 @@ export function groupEventRows(rows: readonly EventReferenceRow[]): readonly Eve
     return [{ family, nouns, count: familyRows.length }];
   });
 }
+
+/**
+ * The subject of the /hooks callout's "come from" clause, or null when no name comes from the docs alone,
+ * so the page drops the clause instead of saying "0 names".
+ */
+export function docsOnlyCountPhrase(count: number): string | null {
+  if (count <= 0) return null;
+  return count === 1 ? "1 name comes" : `${count} names come`;
+}

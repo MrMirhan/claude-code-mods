@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { builtInModExtension, sourceOnlyExtension, verifiedExtension } from "@/components/catalog/__fixtures__/extensions";
 import {
   buildEventReference,
+  docsOnlyCountPhrase,
   filterEventRows,
   groupEventRows,
   type EventReferenceRow,
@@ -339,5 +340,13 @@ describe("buildEventReference with supplement names from the docs", () => {
     expect(row("tool.call").summary).toMatch(/about to run/);
     expect(row("fs.write").hookDocsUrl).toBeNull();
     expect(row("classic.PreToolUse").hookDocsUrl).toBe("https://code.claude.com/docs/en/hooks#pretooluse");
+  });
+});
+
+describe("docsOnlyCountPhrase", () => {
+  it("drops the clause at zero and agrees in number otherwise", () => {
+    expect(docsOnlyCountPhrase(0)).toBeNull();
+    expect(docsOnlyCountPhrase(1)).toBe("1 name comes");
+    expect(docsOnlyCountPhrase(15)).toBe("15 names come");
   });
 });
