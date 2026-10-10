@@ -43,8 +43,10 @@ export default function HooksPage(): ReactNode {
           declarations before relying on an event.
         </p>
         <p>
-          Mods are early access. Hooks modules load only where function hooks are enabled, and the API they are
-          written against may change between releases without notice.
+          Mods are on by default from Claude Code v2.1.287 in the terminal and v2.1.286 in the Desktop app. Those
+          versions ignore <InlineCode>CLAUDE_CODE_ENABLE_FUNCTION_HOOKS</InlineCode>, so if you set it during early
+          access, remove it: setting it to <InlineCode>0</InlineCode> does not turn mods off. Events and methods can
+          still change between releases.
         </p>
       </Callout>
       <DocSection id="events" title="Every hook event">

@@ -83,10 +83,13 @@ describe("hooks page", () => {
     expect(container.textContent).not.toMatch(/run each one from source/i);
   });
 
-  it("calls the mods early access and does not name an unverified enabling flag", () => {
+  it("says mods are on by default and that the early access variable is ignored", () => {
     const { container } = render(<HooksPage />);
-    expect(container.textContent).toMatch(/early\s+access/);
-    expect(container.textContent).not.toMatch(/CLAUDE_CODE_ENABLE_FUNCTION_HOOKS/);
+    const text = container.textContent ?? "";
+    expect(text).toMatch(/on by default from Claude Code v2\.1\.287 in the terminal and v2\.1\.286 in the Desktop app/);
+    expect(text).toMatch(/ignore\s*CLAUDE_CODE_ENABLE_FUNCTION_HOOKS/);
+    expect(text).not.toMatch(/Mods are early access/);
+    expect(text).not.toMatch(/only where function hooks are enabled/);
   });
 
   it("lists hook names that select no event apart, and says why", () => {
