@@ -3,18 +3,24 @@ import userEvent from "@testing-library/user-event";
 import { beforeAll, describe, expect, it } from "vitest";
 import { DASH_PATTERN, stubIntersectionObserver } from "@/components/docs/testSupport";
 import { getAllExtensions } from "@/lib/catalog";
-import { buildEventReference } from "@/lib/event-reference";
-import { getEvents, getEventsSource } from "@/lib/events";
+import { buildEventReference, docsOnlyCountPhrase } from "@/lib/event-reference";
+import { getEvents, getEventsSource, getSupplementEvents, getSupplementSource } from "@/lib/events";
 import { PAGE_SEO } from "@/lib/seo/pages";
 import { SITE_URL } from "@/lib/site";
 import HooksPage, { metadata } from "./page";
 
 beforeAll(stubIntersectionObserver);
 
-const reference = buildEventReference(getEventsSource(), getEvents(), getAllExtensions());
+const reference = buildEventReference(getEventsSource(), getEvents(), getAllExtensions(), getSupplementEvents());
 
 function eventTerms(container: HTMLElement): string[] {
   return Array.from(container.querySelectorAll("#events dt")).map((term) => term.textContent ?? "");
+}
+
+function rowElement(container: HTMLElement, name: string): HTMLElement {
+  const item = container.querySelector(`[id="event-${name}"]`);
+  if (!(item instanceof HTMLElement)) throw new Error(`no row for ${name}`);
+  return item;
 }
 
 describe("hooks page", () => {
@@ -28,12 +34,13 @@ describe("hooks page", () => {
     });
   });
 
-  it("lists every event from the synced file exactly once, in family groups", () => {
+  it("lists every declared event and every supplement name exactly once, in family groups", () => {
     const { container } = render(<HooksPage />);
     const terms = eventTerms(container);
-    expect(terms).toHaveLength(getEvents().length);
+    expect(terms).toHaveLength(getEvents().length + getSupplementEvents().length);
     expect(new Set(terms).size).toBe(terms.length);
     for (const event of getEvents()) expect(terms).toContain(event.name);
+    for (const event of getSupplementEvents()) expect(terms).toContain(event.name);
     expect(screen.getByRole("heading", { level: 3, name: /^Engine/ })).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 3, name: /^Calls on \$/ })).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 3, name: /^Classic/ })).toBeInTheDocument();
@@ -44,16 +51,16 @@ describe("hooks page", () => {
     const familyDetails = container.querySelectorAll("#events details");
     expect(familyDetails).toHaveLength(3);
     for (const details of familyDetails) expect((details as HTMLDetailsElement).open, details.textContent ?? "").toBe(false);
-    expect(screen.getByText(`${getEvents().length} events in 3 families. Open one, or filter to see matches right away.`)).toBeInTheDocument();
+    expect(screen.getByText(`${reference.rows.length} events in 3 families. Open one, or filter to see matches right away.`)).toBeInTheDocument();
   });
 
-  it("gives every event a row that links its declaring line and lists exactly the entries the reference says use it", () => {
+  it("gives every event a row that links where it is declared or listed, and exactly the entries the reference says use it", () => {
     const { container } = render(<HooksPage />);
     for (const row of reference.rows) {
-      const item = container.querySelector(`[id="${row.anchorId}"]`) as HTMLElement;
-      expect(item, row.name).not.toBeNull();
-      expect(within(item).getByRole("link", { name: /line \d+/ })).toHaveAttribute("href", row.sourceUrl);
-      const entryLinks = within(item).queryAllByRole("link", { name: (name) => !/^line \d+/.test(name) });
+      const item = rowElement(container, row.name);
+      const sourceLinkName = row.origin === "declarations" ? /^line \d+/ : /^Anthropic's docs/;
+      expect(within(item).getByRole("link", { name: sourceLinkName, hidden: true }), row.name).toHaveAttribute("href", row.sourceUrl);
+      const entryLinks = Array.from(item.querySelectorAll("a")).filter((link) => link.getAttribute("href")?.startsWith("/extensions/"));
       expect(entryLinks, row.name).toHaveLength(row.users.length);
     }
   });
@@ -66,10 +73,24 @@ describe("hooks page", () => {
     if (source.claudeCodeVersion !== null) expect(container.textContent).toContain(`Claude Code ${source.claudeCodeVersion}`);
   });
 
-  it("says the page does not say what an event does, and that use is not checked against code", () => {
-    render(<HooksPage />);
-    expect(screen.getByText(/does not say\s+what an event does/)).toBeInTheDocument();
+  it("says which names come from Anthropic's reference and changelog, checked when, and that use is not checked against code", () => {
+    const { container } = render(<HooksPage />);
+    const supplement = getSupplementSource();
+    const text = container.textContent ?? "";
+    expect(text).toContain(`${docsOnlyCountPhrase(getSupplementEvents().length)} from`);
+    expect(text).toContain(`Claude Code ${supplement.referenceVersion}`);
+    expect(text).toContain(`through ${supplement.changelogThrough}`);
+    expect(text).toContain(`checked on ${supplement.checkedAt}`);
+    expect(text).toMatch(/descriptions are this site's summary/);
     expect(screen.getByText(/not checked against its code/)).toBeInTheDocument();
+    expect(text).not.toMatch(/does not say\s+what an event does/);
+  });
+
+  it("covers the names Claude Code added after the reference: prompt.autocomplete, ui.notify, and isDeferred on tool.register", () => {
+    const { container } = render(<HooksPage />);
+    expect(rowElement(container, "prompt.autocomplete").textContent).toContain("from Claude Code 2.1.292.");
+    expect(rowElement(container, "ui.notify").textContent).toContain("from Claude Code 2.1.295.");
+    expect(rowElement(container, "tool.register").textContent).toMatch(/2\.1\.293, isDeferred: false/);
   });
 
   it("explains that a classic hook plugin's plain name is the same event as classic.<Name>", () => {
@@ -83,16 +104,23 @@ describe("hooks page", () => {
     expect(container.textContent).not.toMatch(/run each one from source/i);
   });
 
-  it("calls the mods early access and does not name an unverified enabling flag", () => {
+  it("says mods are on by default and that the early access variable is ignored", () => {
     const { container } = render(<HooksPage />);
-    expect(container.textContent).toMatch(/early\s+access/);
-    expect(container.textContent).not.toMatch(/CLAUDE_CODE_ENABLE_FUNCTION_HOOKS/);
+    const text = container.textContent ?? "";
+    expect(text).toMatch(/on by default from Claude Code v2\.1\.287 in the terminal and v2\.1\.286 in the Desktop app/);
+    expect(text).toMatch(/v2\.1\.287 and later ignores\s*CLAUDE_CODE_ENABLE_FUNCTION_HOOKS/);
+    expect(text).not.toMatch(/Mods are early access/);
+    expect(text).not.toMatch(/only where function hooks are enabled/);
   });
 
-  it("lists hook names that select no event apart, and says why", () => {
+  it("lists hook names that select no event apart, and says why, or leaves the section out when there are none", () => {
     const { container } = render(<HooksPage />);
-    expect(reference.otherNames.length).toBeGreaterThan(0);
-    const section = container.querySelector("#other-names") as HTMLElement;
+    const section = container.querySelector("#other-names");
+    if (reference.otherNames.length === 0) {
+      expect(section).toBeNull();
+      return;
+    }
+    if (!(section instanceof HTMLElement)) throw new Error("no #other-names section");
     const terms = Array.from(section.querySelectorAll("dt")).map((term) => term.textContent);
     expect(terms).toEqual(reference.otherNames.map((other) => other.name));
     expect(within(section).getByText(/select none of the events above/)).toBeInTheDocument();
@@ -103,7 +131,7 @@ describe("hooks page", () => {
     const { container } = render(<HooksPage />);
     await user.type(screen.getByRole("searchbox", { name: "Filter events" }), "fs.write");
     expect(eventTerms(container)).toEqual(["fs.write"]);
-    expect(screen.getByRole("status")).toHaveTextContent(`Showing 1 of ${getEvents().length} events`);
+    expect(screen.getByRole("status")).toHaveTextContent(`Showing 1 of ${reference.rows.length} events`);
   });
 
   it("has its own canonical URL and a unique title", () => {

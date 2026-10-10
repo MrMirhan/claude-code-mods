@@ -7,6 +7,7 @@ import { CommunityBadge } from "@/components/catalog/CommunityBadge";
 import { InlineCode } from "@/components/docs/InlineCode";
 import { TextLink } from "@/components/docs/TextLink";
 import { Button } from "@/components/ui/Button";
+import { FAMILY_DOCS, nounDocs } from "@/lib/event-docs";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { SearchField } from "@/components/ui/SearchField";
 import {
@@ -47,6 +48,23 @@ function UserItem({ user, eventName }: { readonly user: EventUser; readonly even
   );
 }
 
+/** Where the name comes from: a line of the pinned declarations, or Anthropic's docs ahead of them. */
+function SourceNote({ row }: { readonly row: EventReferenceRow }): ReactNode {
+  if (row.origin === "declarations") {
+    return (
+      <>
+        Declared at <TextLink href={row.sourceUrl}>line {row.line}</TextLink> of Anthropic&apos;s type declarations.
+      </>
+    );
+  }
+  return (
+    <>
+      Not in the pinned declarations yet. Listed in <TextLink href={row.sourceUrl}>Anthropic&apos;s docs</TextLink>
+      {row.since === null ? "." : `, from Claude Code ${row.since}.`}
+    </>
+  );
+}
+
 function EventRow({ row }: { readonly row: EventReferenceRow }): ReactNode {
   return (
     // globals.css already offsets every [id] below the sticky header; target: marks the row a link points at.
@@ -57,8 +75,15 @@ function EventRow({ row }: { readonly row: EventReferenceRow }): ReactNode {
         <InlineCode>{row.name}</InlineCode>
       </dt>
       <dd className="flex max-w-[65ch] flex-col gap-2 text-base leading-relaxed text-fg-muted">
+        {row.summary === null ? null : <p>{row.summary}</p>}
         <p className="text-sm">
-          Declared at <TextLink href={row.sourceUrl}>line {row.line}</TextLink> of Anthropic&apos;s type declarations.
+          <SourceNote row={row} />
+          {row.hookDocsUrl === null ? null : (
+            <>
+              {" "}
+              Read <TextLink href={row.hookDocsUrl}>Anthropic&apos;s section on this hook</TextLink>.
+            </>
+          )}
         </p>
         {row.users.length === 0 ? (
           <p className="text-sm">No entry in this directory lists it.</p>
@@ -74,12 +99,35 @@ function EventRow({ row }: { readonly row: EventReferenceRow }): ReactNode {
   );
 }
 
+/** A noun's line and docs link, when `event-docs.ts` has them. Classic events have one noun, so none. */
+function NounIntro({ family, noun }: { readonly family: EventFamily; readonly noun: string }): ReactNode {
+  const docs = nounDocs(family, noun);
+  if (docs === null) return null;
+  return (
+    <p className="max-w-[65ch] text-sm text-fg-muted">
+      {docs.summary === null ? null : <>{docs.summary} </>}
+      See <TextLink href={docs.link.href}>{docs.link.label}</TextLink>.
+    </p>
+  );
+}
+
+/** What a family is, with the page of Anthropic's docs that lists it. */
+function FamilyIntro({ family }: { readonly family: EventFamily }): ReactNode {
+  const docs = FAMILY_DOCS[family];
+  return (
+    <p className="max-w-[65ch] text-base leading-relaxed text-fg-muted">
+      {docs.summary} <TextLink href={docs.link.href}>{docs.link.label}</TextLink>.
+    </p>
+  );
+}
+
 function NounGroups({ group }: { readonly group: EventFamilyGroup }): ReactNode {
   return (
     <>
       {group.nouns.map((noun) => (
         <div key={noun.noun} className="flex flex-col gap-3">
           <h4 className="font-mono text-sm font-semibold text-fg">{noun.noun}</h4>
+          <NounIntro family={group.family} noun={noun.noun} />
           <dl className="divide-y divide-border">
             {noun.rows.map((row) => (
               <EventRow key={row.name} row={row} />
@@ -110,6 +158,7 @@ function FamilyDisclosure({ group }: { readonly group: EventFamilyGroup }): Reac
         <CaretDown size={18} weight="bold" aria-hidden="true" className="shrink-0 text-fg-muted transition-transform duration-150 group-open:rotate-180" />
       </summary>
       <div className="flex flex-col gap-6 pt-6">
+        <FamilyIntro family={group.family} />
         <NounGroups group={group} />
       </div>
     </details>
@@ -196,6 +245,7 @@ export function EventReferenceExplorer({ rows }: EventReferenceExplorerProps): R
             <h3 id={`family-${group.family}`} className="text-xl font-semibold tracking-tight text-fg">
               {EVENT_FAMILY_LABELS[group.family]} <span className="text-base font-normal text-fg-muted">({group.count})</span>
             </h3>
+            <FamilyIntro family={group.family} />
             <NounGroups group={group} />
           </section>
         ))

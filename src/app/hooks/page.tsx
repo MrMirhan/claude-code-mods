@@ -9,8 +9,8 @@ import { InlineCode } from "@/components/docs/InlineCode";
 import { TextLink } from "@/components/docs/TextLink";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { getAllExtensions } from "@/lib/catalog";
-import { buildEventReference } from "@/lib/event-reference";
-import { getEvents, getEventsSource } from "@/lib/events";
+import { buildEventReference, docsOnlyCountPhrase } from "@/lib/event-reference";
+import { getEvents, getEventsSource, getSupplementEvents, getSupplementSource } from "@/lib/events";
 import { buildDocPageGraph } from "@/lib/seo/jsonLd";
 import { buildStaticPageMetadata } from "@/lib/seo/metadata";
 import { PAGE_SEO } from "@/lib/seo/pages";
@@ -20,11 +20,13 @@ export const metadata: Metadata = buildStaticPageMetadata(PAGE_SEO.hooks);
 
 export default function HooksPage(): ReactNode {
   const source = getEventsSource();
-  const events = getEvents();
-  const { rows, otherNames } = buildEventReference(source, events, getAllExtensions());
+  const supplementSource = getSupplementSource();
+  const { rows, otherNames } = buildEventReference(source, getEvents(), getAllExtensions(), getSupplementEvents());
+  const docsOnlyCount = rows.filter((row) => row.origin === "docs").length;
+  const docsOnlyPhrase = docsOnlyCountPhrase(docsOnlyCount);
   const familyCounts = EVENT_FAMILIES.map((family) => ({
     family,
-    count: events.filter((event) => event.family === family).length,
+    count: rows.filter((row) => row.family === family).length,
   }));
 
   return (
@@ -37,20 +39,33 @@ export default function HooksPage(): ReactNode {
         <p>
           Event names come from Anthropic&apos;s type declarations at commit <InlineCode>{source.sha.slice(0, 7)}</InlineCode>
           {source.claudeCodeVersion === null ? "" : ` (Claude Code ${source.claudeCodeVersion})`}, read on {source.syncedAt}.
-          Which entries use an event is as each entry&apos;s listing names it, not checked against its code. Entries
-          marked Community listing come from a third party and are not published by Anthropic. This page does not say
-          what an event does: neither the catalog nor this list records that, so read the entry&apos;s page or the
-          declarations before relying on an event.
+          {docsOnlyPhrase === null ? null : (
+            <>
+              That copy trails the release, so {docsOnlyPhrase} from{" "}
+              <TextLink href={supplementSource.referenceUrl}>Anthropic&apos;s mods reference</TextLink> (Claude Code{" "}
+              {supplementSource.referenceVersion}) and <TextLink href={supplementSource.changelogUrl}>changelog</TextLink>{" "}
+              (through {supplementSource.changelogThrough}), checked on {supplementSource.checkedAt}, and say so on their
+              row.{" "}
+            </>
+          )}
+          The short descriptions are this site&apos;s summary of those docs. For the exact inputs and results, read
+          the types Claude Code writes for your version.
         </p>
         <p>
-          Mods are early access. Hooks modules load only where function hooks are enabled, and the API they are
-          written against may change between releases without notice.
+          Which entries use an event is as each entry&apos;s listing names it, not checked against its code. Entries
+          marked Community listing come from a third party and are not published by Anthropic.
+        </p>
+        <p>
+          Mods are on by default from Claude Code v2.1.287 in the terminal and v2.1.286 in the Desktop app. Claude
+          Code v2.1.287 and later ignores <InlineCode>CLAUDE_CODE_ENABLE_FUNCTION_HOOKS</InlineCode>, so if you set it
+          during early access, remove it: setting it to <InlineCode>0</InlineCode> does not turn mods off. Events and
+          methods can still change between releases.
         </p>
       </Callout>
       <DocSection id="events" title="Every hook event">
         <Prose>
           <p>
-            Function hooks name {events.length} events:{" "}
+            Function hooks name {rows.length} events:{" "}
             {familyCounts.map(({ family, count }, index) => (
               <span key={family}>
                 {index === 0 ? "" : index === familyCounts.length - 1 ? " and " : ", "}

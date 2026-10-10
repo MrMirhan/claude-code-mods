@@ -1,3 +1,4 @@
+import { classicHookDocsUrl, eventSummary } from "@/lib/event-docs";
 import { eventAnchorId, eventSourceUrl, hookSelectsEvent, isWildcardHook, nounOf, patternMatchesEvent } from "@/lib/event-names";
 import {
   EVENT_FAMILIES,
@@ -7,13 +8,19 @@ import {
   type ExtensionKind,
   type HookEvent,
   type Publisher,
+  type SupplementEvent,
 } from "@/lib/types";
 
 /**
- * The Hooks page's reference: every event from `events.json`, each with the directory entries that
- * list it and a link to the line that declares it. Pure and serialisable, so the client explorer can
- * take it as props. Nothing here says what an event does: the catalog does not record that.
+ * The Hooks page's reference: every event from `events.json`, plus the names in
+ * `event-supplement.json` that Anthropic's docs list but the pinned declarations do not declare yet.
+ * Each row has the directory entries that list it, a link to where it is declared or documented, and
+ * a short description from `event-docs.ts` where there is one. Pure and serialisable, so the client
+ * explorer can take it as props.
  */
+
+/** Where a row's name comes from: the pinned declarations, or Anthropic's docs ahead of them. */
+export type EventOrigin = "declarations" | "docs";
 
 export interface EventUser {
   readonly slug: string;
@@ -29,9 +36,20 @@ export interface EventReferenceRow {
   readonly family: EventFamily;
   readonly noun: string;
   readonly anchorId: string;
-  /** Link to the declaring line in Anthropic's declarations, pinned to a commit. */
+  readonly origin: EventOrigin;
+  /**
+   * For a declared event, the declaring line in Anthropic's declarations, pinned to a commit. For a
+   * name from the docs, the section of Anthropic's docs that lists it.
+   */
   readonly sourceUrl: string;
-  readonly line: number;
+  /** The declaring line, or null for a name from the docs. */
+  readonly line: number | null;
+  /** The Claude Code version the docs say a name from the docs arrived in, or null. Always null for a declared event. */
+  readonly since: string | null;
+  /** One line on what the event is, or null where the docs give too little to write one. */
+  readonly summary: string | null;
+  /** Anthropic's section on a classic hook, or null for the other families. */
+  readonly hookDocsUrl: string | null;
   /** Entries that list this event, sorted by name. */
   readonly users: readonly EventUser[];
 }
@@ -64,7 +82,7 @@ function allowsBareClassic(extension: Extension): boolean {
 }
 
 /** The hook of `extension` that selects `event`, preferring one that names it over a wildcard. */
-function hookReaching(extension: Extension, event: HookEvent): string | undefined {
+function hookReaching(extension: Extension, event: Pick<HookEvent, "name">): string | undefined {
   const allowBareClassic = allowsBareClassic(extension);
   const selecting = extension.hooks.filter((hook) => hookSelectsEvent(hook, event, allowBareClassic));
   return selecting.find((hook) => !isWildcardHook(hook)) ?? selecting[0];
@@ -74,28 +92,49 @@ function toUser(extension: Extension, via: string): EventUser {
   return { slug: extension.slug, name: extension.name, kind: extension.kind, publisherKind: extension.publisher.kind, via };
 }
 
+interface ListedEvent {
+  readonly name: string;
+  readonly family: EventFamily;
+  readonly origin: EventOrigin;
+  readonly sourceUrl: string;
+  readonly line: number | null;
+  readonly since: string | null;
+}
+
 /**
  * Builds the reference. An entry counts once per event, under the hook that names it, or else the
  * first wildcard that selects it. Entries that name an event come before entries that reach it through
- * a wildcard. Rows keep the order of `events`, which the events file sorts by name.
+ * a wildcard. Rows are sorted by name, declared events and names from the docs together.
+ *
+ * A supplement name that the declarations now declare is left out, so the declared row, with its
+ * line link, wins: a sync that catches up never shows a name twice. A test flags such names so they
+ * are removed from the supplement.
  */
 export function buildEventReference(
   source: EventsFile["source"],
   events: readonly HookEvent[],
   extensions: readonly Extension[],
+  supplement: readonly SupplementEvent[] = [],
 ): EventReference {
-  const rows = events.map((event): EventReferenceRow => {
+  const declaredNames = new Set(events.map((event) => event.name));
+  const listed: readonly ListedEvent[] = [
+    ...events.map((event): ListedEvent => ({ name: event.name, family: event.family, origin: "declarations", sourceUrl: eventSourceUrl(source, event), line: event.line, since: null })),
+    ...supplement
+      .filter((event) => !declaredNames.has(event.name))
+      .map((event): ListedEvent => ({ name: event.name, family: event.family, origin: "docs", sourceUrl: event.docsUrl, line: null, since: event.since })),
+  ].sort((left, right) => compareText(left.name, right.name));
+
+  const rows = listed.map((event): EventReferenceRow => {
     const users = extensions.flatMap((extension) => {
       const via = hookReaching(extension, event);
       return via === undefined ? [] : [toUser(extension, via)];
     });
     return {
-      name: event.name,
-      family: event.family,
+      ...event,
       noun: nounOf(event),
       anchorId: eventAnchorId(event.name),
-      sourceUrl: eventSourceUrl(source, event),
-      line: event.line,
+      summary: eventSummary(event.name),
+      hookDocsUrl: classicHookDocsUrl(event.name),
       users: users.sort(compareUsers),
     };
   });
@@ -103,7 +142,7 @@ export function buildEventReference(
   const entriesByOtherName = new Map<string, EventUser[]>();
   for (const extension of extensions) {
     for (const hook of new Set(extension.hooks)) {
-      if (patternMatchesEvent(hook, events, allowsBareClassic(extension))) continue;
+      if (patternMatchesEvent(hook, listed, allowsBareClassic(extension))) continue;
       const entries = entriesByOtherName.get(hook) ?? [];
       entries.push(toUser(extension, hook));
       entriesByOtherName.set(hook, entries);
@@ -156,4 +195,13 @@ export function groupEventRows(rows: readonly EventReferenceRow[]): readonly Eve
     }));
     return [{ family, nouns, count: familyRows.length }];
   });
+}
+
+/**
+ * The subject of the /hooks callout's "come from" clause, or null when no name comes from the docs alone,
+ * so the page drops the clause instead of saying "0 names".
+ */
+export function docsOnlyCountPhrase(count: number): string | null {
+  if (count <= 0) return null;
+  return count === 1 ? "1 name comes" : `${count} names come`;
 }
