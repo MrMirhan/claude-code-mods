@@ -64,7 +64,7 @@ export const ENTRY_FIELD_DOCS: Readonly<Record<keyof Extension, EntryFieldDoc>> 
   notice: {
     type: "string | null",
     description:
-      "A caveat a reader must see before using the entry, such as early access or a required setting. Null when there is none.",
+      "A caveat a reader must see before using the entry, such as a minimum Claude Code version or a required setting. Null when there is none.",
   },
   details: {
     type: "array of { label, value, isCommand }",
@@ -298,7 +298,7 @@ export const EXAMPLE_GUIDE: readonly GuideSection[] = [
   },
   {
     title: "Setup",
-    paragraphs: ["What has to be enabled first, and how to load the mod from a local folder."],
+    paragraphs: ["Which Claude Code version it needs, and how to load the mod from a local folder."],
     commands: ["claude --plugin-dir example-hook-mod"],
   },
   {
@@ -310,13 +310,14 @@ export const EXAMPLE_GUIDE: readonly GuideSection[] = [
 
 export const EXAMPLE_GUIDE_JSON: string = JSON.stringify(EXAMPLE_GUIDE, null, 2);
 
-/** How the four mods that ship in Claude Code are loaded, per the mods README. */
+/** How a mod is loaded from a folder and tested, per the mods README and the official create and test guides. */
 export const MODS_LOADING_COMMANDS: readonly string[] = [
   "claude --plugin-dir <path-to-mod>",
   "claude plugin test <path-to-mod>",
 ];
 
 export const MODS_TYPES_URL = "https://github.com/anthropics/claude-code/tree/main/mods/types";
+export const MODS_OVERVIEW_URL = "https://code.claude.com/docs/en/plugins/mods/overview";
 export const MODS_README_URL = "https://github.com/anthropics/claude-code/blob/main/mods/README.md";
 
 export const PLUGIN_DOCS_LINKS = [

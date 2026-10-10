@@ -90,7 +90,7 @@ describe("KindExplorer", () => {
     expect(screen.queryByText(/Anthropic publishes/)).not.toBeInTheDocument();
     unmount();
 
-    render(<KindExplorer counts={COUNTS} builtInModsNote="Anthropic publishes 3 mods in owner/repo. They ship built in. Early access." />);
+    render(<KindExplorer counts={COUNTS} builtInModsNote="Anthropic publishes 3 mods in owner/repo. They ship built in. Fixture lead." />);
     expect(screen.getByText(/Anthropic publishes 3 mods in owner\/repo/)).toBeInTheDocument();
     // The note belongs to the mod cell only.
     expect(screen.getAllByText(/Anthropic publishes/)).toHaveLength(1);
@@ -101,8 +101,8 @@ describe("KindExplorer", () => {
     const community = buildFixture({ slug: "community-mod", name: "community-mod", kind: "mod", publisherKind: "community", availability: "source-only" });
     const cases: readonly (readonly [number, RegExp | null])[] = [
       [0, null],
-      [1, /Anthropic publishes 1 mod in fixture-vendor\/fixture-repo\. It ships built in\. Early access\./],
-      [3, /Anthropic publishes 3 mods in fixture-vendor\/fixture-repo\. They ship built in\. Early access\./],
+      [1, /Anthropic publishes 1 mod in fixture-vendor\/fixture-repo\. It ships built in\. Fixture lead\./],
+      [3, /Anthropic publishes 3 mods in fixture-vendor\/fixture-repo\. They ship built in\. Fixture lead\./],
     ];
     for (const [anthropicCount, expected] of cases) {
       const catalog = [...buildFeaturedMods(anthropicCount), community];

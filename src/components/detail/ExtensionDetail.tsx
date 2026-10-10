@@ -34,7 +34,7 @@ export interface ExtensionDetailProps {
   readonly hookHrefs?: ReadonlyMap<string, string>;
 }
 
-/** Caveat stored on the entry (for example early access), shown before anything else the reader might act on. */
+/** Caveat stored on the entry (for example a minimum Claude Code version), shown before anything else the reader might act on. */
 function NoticeCallout({ notice }: { readonly notice: string }): ReactNode {
   return (
     <DetailCallout tone="warning" label="Notice">

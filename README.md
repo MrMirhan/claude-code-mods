@@ -8,7 +8,7 @@ An unofficial community directory of Claude Code mods and extensions: mods, plug
 
 ## Mods first
 
-A mod is a Claude Code plugin whose behaviour lives in a hooks module. Anthropic publishes four in [anthropics/claude-code](https://github.com/anthropics/claude-code/tree/main/mods): `sec-default`, `diff`, `telemetry` and `agents-md`. They ship inside Claude Code, they are early access, and the API they are written against may change between releases without notice. Each has its own page here with what it does, how to run it from source and where to download it.
+A mod is a Claude Code plugin whose behaviour lives in a hooks module. Anthropic publishes four in [anthropics/claude-code](https://github.com/anthropics/claude-code/tree/main/mods): `sec-default`, `diff`, `telemetry` and `agents-md`. They ship inside Claude Code, and `/plugin` lists them on the Installed tab under Built-in. Mods are on by default in Claude Code v2.1.287 and later in the terminal, and from v2.1.286 in the Code tab of the Desktop app ([mods overview](https://code.claude.com/docs/en/plugins/mods/overview)). The mods README in that repository says the API they are written against may change between releases without notice. Each has its own page here with what it does, how to turn it off, how to run it from source and where to download it.
 
 ## What is real
 
@@ -85,9 +85,9 @@ npm run test:starter                          # CLAUDE_CODE_ENABLE_FUNCTION_HOOK
 claude plugin validate templates/mod-starter
 ```
 
-`claude plugin test` does not exist unless `CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1` is set, which the script does for that one command. CI does not run it, because the Claude Code CLI is not installed there, so the page dates its claim ("passed on Claude Code X on DATE") and this script is how a maintainer re-checks it.
+The script still sets `CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1`, a variable from early access. Claude Code v2.1.287 and later ignores it, so `claude plugin test templates/mod-starter` on its own does the same on a current version. CI does not run it, because the Claude Code CLI is not installed there, so the page dates its claim ("passed on Claude Code X on DATE") and this script is how a maintainer re-checks it.
 
-Testing a mod runs its code, so read a folder before you run it. The variable is set on the command, not exported, so it is not left on for later sessions.
+Testing a mod runs its code, so read a folder before you run it.
 
 `templates/migration-example/` moves three classic hooks to the `classic.<Name>` events for the Migration page. The test kit cannot fire a classic event, so it has no tests. Check both templates against Anthropic's declarations with:
 

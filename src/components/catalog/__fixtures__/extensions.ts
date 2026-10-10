@@ -44,7 +44,7 @@ export const builtInModExtension: Extension = extensionSchema.parse({
   license: "All rights reserved. Fixture license text.",
   availability: "built-in",
   installCommands: [],
-  notice: "Early access. Fixture notice about function hooks and a changing API.",
+  notice: "Fixture lead. Fixture notice about a minimum version and a changing API.",
   details: [
     { label: "Seated", value: "Built in", isCommand: false },
     { label: "Run from source", value: "claude --plugin-dir mods/fixture-pane-mod", isCommand: true },

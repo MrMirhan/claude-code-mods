@@ -3,6 +3,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 import {
   COMMUNITY_LABEL,
   LICENSE_OPEN_ITEM,
+  MODS_OVERVIEW_URL,
   MODS_TYPES_URL,
   PLUGIN_DOCS_LINKS,
   PUBLISH_STEPS,
@@ -145,9 +146,11 @@ describe("publish page", () => {
     const { container } = render(<PublishPage />);
     const section = within(container.querySelector("#mods") as HTMLElement);
     expect(section.getByText("claude --plugin-dir <path-to-mod>")).toBeInTheDocument();
-    expect(section.getByText(/Function hooks must be enabled/)).toBeInTheDocument();
-    expect(section.getByText(/Early access/)).toBeInTheDocument();
-    expect(section.getByText(/not listed in a plugin marketplace/)).toBeInTheDocument();
+    expect(section.getByText(/Mods are on by default in Claude Code\s+v2\.1\.287/)).toBeInTheDocument();
+    expect(section.getByRole("link", { name: /mods overview/ })).toHaveAttribute("href", MODS_OVERVIEW_URL);
+    expect(section.getByText(/ignores it/)).toBeInTheDocument();
+    expect(container.textContent).not.toMatch(/Early access|Function hooks must be enabled|CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1/);
+    expect(section.queryByText(/not listed in a plugin marketplace/)).not.toBeInTheDocument();
     expect(section.getByRole("link", { name: /mods types folder/ })).toHaveAttribute("href", MODS_TYPES_URL);
   });
 

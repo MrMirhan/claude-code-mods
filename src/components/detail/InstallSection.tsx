@@ -10,7 +10,7 @@ export interface InstallSectionProps {
 }
 
 export const NO_INSTALL_COMMAND = "No install command listed. See the source repository.";
-/** Defines the availability label. Caveats such as early access come from the entry's own notice, shown above. */
+/** Defines the availability label. Caveats such as a minimum version come from the entry's own notice, shown above. */
 export const BUILT_IN_EXPLANATION = "Built in. This ships inside Claude Code. Its source is published so you can read it.";
 
 /**

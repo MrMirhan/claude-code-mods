@@ -132,16 +132,22 @@ describe("the shipped data", () => {
       }
     });
 
-    it("say the source is silent on enabling function hooks, and cite the announcement issue for the flag", () => {
+    it("give the documented versions and /plugin name, and never tell a reader to set the early access flag", () => {
       for (const mod of anthropicMods) {
         const setup = mod.guide.find((section) => /set ?up/i.test(section.title));
         const text = setup?.paragraphs.join(" ") ?? "";
-        expect(text, mod.slug).toContain("The source does not document how to enable function hooks.");
-        expect(text, mod.slug).toContain("CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1");
-        expect(text, mod.slug).toMatch(/not documentation/);
+        expect(text, mod.slug).toContain("v2.1.287");
+        expect(text, mod.slug).toContain("v2.1.286");
+        expect(text, mod.slug).toContain(`cc-plugin-${mod.slug}`);
+        expect(text, mod.slug).not.toMatch(/CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1|does not document how to enable/);
+        expect(mod.notice ?? "", mod.slug).not.toMatch(/early access|function hooks are enabled/i);
         expect(
-          mod.links.some((link) => link.url === "https://github.com/anthropics/claude-code/issues/91870"),
-          `${mod.slug} links the announcement issue`,
+          mod.details.some((detail) => detail.label === "Name in /plugin" && detail.value === `cc-plugin-${mod.slug}`),
+          `${mod.slug} names its /plugin entry`,
+        ).toBe(true);
+        expect(
+          mod.links.some((link) => link.url === "https://code.claude.com/docs/en/plugins/mods/overview"),
+          `${mod.slug} links the mods overview`,
         ).toBe(true);
       }
     });

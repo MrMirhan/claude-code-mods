@@ -67,7 +67,7 @@ function buildPreamble(input: LlmsInput, title: string): readonly string[] {
     "",
     "> An unofficial community directory of Claude Code mods, plugins, skills, agents, hooks, commands and MCP servers. Each entry shows the date its source URL was last checked.",
     "",
-    `${SITE_NAME} is not affiliated with or endorsed by Anthropic. "Source verified" means only that an entry's source URL responded on the date shown. It is not a security review, and no entry was scanned. Entries marked "${COMMUNITY_LABEL}" come from a third party and are not published by Anthropic: a maintainer read the entry, not the code. Mods are plugins whose behaviour lives in a hooks module, and the ones Anthropic ships inside Claude Code are early access. Catalog data was generated on ${input.generatedAt}.`,
+    `${SITE_NAME} is not affiliated with or endorsed by Anthropic. "Source verified" means only that an entry's source URL responded on the date shown. It is not a security review, and no entry was scanned. Entries marked "${COMMUNITY_LABEL}" come from a third party and are not published by Anthropic: a maintainer read the entry, not the code. Mods are plugins whose behaviour lives in a hooks module. They are on by default in Claude Code v2.1.287 and later, and Anthropic ships some inside Claude Code. Catalog data was generated on ${input.generatedAt}.`,
     "",
   ];
 }

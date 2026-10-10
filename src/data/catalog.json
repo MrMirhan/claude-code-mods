@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-09-21",
+  "generatedAt": "2026-10-10",
   "extensions": [
     {
       "slug": "sec-default",
@@ -25,7 +25,7 @@
       "license": "© Anthropic PBC. All rights reserved. Use is subject to Anthropic's Commercial Terms of Service.",
       "availability": "built-in",
       "installCommands": [],
-      "notice": "Early access. Hooks modules load only where function hooks are enabled, and the API these mods are written against may change between releases without notice. They are not listed in the repository's marketplace; the copies that matter are the ones already in your Claude Code.",
+      "notice": "Mods are on by default in Claude Code v2.1.287 and later in the terminal, and from v2.1.286 in the Code tab of the Desktop app. Built-in mods are listed in /plugin on the Installed tab under Built-in, and you can't update or uninstall one. The mods README in the source says the API these mods are written against may change between releases without notice.",
       "details": [
         {
           "label": "Seated",
@@ -35,6 +35,21 @@
         {
           "label": "Version",
           "value": "0.1.0",
+          "isCommand": false
+        },
+        {
+          "label": "Name in /plugin",
+          "value": "cc-plugin-sec-default",
+          "isCommand": false
+        },
+        {
+          "label": "Where it's on",
+          "value": "Where the built-in guard loads: on a machine with managed settings, or for a user signed in with a Team or Enterprise plan",
+          "isCommand": false
+        },
+        {
+          "label": "How to turn it off",
+          "value": "You can't. An administrator sets the order in managed settings.",
           "isCommand": false
         },
         {
@@ -78,7 +93,8 @@
           "paragraphs": [
             "This mod ships inside Claude Code and is seated by the CLI, so there is no install step. It has no configuration options: its plugin.json declares no userConfig.",
             "To read it running from source, run the command below from the root of a clone of the repository. The README gives a caution for this: it is a plugin folder like any other, but its one move that matters, next.to, is refused outside a managed tier, so loading it with --plugin-dir seats a plugin that can only pass.",
-            "The source does not document how to enable function hooks. The author of the announcement issue (anthropics/claude-code #91870) wrote in its Sep 9, 2026 update that anyone who wants to test can start Claude Code with CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1. That is a note in an issue, not documentation, and it may change without notice."
+            "Mods are on by default. In the terminal, use Claude Code v2.1.287 or later (claude --version shows yours). In the Code tab of the Desktop app, mods work from v2.1.286 (enter /status in a local session and read the Claude Code row). If you set CLAUDE_CODE_ENABLE_FUNCTION_HOOKS during early access, remove it: v2.1.287 and later ignore it.",
+            "To see it, run /plugin and open the Installed tab, where it is listed under Built-in as cc-plugin-sec-default. The official docs say you can't turn it off: an administrator sets its order in managed settings. The settings and flags that stop installed mods, such as disableAllHooks, --bare and --safe-mode, don't stop built-in mods."
           ],
           "commands": [
             "claude --plugin-dir mods/sec-default"
@@ -151,6 +167,10 @@
           "url": "https://github.com/anthropics/claude-code/tree/main/mods/types"
         },
         {
+          "label": "Mods overview (Claude Code docs)",
+          "url": "https://code.claude.com/docs/en/plugins/mods/overview"
+        },
+        {
           "label": "Announcement issue",
           "url": "https://github.com/anthropics/claude-code/issues/91870"
         }
@@ -159,7 +179,7 @@
       "isFeatured": true,
       "verification": {
         "status": "verified",
-        "checkedAt": "2026-09-21",
+        "checkedAt": "2026-10-10",
         "sourceUrl": "https://github.com/anthropics/claude-code/tree/main/mods/sec-default"
       }
     },
@@ -187,7 +207,7 @@
       "license": "© Anthropic PBC. All rights reserved. Use is subject to Anthropic's Commercial Terms of Service.",
       "availability": "built-in",
       "installCommands": [],
-      "notice": "Early access. Hooks modules load only where function hooks are enabled, and the API these mods are written against may change between releases without notice. They are not listed in the repository's marketplace; the copies that matter are the ones already in your Claude Code.",
+      "notice": "Mods are on by default in Claude Code v2.1.287 and later in the terminal, and from v2.1.286 in the Code tab of the Desktop app. Built-in mods are listed in /plugin on the Installed tab under Built-in, and you can't update or uninstall one. The mods README in the source says the API these mods are written against may change between releases without notice.",
       "details": [
         {
           "label": "Seated",
@@ -197,6 +217,21 @@
         {
           "label": "Version",
           "value": "0.1.0",
+          "isCommand": false
+        },
+        {
+          "label": "Name in /plugin",
+          "value": "cc-plugin-diff",
+          "isCommand": false
+        },
+        {
+          "label": "Where it's on",
+          "value": "Interactive terminal sessions",
+          "isCommand": false
+        },
+        {
+          "label": "How to turn it off",
+          "value": "Disable it in /plugin. /diff stays, and Claude Code's built-in version of the command answers it.",
           "isCommand": false
         },
         {
@@ -249,7 +284,8 @@
             "This mod ships inside Claude Code as a built-in. It has no configuration options: its plugin.json declares no userConfig.",
             "To read it running from source, run the command below from the root of a clone of the repository, then use /diff inside a git repository with a modified file. The README says a session where another /diff is listed leaves the plugin idle.",
             "It needs a git repository to show anything. Outside one, /diff says so and does nothing else. For the pane to open by itself on the first edit, file checkpointing must be on, and the layout and terminal width conditions in the overview must hold.",
-            "The source does not document how to enable function hooks. The author of the announcement issue (anthropics/claude-code #91870) wrote in its Sep 9, 2026 update that anyone who wants to test can start Claude Code with CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1. That is a note in an issue, not documentation, and it may change without notice."
+            "Mods are on by default. In the terminal, use Claude Code v2.1.287 or later (claude --version shows yours). In the Code tab of the Desktop app, mods work from v2.1.286 (enter /status in a local session and read the Claude Code row). If you set CLAUDE_CODE_ENABLE_FUNCTION_HOOKS during early access, remove it: v2.1.287 and later ignore it.",
+            "To see it, run /plugin and open the Installed tab, where it is listed under Built-in as cc-plugin-diff. To turn it off, disable it there. /diff stays, and Claude Code's built-in version of the command answers it. The settings and flags that stop installed mods, such as disableAllHooks, --bare and --safe-mode, don't stop built-in mods."
           ],
           "commands": [
             "claude --plugin-dir mods/diff"
@@ -321,6 +357,10 @@
           "url": "https://github.com/anthropics/claude-code/tree/main/mods/types"
         },
         {
+          "label": "Mods overview (Claude Code docs)",
+          "url": "https://code.claude.com/docs/en/plugins/mods/overview"
+        },
+        {
           "label": "Announcement issue",
           "url": "https://github.com/anthropics/claude-code/issues/91870"
         }
@@ -329,7 +369,7 @@
       "isFeatured": true,
       "verification": {
         "status": "verified",
-        "checkedAt": "2026-09-21",
+        "checkedAt": "2026-10-10",
         "sourceUrl": "https://github.com/anthropics/claude-code/tree/main/mods/diff"
       }
     },
@@ -356,7 +396,7 @@
       "license": "© Anthropic PBC. All rights reserved. Use is subject to Anthropic's Commercial Terms of Service.",
       "availability": "built-in",
       "installCommands": [],
-      "notice": "Early access. Hooks modules load only where function hooks are enabled, and the API these mods are written against may change between releases without notice. They are not listed in the repository's marketplace; the copies that matter are the ones already in your Claude Code.",
+      "notice": "Mods are on by default in Claude Code v2.1.287 and later in the terminal, and from v2.1.286 in the Code tab of the Desktop app. Built-in mods are listed in /plugin on the Installed tab under Built-in, and you can't update or uninstall one. The mods README in the source says the API these mods are written against may change between releases without notice.",
       "details": [
         {
           "label": "Seated",
@@ -366,6 +406,21 @@
         {
           "label": "Version",
           "value": "0.1.0",
+          "isCommand": false
+        },
+        {
+          "label": "Name in /plugin",
+          "value": "cc-plugin-telemetry",
+          "isCommand": false
+        },
+        {
+          "label": "Where it's on",
+          "value": "Wherever Claude Code's own analytics are on",
+          "isCommand": false
+        },
+        {
+          "label": "How to turn it off",
+          "value": "Disable it in /plugin, or turn analytics off, for example with DISABLE_TELEMETRY.",
           "isCommand": false
         },
         {
@@ -407,7 +462,8 @@
             "The README says plainly that it is not meant to be installed or loaded with --plugin-dir. The folder has a manifest so it reads like every other plugin, not so it can stand alone. For that reason this listing gives no run-from-source command.",
             "It has no configuration options: its plugin.json declares no userConfig. The README documents no switch for this plugin itself. It sends nothing wherever the CLI's own analytics are off, under DISABLE_TELEMETRY, CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC or DO_NOT_TRACK, and the overview lists the other cases.",
             "A built-in that calls $.telemetry where this plugin is absent finds no such noun and should treat that as no analytics here.",
-            "The source does not document how to enable function hooks. The author of the announcement issue (anthropics/claude-code #91870) wrote in its Sep 9, 2026 update that anyone who wants to test can start Claude Code with CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1. That is a note in an issue, not documentation, and it may change without notice."
+            "Mods are on by default. In the terminal, use Claude Code v2.1.287 or later (claude --version shows yours). In the Code tab of the Desktop app, mods work from v2.1.286 (enter /status in a local session and read the Claude Code row). If you set CLAUDE_CODE_ENABLE_FUNCTION_HOOKS during early access, remove it: v2.1.287 and later ignore it.",
+            "To see it, run /plugin and open the Installed tab, where it is listed under Built-in as cc-plugin-telemetry. To turn it off, disable it there, or turn analytics off, for example with DISABLE_TELEMETRY. The settings and flags that stop installed mods, such as disableAllHooks, --bare and --safe-mode, don't stop built-in mods."
           ],
           "commands": []
         },
@@ -461,6 +517,10 @@
           "url": "https://github.com/anthropics/claude-code/tree/main/mods/types"
         },
         {
+          "label": "Mods overview (Claude Code docs)",
+          "url": "https://code.claude.com/docs/en/plugins/mods/overview"
+        },
+        {
           "label": "Announcement issue",
           "url": "https://github.com/anthropics/claude-code/issues/91870"
         }
@@ -469,7 +529,7 @@
       "isFeatured": true,
       "verification": {
         "status": "verified",
-        "checkedAt": "2026-09-21",
+        "checkedAt": "2026-10-10",
         "sourceUrl": "https://github.com/anthropics/claude-code/tree/main/mods/telemetry"
       }
     },
@@ -497,7 +557,7 @@
       "license": "© Anthropic PBC. All rights reserved. Use is subject to Anthropic's Commercial Terms of Service.",
       "availability": "built-in",
       "installCommands": [],
-      "notice": "Early access. Hooks modules load only where function hooks are enabled, and the API these mods are written against may change between releases without notice. They are not listed in the repository's marketplace; the copies that matter are the ones already in your Claude Code.",
+      "notice": "Mods are on by default in Claude Code v2.1.287 and later in the terminal, and from v2.1.286 in the Code tab of the Desktop app. Built-in mods are listed in /plugin on the Installed tab under Built-in, and you can't update or uninstall one. The mods README in the source says the API these mods are written against may change between releases without notice.",
       "details": [
         {
           "label": "Seated",
@@ -527,6 +587,21 @@
         {
           "label": "instructionFiles: managed-only",
           "value": "The project's and the person's own instruction files are dropped; the organization's managed CLAUDE.md and the engine's memory stay.",
+          "isCommand": false
+        },
+        {
+          "label": "Name in /plugin",
+          "value": "cc-plugin-agents-md",
+          "isCommand": false
+        },
+        {
+          "label": "Where it's on",
+          "value": "Every session, apart from the ones that can't read AGENTS.md",
+          "isCommand": false
+        },
+        {
+          "label": "How to turn it off",
+          "value": "Disable it in /plugin, or choose which instruction files load.",
           "isCommand": false
         },
         {
@@ -584,7 +659,8 @@
             "To read it running from source, run the command below from the root of a clone of the repository. Run from that folder, the same entry is keyed \"agents-md\" instead of \"agents-md@builtin\".",
             "The option was first keyed projectInstructions, with the values claude, agents-fallback, both and none. A value still stored under that key is honoured for now while instructionFiles reads as its default: none as managed-only, claude as claude-md, agents-fallback as claude-md-or-agents-md, both as claude-md-and-agents-md, and any other value as claude-md. The first session.start of a load says in the transcript how it was read. Once instructionFiles is set to anything but its default, the old key is not read and the transcript says to remove it.",
             "In plugin.json the option is declared as userConfig instructionFiles: type string, title \"Project instructions\", not required, default claude-md-or-agents-md, with the four values as its options.",
-            "The source does not document how to enable function hooks. The author of the announcement issue (anthropics/claude-code #91870) wrote in its Sep 9, 2026 update that anyone who wants to test can start Claude Code with CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1. That is a note in an issue, not documentation, and it may change without notice."
+            "Mods are on by default. In the terminal, use Claude Code v2.1.287 or later (claude --version shows yours). In the Code tab of the Desktop app, mods work from v2.1.286 (enter /status in a local session and read the Claude Code row). If you set CLAUDE_CODE_ENABLE_FUNCTION_HOOKS during early access, remove it: v2.1.287 and later ignore it.",
+            "To see it, run /plugin and open the Installed tab, where it is listed under Built-in as cc-plugin-agents-md. To turn it off, disable it there, or choose which instruction files load. The settings and flags that stop installed mods, such as disableAllHooks, --bare and --safe-mode, don't stop built-in mods."
           ],
           "commands": [
             "claude --plugin-dir mods/agents-md"
@@ -652,6 +728,10 @@
           "url": "https://github.com/anthropics/claude-code/tree/main/mods/types"
         },
         {
+          "label": "Mods overview (Claude Code docs)",
+          "url": "https://code.claude.com/docs/en/plugins/mods/overview"
+        },
+        {
           "label": "Announcement issue",
           "url": "https://github.com/anthropics/claude-code/issues/91870"
         }
@@ -660,7 +740,7 @@
       "isFeatured": true,
       "verification": {
         "status": "verified",
-        "checkedAt": "2026-09-21",
+        "checkedAt": "2026-10-10",
         "sourceUrl": "https://github.com/anthropics/claude-code/tree/main/mods/agents-md"
       }
     },

@@ -38,7 +38,7 @@ export function buildFixture(options: FixtureOptions): Extension {
     license: "MIT",
     availability,
     installCommands: isInstallable ? (options.installCommands ?? ["/plugin install fixture"]) : [],
-    notice: availability === "built-in" ? (options.notice ?? "Early access. Fixture caveat sentence. Extra detail.") : null,
+    notice: availability === "built-in" ? (options.notice ?? "Fixture lead. Fixture caveat sentence. Extra detail.") : null,
     details: options.details ?? [],
     guide:
       options.kind === "mod"

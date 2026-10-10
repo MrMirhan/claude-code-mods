@@ -80,7 +80,7 @@ describe("InstallFlow run from source", () => {
     expect(within(block).getByRole("heading", { level: 3 })).toBeInTheDocument();
     expect(within(block).getByText(RUN_FROM_SOURCE_COMMAND)).toBeInTheDocument();
     expect(
-      within(block).getByText("Needs a clone of fixture-vendor/fixture-repo. Early access."),
+      within(block).getByText("Needs a clone of fixture-vendor/fixture-repo. Fixture lead."),
     ).toBeInTheDocument();
     expect(within(block).getByRole("button", { name: "Copy command: Run mod-one from source" })).toBeInTheDocument();
     expect(within(block).getByRole("link", { name: "mod-one" }).getAttribute("href")).toMatch(/^\/extensions\/mod-one\/?$/);
@@ -96,7 +96,7 @@ describe("InstallFlow run from source", () => {
       details: [{ label: "Run from source", value: "claude --plugin-dir mods/elsewhere", isCommand: true }],
     });
     render(<InstallFlow examples={[]} runFromSource={pickRunFromSource([offGitHub])} />);
-    expect(screen.getByText("Needs a clone of the source repository. Early access.")).toBeInTheDocument();
+    expect(screen.getByText("Needs a clone of the source repository. Fixture lead.")).toBeInTheDocument();
   });
 
   it("takes the caveat from the entry's own notice and adds none without one", () => {
@@ -114,7 +114,7 @@ describe("InstallFlow run from source", () => {
     const withoutNotice = { ...withOwnNotice, notice: null };
     render(<InstallFlow examples={[]} runFromSource={pickRunFromSource([withoutNotice])} />);
     expect(screen.getByText("Needs a clone of fixture-org/own-notice.")).toBeInTheDocument();
-    expect(screen.queryByText(/early access/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Fixture lead/)).not.toBeInTheDocument();
   });
 
   it("appears alongside install groups when both exist", () => {

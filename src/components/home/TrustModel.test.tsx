@@ -22,12 +22,12 @@ describe("TrustModel", () => {
   it("takes the Built in caveat from the entries' own notices", () => {
     render(<TrustModel catalogDate="2026-01-02" builtInMods={MODS} />);
     const body = screen.getByText(/Ships inside Claude Code/);
-    expect(body).toHaveTextContent("Ships inside Claude Code, with its source published for reading. Early access. Fixture caveat sentence.");
+    expect(body).toHaveTextContent("Ships inside Claude Code, with its source published for reading. Fixture lead. Fixture caveat sentence.");
   });
 
   it("keeps only the definition when the notices differ", () => {
     const mods = [
-      buildFixture({ slug: "one", name: "one", kind: "mod", notice: "Early access. A." }),
+      buildFixture({ slug: "one", name: "one", kind: "mod", notice: "Fixture lead. A." }),
       buildFixture({ slug: "two", name: "two", kind: "mod", notice: "Preview. B." }),
     ];
     render(<TrustModel catalogDate="2026-01-02" builtInMods={mods} />);

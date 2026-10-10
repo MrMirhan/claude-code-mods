@@ -18,6 +18,7 @@ import {
   EXAMPLE_GUIDE_JSON,
   LICENSE_OPEN_ITEM,
   MODS_LOADING_COMMANDS,
+  MODS_OVERVIEW_URL,
   MODS_README_URL,
   MODS_TYPES_URL,
   PLUGIN_DOCS_LINKS,
@@ -178,9 +179,9 @@ export default function PublishPage(): ReactNode {
             there.
           </p>
           <p>
-            You load a mod from a local folder, and test it, with these commands. Function hooks must be enabled for a
-            hooks module to load. In an entry, only the first form is allowed as a command, so describe testing in
-            prose.
+            You load a mod from a local folder, and test it, with these commands. Mods are on by default in Claude Code
+            v2.1.287 and later, so no setting or variable has to be turned on first. In an entry, only the first form is
+            allowed as a command, so describe testing in prose.
           </p>
         </Prose>
         <div className="flex max-w-[65ch] flex-col gap-2">
@@ -190,8 +191,10 @@ export default function PublishPage(): ReactNode {
         </div>
         <Callout tone="warning">
           <p>
-            Early access. The API mods are written against may change between Claude Code releases without notice, and
-            mods are not listed in a plugin marketplace. Say so in the entry&apos;s <InlineCode>notice</InlineCode>.
+            Do not tell readers to set <InlineCode>CLAUDE_CODE_ENABLE_FUNCTION_HOOKS</InlineCode>. Anthropic&apos;s{" "}
+            <TextLink href={MODS_OVERVIEW_URL}>mods overview</TextLink> says Claude Code v2.1.287 and later ignores it.
+            If your mod needs a later version, or has a caveat a reader must see first, say so in the entry&apos;s{" "}
+            <InlineCode>notice</InlineCode>.
           </p>
         </Callout>
       </DocSection>
