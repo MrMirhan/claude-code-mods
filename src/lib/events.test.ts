@@ -17,7 +17,7 @@ import {
 } from "@/lib/events";
 import { EVENT_FAMILIES, type HookEvent } from "@/lib/types";
 
-/** Nouns that a built-in mod adds to `$` itself (the telemetry mod adds `$.telemetry`), so they are not core events. */
+/** Nouns not in the pinned declarations. Telemetry events are listed in event-supplement.json from the mods reference instead. */
 const PLUGIN_DECLARED_NOUNS = ["telemetry"] as const;
 
 describe("the shipped events", () => {
