@@ -22,6 +22,7 @@ import {
   RESULT_MAPPING_COLUMNS,
   SCOPE_NOTE,
 } from "@/components/docs/migrationContent";
+import { officialModDoc } from "@/components/docs/learnContent";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { CopyCommand } from "@/components/ui/CopyCommand";
 import { eventAnchorId } from "@/lib/event-names";
@@ -57,7 +58,9 @@ export default function MigrationPage(): ReactNode {
         <p>
           Read the <TextLink href={PLUGIN_DEV_MIGRATION_URL}>plugin-dev migration guide</TextLink> if you want to move a
           command hook to a prompt hook instead. Mods are new, and Anthropic&apos;s docs say their events and methods can
-          change between releases.
+          change between releases. For the events a mod can handle today, read{" "}
+          <TextLink href={officialModDoc("events").href}>{officialModDoc("events").title}</TextLink> and the{" "}
+          <TextLink href={officialModDoc("reference").href}>{officialModDoc("reference").title}</TextLink>.
         </p>
       </Callout>
       <DocSection id="what-changes" title="What changes">

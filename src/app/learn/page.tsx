@@ -15,6 +15,7 @@ import {
   LEARN_FAQ,
   LEARN_SOURCES,
   MODS_MIN_VERSION,
+  OFFICIAL_MOD_DOCS,
 } from "@/components/docs/learnContent";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { Button } from "@/components/ui/Button";
@@ -70,6 +71,18 @@ export default function LearnPage(): ReactNode {
             <TextLink href={LEARN_SOURCES.modsReadme}>Mods README</TextLink>, or in the{" "}
             <TextLink href={LEARN_SOURCES.announcementIssue}>announcement issue</TextLink>.
           </p>
+        </Prose>
+      </DocSection>
+      <DocSection id="official-docs" title="Anthropic's official docs">
+        <Prose>
+          <p>Anthropic documents mods in these pages. When this site and the docs disagree, trust the docs.</p>
+          <ul role="list" className="flex list-disc flex-col gap-2 pl-5">
+            {OFFICIAL_MOD_DOCS.map((page) => (
+              <li key={page.id}>
+                <TextLink href={page.href}>{page.title}</TextLink>: {page.covers}
+              </li>
+            ))}
+          </ul>
         </Prose>
       </DocSection>
       <DocSection id="how-it-works" title="How function hooks work">

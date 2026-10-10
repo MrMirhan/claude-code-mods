@@ -8,6 +8,7 @@ import {
   ASK_CLAUDE_STEPS,
   LEARN_SOURCES,
   MODS_MIN_VERSION,
+  officialModDoc,
   RETIRED_FLAG_NAME,
   RUN_WARNING,
   STARTER_LIMITS,
@@ -183,6 +184,15 @@ describe("getting started page", () => {
     render(<GettingStartedPage />);
     expect(screen.getByText(/no DOM and no Node/)).toBeInTheDocument();
     expect(screen.getByText(/no test\.each/)).toBeInTheDocument();
+  });
+
+  it("links the official Test a mod and Troubleshoot a mod pages where they help", () => {
+    const { container } = render(<GettingStartedPage />);
+    const testSection = within(container.querySelector("#test") as HTMLElement);
+    expect(testSection.getByRole("link", { name: /^Test a mod/ })).toHaveAttribute("href", officialModDoc("test").href);
+    const nextSection = within(container.querySelector("#next") as HTMLElement);
+    expect(nextSection.getByRole("link", { name: /^Troubleshoot a mod/ })).toHaveAttribute("href", officialModDoc("troubleshoot").href);
+    expect(nextSection.getByRole("link", { name: "Learn" }).getAttribute("href")).toMatch(/^\/learn\/?#official-docs$/);
   });
 
   it("links on to the migration guide", () => {

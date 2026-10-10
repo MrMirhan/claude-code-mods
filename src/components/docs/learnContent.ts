@@ -199,6 +199,100 @@ export const LEARN_FAQ: readonly FaqEntry[] = [
   },
 ];
 
+export type OfficialDocId =
+  | "overview"
+  | "create"
+  | "interface"
+  | "gallery"
+  | "events"
+  | "api"
+  | "test"
+  | "troubleshoot"
+  | "admin"
+  | "reference";
+
+export interface OfficialDocPage {
+  readonly id: OfficialDocId;
+  /** The page's own title in the official docs. */
+  readonly title: string;
+  readonly href: string;
+  /** What the page covers, in this site's words, from the page's own summary line. */
+  readonly covers: string;
+}
+
+const MODS_DOCS_BASE = "https://code.claude.com/docs/en/plugins/mods";
+
+/** Anthropic's mods docs, in the reading order their overview's next steps suggest. */
+export const OFFICIAL_MOD_DOCS: readonly OfficialDocPage[] = [
+  {
+    id: "overview",
+    title: "Mods overview",
+    href: LEARN_SOURCES.modsOverviewDocs,
+    covers: "What a mod can do, how to get one, how to turn mods off, and where they run.",
+  },
+  {
+    id: "create",
+    title: "Create a mod",
+    href: LEARN_SOURCES.modsCreateDocs,
+    covers: "Ask Claude to write a mod, or write one yourself, then reload and validate it.",
+  },
+  {
+    id: "interface",
+    title: "Draw in the interface with a mod",
+    href: `${MODS_DOCS_BASE}/interface`,
+    covers: "Panes, the band above the prompt, buttons, text fields, and state that lasts between redraws.",
+  },
+  {
+    id: "gallery",
+    title: "Interface gallery for mods",
+    href: `${MODS_DOCS_BASE}/gallery`,
+    covers: "Every element a mod can draw, with sample code and screenshots.",
+  },
+  {
+    id: "events",
+    title: "React to events with a mod",
+    href: `${MODS_DOCS_BASE}/events`,
+    covers: "Observe, rewrite or answer tool calls, prompts and turns, and plan for other mods.",
+  },
+  {
+    id: "api",
+    title: "Use the mods API",
+    href: `${MODS_DOCS_BASE}/api`,
+    covers: "Commands, tools, model calls, timers, messages to other sessions, files and the network.",
+  },
+  {
+    id: "test",
+    title: "Test a mod",
+    href: `${MODS_DOCS_BASE}/test`,
+    covers: "Automated tests that fire events and press buttons, with no session, sign in or network.",
+  },
+  {
+    id: "troubleshoot",
+    title: "Troubleshoot a mod",
+    href: `${MODS_DOCS_BASE}/troubleshoot`,
+    covers: "Why a mod does nothing, what each refusal message means, and the debug log.",
+  },
+  {
+    id: "admin",
+    title: "Manage mods for your organization",
+    href: `${MODS_DOCS_BASE}/admin`,
+    covers: "Managed settings that stop or allow mods, how to review one, and policy mods.",
+  },
+  {
+    id: "reference",
+    title: "Mods reference",
+    href: `${MODS_DOCS_BASE}/reference`,
+    covers: "The full list of events, methods, render sites, elements, limits and settings.",
+  },
+];
+
+/** One official docs page by id, so a page links it without repeating its title or URL. */
+export function officialModDoc(id: OfficialDocId): OfficialDocPage {
+  const page = OFFICIAL_MOD_DOCS.find((candidate) => candidate.id === id);
+  if (page === undefined) throw new Error(`No official mods docs page with id ${JSON.stringify(id)}`);
+  return page;
+}
+
 /** The example request "Ask Claude for a mod" in the Create a mod docs uses. */
 export const ASK_CLAUDE_EXAMPLE_PROMPT = "make a mod that shows the current git branch above the prompt";
 

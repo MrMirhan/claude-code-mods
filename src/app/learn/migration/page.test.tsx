@@ -10,6 +10,7 @@ import {
   RESULT_MAPPING,
   SCOPE_NOTE,
 } from "@/components/docs/migrationContent";
+import { officialModDoc } from "@/components/docs/learnContent";
 import { getEvents, getEventsSource } from "@/lib/events";
 import { loadMigrationExampleFiles, MIGRATION_EXAMPLE_DIRECTORY } from "@/lib/migration-example";
 import { PAGE_SEO } from "@/lib/seo/pages";
@@ -36,6 +37,15 @@ describe("migration page", () => {
     expect(within(note).getByRole("link", { name: /plugin-dev migration guide/ })).toHaveAttribute("href", PLUGIN_DEV_MIGRATION_URL);
     expect(note).toHaveTextContent(SCOPE_NOTE);
     expect(note).toHaveTextContent(/can change between releases/);
+  });
+
+  it("points at the official events and reference pages for the events a mod can handle", () => {
+    render(<MigrationPage />);
+    const note = screen.getAllByRole("note")[0];
+    for (const id of ["events", "reference"] as const) {
+      const page = officialModDoc(id);
+      expect(within(note).getByRole("link", { name: new RegExp(`^${page.title}`) })).toHaveAttribute("href", page.href);
+    }
   });
 
   it("shows every difference with the sources it comes from", () => {

@@ -1,7 +1,7 @@
 import { render, screen, within } from "@testing-library/react";
 import { beforeAll, describe, expect, it } from "vitest";
 import { DASH_PATTERN, stubIntersectionObserver } from "@/components/docs/testSupport";
-import { CONCEPTS, KIND_COMPARISON, LEARN_FAQ, LEARN_SOURCES, MODS_MIN_VERSION } from "@/components/docs/learnContent";
+import { CONCEPTS, KIND_COMPARISON, LEARN_FAQ, LEARN_SOURCES, MODS_MIN_VERSION, OFFICIAL_MOD_DOCS } from "@/components/docs/learnContent";
 import { getEvents, getEventsSource } from "@/lib/events";
 import { PAGE_SEO } from "@/lib/seo/pages";
 import { SITE_URL } from "@/lib/site";
@@ -42,6 +42,15 @@ describe("learn page", () => {
     for (const term of ["A hook is a function", "The $ object", "next continues the chain", "Administrators sit outermost", "Plugins can draw"]) {
       expect(screen.getByText(term)).toBeInTheDocument();
     }
+  });
+
+  it("lists every official mods docs page, each linked to its own URL", () => {
+    const { container } = render(<LearnPage />);
+    const section = within(container.querySelector("#official-docs") as HTMLElement);
+    const links = section.getAllByRole("link");
+    expect(links.map((link) => link.getAttribute("href"))).toEqual(OFFICIAL_MOD_DOCS.map((page) => page.href));
+    for (const page of OFFICIAL_MOD_DOCS) expect(section.getByText(page.covers, { exact: false })).toBeInTheDocument();
+    expect(section.getByText(/trust the docs/)).toBeInTheDocument();
   });
 
   it("compares a mod with each other kind in one table, each row with its source link", () => {

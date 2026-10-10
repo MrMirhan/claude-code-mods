@@ -15,6 +15,7 @@ import {
   LEARN_SOURCES,
   MOD_FOLDER_TREE,
   MODS_MIN_VERSION,
+  officialModDoc,
   RETIRED_FLAG_NAME,
   RUN_WARNING,
   STARTER_LIMITS,
@@ -172,6 +173,10 @@ export default function GettingStartedPage(): ReactNode {
               <li key={note}>{note}</li>
             ))}
           </ul>
+          <p>
+            To write tests of your own, read <TextLink href={officialModDoc("test").href}>{officialModDoc("test").title}</TextLink>{" "}
+            in the official docs.
+          </p>
         </Prose>
       </DocSection>
       <DocSection id="run" title="Check it and run it">
@@ -207,6 +212,11 @@ export default function GettingStartedPage(): ReactNode {
             look up an event on the <TextLink href="/hooks/">Hooks page</TextLink>, move a hook you already have with{" "}
             <TextLink href="/learn/migration/">classic hooks to function hooks</TextLink>, and see{" "}
             <TextLink href="/learn/">what a mod is and how it compares with plugins, hooks and skills</TextLink>.
+          </p>
+          <p>
+            If a mod does nothing, start with{" "}
+            <TextLink href={officialModDoc("troubleshoot").href}>{officialModDoc("troubleshoot").title}</TextLink>. The
+            rest of Anthropic&apos;s mod docs are listed on <TextLink href="/learn/#official-docs">Learn</TextLink>.
           </p>
         </Prose>
       </DocSection>

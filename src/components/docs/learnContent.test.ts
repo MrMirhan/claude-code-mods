@@ -14,6 +14,9 @@ import {
   LEARN_SOURCES,
   MOD_FOLDER_TREE,
   MODS_MIN_VERSION,
+  OFFICIAL_MOD_DOCS,
+  type OfficialDocId,
+  officialModDoc,
   RETIRED_FLAG_NAME,
   RUN_WARNING,
   STARTER_LIMITS,
@@ -127,6 +130,48 @@ describe("the prose lists", () => {
   it("say the starter is not a security boundary, and name what it misses", () => {
     expect(STARTER_LIMITS).toContain("not a security boundary");
     for (const missed of ["sudo", "bash -c", "--force-with-lease", "--delete", "--mirror"]) expect(STARTER_LIMITS).toContain(missed);
+  });
+});
+
+describe("OFFICIAL_MOD_DOCS", () => {
+  it("lists the ten mods pages, overview first and reference last, with unique ids", () => {
+    expect(OFFICIAL_MOD_DOCS.map((page) => page.id)).toEqual([
+      "overview",
+      "create",
+      "interface",
+      "gallery",
+      "events",
+      "api",
+      "test",
+      "troubleshoot",
+      "admin",
+      "reference",
+    ]);
+  });
+
+  it("links each one under the official mods docs path, over https, with no query, fragment or .md copy", () => {
+    for (const page of OFFICIAL_MOD_DOCS) {
+      const url = new URL(page.href);
+      expect(url.protocol, page.id).toBe("https:");
+      expect(url.hostname, page.id).toBe("code.claude.com");
+      expect(url.pathname, page.id).toBe(`/docs/en/plugins/mods/${page.id}`);
+      expect(url.search + url.hash, page.id).toBe("");
+      expect(ALLOWED_CATALOG_HOSTS as readonly string[], page.id).toContain(url.hostname);
+    }
+  });
+
+  it("gives every page a title and a summary without dashes", () => {
+    for (const page of OFFICIAL_MOD_DOCS) {
+      expect(page.title.trim(), page.id).not.toBe("");
+      expect(page.covers.trim(), page.id).not.toBe("");
+      expect(page.covers, page.id).not.toMatch(DASH_PATTERN);
+      expect(page.title, page.id).not.toMatch(DASH_PATTERN);
+    }
+  });
+
+  it("finds a page by id, and throws for an id it does not know", () => {
+    expect(officialModDoc("troubleshoot").title).toBe("Troubleshoot a mod");
+    expect(() => officialModDoc("missing" as OfficialDocId)).toThrow(/missing/);
   });
 });
 
