@@ -240,7 +240,7 @@ export const CONCEPTS: readonly ConceptItem[] = [
     id: "function-hook",
     term: "A hook is a function",
     description:
-      "A classic hook is a handler, usually a shell command, that receives JSON about an event. A function hook is a TypeScript function that the engine calls with the event, so it has types and can return a value.",
+      "A classic hook is a handler, usually a shell command, that receives JSON about an event. A function hook is a JavaScript or TypeScript function that the engine calls with the event, so it has types and can return a value.",
     sources: [MODS_README, ANNOUNCEMENT],
   },
   {
@@ -308,7 +308,7 @@ export const LEARN_FAQ: readonly FaqEntry[] = [
     id: "faq-mod-vs-classic-hook",
     question: "How is a mod different from a classic hook?",
     answer:
-      "A classic hook is a handler, usually a shell command, HTTP endpoint, MCP tool call, prompt or subagent, that Claude Code runs at a lifecycle event such as PreToolUse and that can block some of them by exit code. A mod's function hook is a TypeScript function the engine calls directly with the event, so it has types and can return a value instead of just an exit code.",
+      "A classic hook is a handler, usually a shell command, HTTP endpoint, MCP tool call, prompt or subagent, that Claude Code runs at a lifecycle event such as PreToolUse and that can block some of them by exit code. A mod's function hook is a JavaScript or TypeScript function the engine calls directly with the event, so it has types and can return a value instead of just an exit code.",
   },
   {
     id: "faq-what-can-a-mod-hook",

@@ -44,6 +44,14 @@ describe("learn page", () => {
     expect(note).toHaveTextContent(/can change between releases/);
     expect(note).not.toHaveTextContent(/early access|without notice|function hooks are enabled/);
     expect(note).toHaveTextContent(/unofficial/);
+    expect(note).toHaveTextContent(/with each table/);
+  });
+
+  it("says which kinds work from outside Claude Code without counting the plugin row among them", () => {
+    const { container } = render(<LearnPage />);
+    const intro = (container.querySelector("#compared") as HTMLElement).textContent ?? "";
+    expect(intro).toContain("Classic hooks, skills and MCP servers work from outside Claude Code");
+    expect(intro).not.toMatch(/The others work from outside/);
   });
 
   it("explains what a mod is and the five ideas behind it", () => {

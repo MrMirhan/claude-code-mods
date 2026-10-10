@@ -83,6 +83,11 @@ describe("KIND_COMPARISON", () => {
     }
   });
 
+  it("never says a mod's code must be TypeScript, since the docs allow JavaScript too", () => {
+    const copy = [...CONCEPTS.map((concept) => concept.description), ...LEARN_FAQ.map((entry) => entry.answer)].join(" ");
+    expect(copy).not.toMatch(/(?<!JavaScript or )TypeScript function/);
+  });
+
   it("says only a mod draws in the interface by itself, as the overview's table does", () => {
     const [mod, ...others] = KIND_COMPARISON;
     expect(mod.drawsInTheInterface).toBe("Yes");

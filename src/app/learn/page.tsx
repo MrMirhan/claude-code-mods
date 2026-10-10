@@ -59,7 +59,7 @@ export default function LearnPage(): ReactNode {
           Mods are on by default in Claude Code {`v${MODS_MIN_VERSION.terminal}`} or later in the terminal, and from{" "}
           {`v${MODS_MIN_VERSION.desktop}`} in the Code tab of the Desktop app. They are new, and Anthropic&apos;s docs say
           their events and methods can change between releases. This site is unofficial: the sources are linked beside
-          each idea and in the table, so you can check them.
+          each idea and with each table, so you can check them.
         </p>
       </Callout>
       <div className="flex flex-wrap items-center gap-3">
@@ -149,7 +149,7 @@ export default function LearnPage(): ReactNode {
         <Prose>
           <p>
             Claude Code can be extended in {KIND_COMPARISON.length - 1} other ways. They overlap, and a plugin can package
-            several of them. The others work from outside Claude Code: each runs a script, or gives Claude text or tools.
+            several of them. Classic hooks, skills and MCP servers work from outside Claude Code: each runs a script, or gives Claude text or tools.
             A mod runs inside Claude Code, so it is the only one that can draw in the interface. If one of the others
             already does what you need, start there.
           </p>
