@@ -134,6 +134,14 @@ describe("getting started page", () => {
     expect(container.textContent).toMatch(/was not run in a live session/);
   });
 
+  it("says where Claude Code writes a mod's types, and no longer sends readers to /plugin-types", () => {
+    const { container } = render(<GettingStartedPage />);
+    const element = container.querySelector("#types") as HTMLElement;
+    expect(within(element).getByText(".claude-plugin/types/")).toBeInTheDocument();
+    expect(element.textContent).toMatch(/trust the files/);
+    expect(element.textContent).not.toMatch(/\/plugin-types/);
+  });
+
   it("names the environment limits and the test kit notes", () => {
     render(<GettingStartedPage />);
     expect(screen.getByText(/no DOM and no Node/)).toBeInTheDocument();

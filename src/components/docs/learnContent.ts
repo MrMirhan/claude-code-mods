@@ -207,7 +207,7 @@ export const MOD_FOLDER_TREE = [
   "  tests/is-force-push.test.ts  run by claude plugin test",
 ].join("\n");
 
-/** What the hooks module's environment is, from the header of the type declarations `/plugin-types` writes. */
+/** What the hooks module's environment is, from the header of the type declarations Claude Code writes beside a mod. */
 export const HOOKS_ENVIRONMENT_LIMITS: readonly string[] = [
   "There is no DOM and no Node, so there is no fs, no process and no require.",
   "Every file is an ES module, whatever its suffix, and a file whose name does not end in .ts, .tsx, .jsx, .js, .mjs, .cjs, .mts or .cts is not loaded.",

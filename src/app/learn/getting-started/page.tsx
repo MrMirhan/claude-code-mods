@@ -151,9 +151,14 @@ export default function GettingStartedPage(): ReactNode {
       <DocSection id="types" title="Get the types">
         <Prose>
           <p>
-            Inside a session, the <InlineCode>/plugin-types</InlineCode> command writes the type declarations that a
-            mod imports from <InlineCode>claude-code</InlineCode>. TypeScript 5.4 or newer reads them. Regenerate them
-            after every Claude Code update instead of editing them.
+            When Claude Code loads a mod with <InlineCode>--plugin-dir</InlineCode> in an interactive session, it writes
+            TypeScript declaration files into the mod&apos;s <InlineCode>.claude-plugin/types/</InlineCode> folder. They
+            describe the events, methods and elements of the version you run, so your editor can check your hooks. If
+            the mod has no <InlineCode>tsconfig.json</InlineCode> of its own, Claude Code adds one at its root.
+          </p>
+          <p>
+            Events and methods can change between releases, so when these files and a page disagree, trust the files.
+            See <TextLink href={LEARN_SOURCES.modsCreateDocs}>Create a mod</TextLink> for the full list.
           </p>
         </Prose>
       </DocSection>
