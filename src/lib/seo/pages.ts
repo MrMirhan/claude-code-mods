@@ -49,7 +49,7 @@ export const PAGE_SEO = {
     path: "/learn/getting-started/",
     title: "Build your first Claude Mod",
     description:
-      "Turn on function hooks, build a starter mod that refuses force pushes, test it with claude plugin test and run it from a folder.",
+      "Check that mods are on, ask Claude for a mod or build a starter mod that refuses force pushes, test it with claude plugin test and run it from a folder.",
     breadcrumbLabel: "Getting started",
     breadcrumbParent: { label: "Learn", path: "/learn/" },
   },
