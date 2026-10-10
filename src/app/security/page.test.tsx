@@ -5,7 +5,27 @@ import { DASH_PATTERN, stubIntersectionObserver } from "@/components/docs/testSu
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { pickExampleMod, pickSecurityMod, selectAnthropicBuiltInMods } from "@/components/docs/builtInMods";
-import { RUNTIME_POINTS, RUNTIME_SEATS, RUNTIME_SEAT_NOTE, RUNTIME_SECTION_NOTE, SECURITY_MOD_FACTS } from "@/components/docs/securityContent";
+import {
+  ALLOW_MANAGED_MODS_ONLY_JSON,
+  FLAG_RETIRED_NOTE,
+  GUARD_LOAD_FACTS,
+  GUARD_OPTIONS,
+  MODS_ADMIN,
+  ORG_POLICIES,
+  ORG_PRECEDENCE,
+  MOD_OFF_SWITCHES,
+  MOD_REACH,
+  MODS_ADMIN_REVIEW,
+  MODS_OVERVIEW_TRUST,
+  MODS_OVERVIEW_TURN_OFF,
+  RISKY_CALLS,
+  RUNTIME_POINTS,
+  RUNTIME_SEATS,
+  RUNTIME_SEAT_NOTE,
+  RUNTIME_SECTION_NOTE,
+  SECURITY_MOD_FACTS,
+  VALIDATE_COMMAND,
+} from "@/components/docs/securityContent";
 import { getAllExtensions } from "@/lib/catalog";
 import SecurityPage, { metadata } from "./page";
 
@@ -71,6 +91,7 @@ describe("security page", () => {
     expect(within(section).getByRole("heading", { level: 2, name: "How Claude Code keeps a mod in check" })).toBeInTheDocument();
     expect(within(section).getByRole("note")).toHaveTextContent(RUNTIME_SECTION_NOTE);
     expect(RUNTIME_SECTION_NOTE).toMatch(/This site did not test it/);
+    expect(RUNTIME_SECTION_NOTE).toMatch(/on by default in Claude Code v2\.1\.287 and later/);
     const order = Array.from(container.querySelectorAll("section")).map((element) => element.id);
     expect(order.indexOf("mod-runtime")).toBeLessThan(order.indexOf("tier-model"));
   });
@@ -141,6 +162,95 @@ describe("security page", () => {
     for (const title of ["Read the source", "Check the publisher", "Review permissions and hooks", "Prefer pinned versions"]) {
       expect(within(section as HTMLElement).getByRole("heading", { name: title })).toBeInTheDocument();
     }
+  });
+
+  it("carries no early access or function hooks flag copy now that mods are on by default", () => {
+    const { container } = render(<SecurityPage />);
+    expect(container.textContent).not.toMatch(/CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1|function hooks are|are early access/i);
+  });
+
+  it("keeps the generic checks first, then a mod trust subsection with what a mod can reach", () => {
+    const { container } = render(<SecurityPage />);
+    const section = container.querySelector("#before-you-install") as HTMLElement;
+    const headings = within(section).getAllByRole("heading").map((heading) => heading.textContent);
+    expect(headings.indexOf("Checks for any extension")).toBeLessThan(headings.indexOf("Before you install a mod"));
+    const mod = within(section.querySelector("#before-you-install-a-mod") as HTMLElement);
+    expect(mod.getByRole("heading", { level: 3, name: "Before you install a mod" })).toBeInTheDocument();
+    for (const item of MOD_REACH) {
+      expect(mod.getByText(item.term)).toBeInTheDocument();
+    }
+    expect(mod.getByText(/Mods are not sandboxed/)).toBeInTheDocument();
+    expect(mod.getByText(/not the permission prompt, so it cannot change what a prompt shows you/)).toBeInTheDocument();
+    expect(mod.getByRole("link", { name: new RegExp(MODS_OVERVIEW_TRUST.label) })).toHaveAttribute("href", MODS_OVERVIEW_TRUST.href);
+  });
+
+  it("shows claude plugin validate with sample hooks and calls lines and the calls to look for", () => {
+    const { container } = render(<SecurityPage />);
+    const mod = within(container.querySelector("#before-you-install-a-mod") as HTMLElement);
+    expect(mod.getByText(VALIDATE_COMMAND)).toBeInTheDocument();
+    const sample = mod.getByRole("group", { name: "Sample hooks and calls output" });
+    expect(sample.textContent).toMatch(/hooks: session\.start, tool\.call/);
+    expect(sample.textContent).toMatch(/calls: \$\.fs\.read, \$\.http\.fetch/);
+    const table = mod.getByRole("table");
+    expect(within(table).getAllByRole("row")).toHaveLength(RISKY_CALLS.length + 1);
+    for (const call of ["$.process.run", "$.http.fetch", "$.env.get", "$.model.complete", "$.prompt.submit"]) {
+      expect(within(table).getByText(call)).toBeInTheDocument();
+    }
+    expect(mod.getByRole("link", { name: new RegExp(MODS_ADMIN_REVIEW.label) })).toHaveAttribute("href", MODS_ADMIN_REVIEW.href);
+  });
+
+  it("lists the three ways to turn mods off and says the old flag no longer keeps them off", () => {
+    const { container } = render(<SecurityPage />);
+    const mod = within(container.querySelector("#before-you-install-a-mod") as HTMLElement);
+    expect(mod.getByRole("heading", { level: 4, name: "Turn mods off" })).toBeInTheDocument();
+    for (const item of MOD_OFF_SWITCHES) {
+      expect(mod.getByText(item.scope)).toBeInTheDocument();
+    }
+    expect(MOD_OFF_SWITCHES.map((item) => item.how).join(" ")).toMatch(/\/plugin[\s\S]*--safe-mode[\s\S]*disableAllHooks/);
+    expect(mod.getByText(FLAG_RETIRED_NOTE)).toBeInTheDocument();
+    expect(FLAG_RETIRED_NOTE).toMatch(/setting it to 0 does not keep mods off/);
+    expect(mod.getByRole("link", { name: new RegExp(MODS_OVERVIEW_TURN_OFF.label) })).toHaveAttribute("href", MODS_OVERVIEW_TURN_OFF.href);
+  });
+
+  it("summarizes the organization controls after the runtime and before the proposed tiers, linking out for detail", () => {
+    const { container } = render(<SecurityPage />);
+    const order = Array.from(container.querySelectorAll("section")).map((element) => element.id);
+    expect(order.indexOf("mod-runtime")).toBeLessThan(order.indexOf("for-organizations"));
+    expect(order.indexOf("for-organizations")).toBeLessThan(order.indexOf("tier-model"));
+    const section = within(container.querySelector("#for-organizations") as HTMLElement);
+    expect(section.getByRole("heading", { level: 2, name: "For organizations" })).toBeInTheDocument();
+    for (const name of ["Choose a policy", "The built-in guard", "What still takes precedence", "Your organization's own mods"]) {
+      expect(section.getByRole("heading", { level: 3, name })).toBeInTheDocument();
+    }
+    const adminLinks = section.getAllByRole("link").filter((link) => link.getAttribute("href")?.startsWith(MODS_ADMIN.href));
+    expect(adminLinks.length).toBeGreaterThanOrEqual(4);
+  });
+
+  it("renders the policy table, the allowManagedModsOnly example and both guard options", () => {
+    const { container } = render(<SecurityPage />);
+    const section = within(container.querySelector("#for-organizations") as HTMLElement);
+    const policies = section.getByRole("table", { name: "Mod policies and the managed settings for each" });
+    expect(within(policies).getAllByRole("row")).toHaveLength(ORG_POLICIES.length + 1);
+    for (const policy of ORG_POLICIES) {
+      expect(within(policies).getByRole("rowheader", { name: policy.want })).toBeInTheDocument();
+    }
+    const example = section.getByRole("group", { name: "Contents of managed-settings.json" });
+    expect(example.textContent).toBe(ALLOW_MANAGED_MODS_ONLY_JSON);
+    const options = section.getByRole("table", { name: "Built-in guard options, unset and set to true" });
+    for (const option of GUARD_OPTIONS) {
+      expect(within(options).getByText(option.name)).toBeInTheDocument();
+    }
+  });
+
+  it("says when the guard loads and what still takes precedence, including what deny rules do not cover", () => {
+    const { container } = render(<SecurityPage />);
+    const section = within(container.querySelector("#for-organizations") as HTMLElement);
+    for (const fact of [...GUARD_LOAD_FACTS, ...ORG_PRECEDENCE]) {
+      expect(section.getByText(fact.term)).toBeInTheDocument();
+    }
+    expect(section.getByText(/Team or Enterprise plan/)).toBeInTheDocument();
+    expect(section.getByText(/a mod can still read that file with \$\.fs\.read/)).toBeInTheDocument();
+    expect(section.getByText(/None of these controls sandboxes a mod/)).toBeInTheDocument();
   });
 
   it("never uses concept wording or calls the mods runtime unconfirmed", () => {

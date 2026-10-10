@@ -91,7 +91,7 @@ export const PAGE_SEO = {
     path: "/security/",
     title: "Security: what is and is not checked",
     description:
-      "What is checked today, the proposed security tier model that has no scanner yet, and what to check yourself before you install anything.",
+      "What a mod can reach and how to review one before you install it, how organizations control mods, what is checked today and the proposed security tier model.",
     breadcrumbLabel: "Security",
   },
   publish: {
