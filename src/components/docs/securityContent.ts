@@ -305,3 +305,168 @@ export const MOD_OFF_SWITCHES: readonly OffSwitch[] = [
 /** Source: Mods overview, "Turn mods on or off". The early access variable no longer does anything. */
 export const FLAG_RETIRED_NOTE =
   "If you set CLAUDE_CODE_ENABLE_FUNCTION_HOOKS while mods were in early access, remove it. Claude Code v2.1.287 and later ignores it, so setting it to 0 does not keep mods off.";
+
+export const MODS_ADMIN: LearnSource = { label: "Manage mods for your organization", href: MODS_DOCS_SOURCES.admin };
+export const MODS_ADMIN_POLICIES: LearnSource = {
+  label: "Manage mods: Choose how much to allow",
+  href: `${MODS_DOCS_SOURCES.admin}#choose-how-much-to-allow`,
+};
+export const MODS_ADMIN_DEFAULTS: LearnSource = {
+  label: "Manage mods: Know what happens by default",
+  href: `${MODS_DOCS_SOURCES.admin}#know-what-happens-by-default`,
+};
+export const MODS_ADMIN_GUARD_OPTIONS: LearnSource = {
+  label: "Manage mods: Set options on the built-in guard",
+  href: `${MODS_DOCS_SOURCES.admin}#set-options-on-the-built-in-guard`,
+};
+export const MODS_ADMIN_ORG_MODS: LearnSource = {
+  label: "Manage mods: Install your organization's mods",
+  href: `${MODS_DOCS_SOURCES.admin}#install-your-organizations-mods`,
+};
+
+/** The one id spelling Claude Code reads the guard's options under. `prependPlugins` also accepts the short form. */
+export const GUARD_CONFIG_ID = "cc-plugin-sec-default@builtin";
+export const GUARD_PREPEND_ID = "sec-default@builtin";
+
+export interface OrgPolicy {
+  readonly id: string;
+  readonly want: string;
+  readonly settings: string;
+}
+
+/** Source: Manage mods, "Choose how much to allow". Narrowest first. */
+export const ORG_POLICIES: readonly OrgPolicy[] = [
+  {
+    id: "no-installed-mods",
+    want: "No installed mod runs, with settings hooks untouched",
+    settings: "Set the guard's allowManagedModsOnly option and deploy no mods of your own.",
+  },
+  {
+    id: "no-hooks-at-all",
+    want: "No installed mods and no hooks at all, your managed hooks included",
+    settings: "Set disableAllHooks to true.",
+  },
+  {
+    id: "only-org-mods",
+    want: "Only your organization's mods",
+    settings: "Set allowManagedModsOnly, and install your mods so that they count as yours.",
+  },
+  {
+    id: "approved-marketplaces",
+    want: "Any mod from marketplaces you approve",
+    settings: "Keep your marketplace restrictions, and set disableSideloadFlags to true.",
+  },
+  {
+    id: "any-mod-checked",
+    want: "Any mod, with your own mod checking the others",
+    settings: `Install your mod, and list it with ${GUARD_PREPEND_ID} in prependPlugins.`,
+  },
+];
+
+/** The managed settings that stop user-installed mods, as Manage mods, "Stop user-installed mods from loading" shows them. */
+export const ALLOW_MANAGED_MODS_ONLY_JSON = JSON.stringify(
+  { pluginConfigs: { [GUARD_CONFIG_ID]: { options: { allowManagedModsOnly: true } } } },
+  null,
+  2,
+);
+
+export interface GuardOption {
+  readonly name: string;
+  readonly unset: string;
+  readonly enabled: string;
+}
+
+/** Source: Manage mods, "Set options on the built-in guard". */
+export const GUARD_OPTIONS: readonly GuardOption[] = [
+  {
+    name: "allowManagedModsOnly",
+    unset: "Users' own mods run.",
+    enabled:
+      "Only your organization's mods and the mods built into Claude Code run their hooks. Every other mod is refused, including one a user installed or named with --plugin-dir.",
+  },
+  {
+    name: "allowModsToOverrideDenyRules",
+    unset: "Deny rules take precedence over users' mods.",
+    enabled: "A user's mod that approves tool calls can approve a call that a deny rule refuses.",
+  },
+];
+
+export interface OrgFact {
+  readonly id: string;
+  readonly term: string;
+  readonly description: string;
+}
+
+/** Source: Manage mods, "Know what happens by default" and "Set options on the built-in guard". */
+export const GUARD_LOAD_FACTS: readonly OrgFact[] = [
+  {
+    id: "when",
+    term: "When it loads",
+    description:
+      "On a machine that has managed settings, or for a user signed in with a Team or Enterprise plan. A user who authenticates with an API key, or through Amazon Bedrock, Google Cloud's Agent Platform or Microsoft Foundry, gets it only on a machine with managed settings. Users cannot turn it off.",
+  },
+  {
+    id: "protects",
+    term: "What it protects",
+    description:
+      "A user's mod cannot change what your managed hooks receive or decide, the system prompt, your managed CLAUDE.md and other managed instructions, what any mod reads as settings, or the tools and descriptions of your managed MCP servers. Beyond this and holding deny rules (below), it adds no other restrictions.",
+  },
+  {
+    id: "managed-only",
+    term: "Only managed settings count",
+    description: `The options are read only from managed settings, and only under ${GUARD_CONFIG_ID}. The same entry in a user, project or local settings file, or in a file passed with --settings, neither sets an option nor loosens one.`,
+  },
+  {
+    id: "prepend-replaces",
+    term: "prependPlugins replaces the default",
+    description: `If you set prependPlugins, name ${GUARD_PREPEND_ID} in it, or the guard does not load and neither option applies.`,
+  },
+  {
+    id: "fails-closed",
+    term: "It fails closed",
+    description:
+      "If the guard cannot read managed settings, it refuses every user's mod at load. If it cannot check the deny rules for a call a user's mod approved, it refuses the call.",
+  },
+];
+
+/** Source: Manage mods, "Know what happens by default" and "Know which controls still apply". */
+export const ORG_PRECEDENCE: readonly OrgFact[] = [
+  {
+    id: "deny-rules",
+    term: "Deny rules",
+    description:
+      "Where the guard loads, a user's mod cannot approve a call that a deny rule refuses, whichever settings file holds the rule, unless you set allowModsToOverrideDenyRules.",
+  },
+  {
+    id: "managed-pretooluse",
+    term: "Managed PreToolUse hooks",
+    description:
+      "They run before any mod sees the tool call, and their block is final. If a mod rewrites the call, they run again on the rewritten call.",
+  },
+  {
+    id: "tool-calls-only",
+    term: "Only Claude's tool calls",
+    description:
+      "Neither covers a mod's own $.fs and $.process calls: with Read(.env) denied, a mod can still read that file with $.fs.read or start a program that does. To limit those, keep the mod from loading or handle the call in a policy mod.",
+  },
+  {
+    id: "overridable",
+    term: "What a mod can still override",
+    description:
+      "A user's mod can approve a call that an ask rule would prompt for, or that a PreToolUse hook outside managed settings blocked. In auto mode, a call the mod approves runs without a classifier check.",
+  },
+  {
+    id: "network-policy",
+    term: "Network policy",
+    description:
+      "Turning off web fetching, or nonessential network traffic, refuses a mod's $.http.fetch request. It does not cover a program the mod starts with $.process.run.",
+  },
+];
+
+/** Source: Manage mods, "Install your organization's mods and set the order". */
+export const ORG_MODS_NOTE =
+  "A mod counts as your organization's only when managed enabledPlugins turns its plugin on, managed settings name its marketplace as a directory on the user's machine by absolute path, and the marketplace lists the plugin by a relative path. Make that directory, and every directory above it, writable only by an administrator: anyone who can write there can rewrite your mod. A plugin copied from a GitHub, git, URL or npm source counts as a user's, even when managed settings enable it.";
+
+/** Source: Manage mods, "Install your organization's mods and set the order" and "Enforce a policy with a mod of your own". */
+export const ORG_ORDER_NOTE =
+  "List your mod in prependPlugins to see every event before any user's mod, or in appendPlugins to see only what users' mods pass on. A mod in prependPlugins also receives a plugin.register event each time another mod is about to load, with the same list claude plugin validate prints, and can refuse that mod. If that check throws or times out it fails open unless you add a .catch handler, and a session can run without your mod at all: under --safe-mode, or after the worker that runs installed mods crashes three times.";

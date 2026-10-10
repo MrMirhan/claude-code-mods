@@ -6,7 +6,13 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { pickExampleMod, pickSecurityMod, selectAnthropicBuiltInMods } from "@/components/docs/builtInMods";
 import {
+  ALLOW_MANAGED_MODS_ONLY_JSON,
   FLAG_RETIRED_NOTE,
+  GUARD_LOAD_FACTS,
+  GUARD_OPTIONS,
+  MODS_ADMIN,
+  ORG_POLICIES,
+  ORG_PRECEDENCE,
   MOD_OFF_SWITCHES,
   MOD_REACH,
   MODS_ADMIN_REVIEW,
@@ -204,6 +210,47 @@ describe("security page", () => {
     expect(mod.getByText(FLAG_RETIRED_NOTE)).toBeInTheDocument();
     expect(FLAG_RETIRED_NOTE).toMatch(/setting it to 0 does not keep mods off/);
     expect(mod.getByRole("link", { name: new RegExp(MODS_OVERVIEW_TURN_OFF.label) })).toHaveAttribute("href", MODS_OVERVIEW_TURN_OFF.href);
+  });
+
+  it("summarizes the organization controls after the runtime and before the proposed tiers, linking out for detail", () => {
+    const { container } = render(<SecurityPage />);
+    const order = Array.from(container.querySelectorAll("section")).map((element) => element.id);
+    expect(order.indexOf("mod-runtime")).toBeLessThan(order.indexOf("for-organizations"));
+    expect(order.indexOf("for-organizations")).toBeLessThan(order.indexOf("tier-model"));
+    const section = within(container.querySelector("#for-organizations") as HTMLElement);
+    expect(section.getByRole("heading", { level: 2, name: "For organizations" })).toBeInTheDocument();
+    for (const name of ["Choose a policy", "The built-in guard", "What still takes precedence", "Your organization's own mods"]) {
+      expect(section.getByRole("heading", { level: 3, name })).toBeInTheDocument();
+    }
+    const adminLinks = section.getAllByRole("link").filter((link) => link.getAttribute("href")?.startsWith(MODS_ADMIN.href));
+    expect(adminLinks.length).toBeGreaterThanOrEqual(4);
+  });
+
+  it("renders the policy table, the allowManagedModsOnly example and both guard options", () => {
+    const { container } = render(<SecurityPage />);
+    const section = within(container.querySelector("#for-organizations") as HTMLElement);
+    const policies = section.getByRole("table", { name: "Mod policies and the managed settings for each" });
+    expect(within(policies).getAllByRole("row")).toHaveLength(ORG_POLICIES.length + 1);
+    for (const policy of ORG_POLICIES) {
+      expect(within(policies).getByRole("rowheader", { name: policy.want })).toBeInTheDocument();
+    }
+    const example = section.getByRole("group", { name: "Contents of managed-settings.json" });
+    expect(example.textContent).toBe(ALLOW_MANAGED_MODS_ONLY_JSON);
+    const options = section.getByRole("table", { name: "Built-in guard options, unset and set to true" });
+    for (const option of GUARD_OPTIONS) {
+      expect(within(options).getByText(option.name)).toBeInTheDocument();
+    }
+  });
+
+  it("says when the guard loads and what still takes precedence, including what deny rules do not cover", () => {
+    const { container } = render(<SecurityPage />);
+    const section = within(container.querySelector("#for-organizations") as HTMLElement);
+    for (const fact of [...GUARD_LOAD_FACTS, ...ORG_PRECEDENCE]) {
+      expect(section.getByText(fact.term)).toBeInTheDocument();
+    }
+    expect(section.getByText(/Team or Enterprise plan/)).toBeInTheDocument();
+    expect(section.getByText(/a mod can still read that file with \$\.fs\.read/)).toBeInTheDocument();
+    expect(section.getByText(/None of these controls sandboxes a mod/)).toBeInTheDocument();
   });
 
   it("never uses concept wording or calls the mods runtime unconfirmed", () => {

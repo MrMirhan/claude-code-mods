@@ -24,6 +24,7 @@ import { getAllExtensions } from "@/lib/catalog";
 import { cn } from "@/lib/cn";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { BeforeYouInstallSection } from "@/components/security/BeforeYouInstallSection";
+import { ForOrganizationsSection } from "@/components/security/ForOrganizationsSection";
 import { buildDocPageGraph } from "@/lib/seo/jsonLd";
 import { buildStaticPageMetadata } from "@/lib/seo/metadata";
 import { PAGE_SEO } from "@/lib/seo/pages";
@@ -39,7 +40,7 @@ export default function SecurityPage(): ReactNode {
   return (
     <DocPage
       title="Security and verification"
-      description="What the checks on this site cover, what to check yourself before you install a mod or any other extension, and what the proposed tier model would add."
+      description="What the checks on this site cover, what to check yourself before you install a mod or any other extension, how organizations control mods, and what the proposed tier model would add."
     >
       <JsonLd data={buildDocPageGraph(PAGE_SEO.security)} />
       <DocSection id="what-is-checked" title="What is checked today">
@@ -145,6 +146,8 @@ export default function SecurityPage(): ReactNode {
           </Prose>
         ) : null}
       </DocSection>
+
+      <ForOrganizationsSection />
 
       <DocSection id="tier-model" title="Proposed security tiers">
         <Callout tone="warning">
