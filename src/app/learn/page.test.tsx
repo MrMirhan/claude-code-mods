@@ -1,7 +1,18 @@
 import { render, screen, within } from "@testing-library/react";
 import { beforeAll, describe, expect, it } from "vitest";
 import { DASH_PATTERN, stubIntersectionObserver } from "@/components/docs/testSupport";
-import { CONCEPTS, KIND_COMPARISON, LEARN_FAQ, LEARN_SOURCES, MODS_MIN_VERSION, OFFICIAL_MOD_DOCS } from "@/components/docs/learnContent";
+import {
+  BUILT_IN_MODS,
+  builtInModSourceHref,
+  CONCEPTS,
+  KIND_COMPARISON,
+  KIND_COMPARISON_COLUMNS,
+  LEARN_FAQ,
+  LEARN_SOURCES,
+  MODS_MIN_VERSION,
+  OFFICIAL_MOD_DOCS,
+  WHERE_MODS_RUN,
+} from "@/components/docs/learnContent";
 import { getEvents, getEventsSource } from "@/lib/events";
 import { PAGE_SEO } from "@/lib/seo/pages";
 import { SITE_URL } from "@/lib/site";
@@ -53,14 +64,47 @@ describe("learn page", () => {
     expect(section.getByText(/trust the docs/)).toBeInTheDocument();
   });
 
-  it("compares a mod with each other kind in one table, each row with its source link", () => {
-    render(<LearnPage />);
-    const table = screen.getByRole("table");
+  it("compares a mod with each other kind in one table, each row with its source links", () => {
+    const { container } = render(<LearnPage />);
+    const table = within(container.querySelector("#compared") as HTMLElement).getByRole("table");
     expect(within(table).getAllByRole("rowheader").map((header) => header.textContent)).toEqual(KIND_COMPARISON.map((row) => row.name));
-    for (const row of KIND_COMPARISON) {
-      const link = within(table).getByRole("link", { name: new RegExp(row.source.label) });
-      expect(link).toHaveAttribute("href", row.source.href);
-    }
+    const rows = within(table).getAllByRole("row").slice(1);
+    KIND_COMPARISON.forEach((kind, index) => {
+      const row = rows[index] as HTMLElement;
+      expect(row).toHaveTextContent(kind.pickItWhen);
+      for (const source of kind.sources) {
+        expect(within(row).getByRole("link", { name: new RegExp(source.label) })).toHaveAttribute("href", source.href);
+      }
+    });
+    expect(within(table).getAllByRole("columnheader").map((header) => header.textContent)).toEqual([...KIND_COMPARISON_COLUMNS]);
+  });
+
+  it("shows where a mod's hooks run and where its drawing shows, from the overview", () => {
+    const { container } = render(<LearnPage />);
+    const element = container.querySelector("#where-mods-run") as HTMLElement;
+    const table = within(element).getByRole("table");
+    expect(within(table).getAllByRole("rowheader").map((header) => header.textContent)).toEqual(WHERE_MODS_RUN.map((place) => place.where));
+    expect(element.textContent).toMatch(/only the terminal and the Code tab of the Desktop app show/);
+    expect(within(element).getByRole("link", { name: /^Mods overview/ })).toHaveAttribute("href", LEARN_SOURCES.modsOverviewDocs);
+  });
+
+  it("lists the six built-in mods, links the four with public source, and marks the other two not public", () => {
+    const { container } = render(<LearnPage />);
+    const element = container.querySelector("#built-in") as HTMLElement;
+    const table = within(element).getByRole("table");
+    expect(within(table).getAllByRole("rowheader").map((header) => header.textContent)).toEqual(BUILT_IN_MODS.map((mod) => mod.name));
+    const sourceLinks = within(table).getAllByRole("link");
+    expect(sourceLinks.map((link) => link.getAttribute("href"))).toEqual(
+      BUILT_IN_MODS.map(builtInModSourceHref).filter((href): href is string => href !== null),
+    );
+    expect(within(table).getAllByText("Not public")).toHaveLength(2);
+    expect(element.textContent).toMatch(/do not stop them/);
+  });
+
+  it("no longer says Anthropic ships four mods", () => {
+    const { container } = render(<LearnPage />);
+    expect(container.textContent).not.toMatch(/ships four mods/);
+    expect(container.textContent).toContain("Claude Code ships six built-in mods, and Anthropic publishes the source of four of them.");
   });
 
   it("reports the event counts from the synced file, and names the commit they were read at", () => {
@@ -171,7 +215,7 @@ describe("learn page", () => {
     const faqAnswer = (id: string) => LEARN_FAQ.find((entry) => entry.id === id)?.answer ?? "";
 
     for (const [sectionId, faqId, sharedPhrase] of [
-      ["what-is-a-mod", "faq-what-is-a-mod", "hooks the engine's events with TypeScript functions shaped"],
+      ["what-is-a-mod", "faq-what-is-a-mod", "hooks the engine's events with JavaScript or TypeScript functions shaped"],
       ["events", "faq-what-can-a-mod-hook", "The Hooks page shows which mods and plugins use which events."],
       ["next", "faq-build-first-mod", "Build a small mod in the Getting started guide"],
     ] as const) {

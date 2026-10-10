@@ -9,6 +9,10 @@ import { DocSection, Prose } from "@/components/docs/DocSection";
 import { InlineCode } from "@/components/docs/InlineCode";
 import { TextLink } from "@/components/docs/TextLink";
 import {
+  BUILT_IN_MOD_COLUMNS,
+  BUILT_IN_MODS,
+  type BuiltInMod,
+  builtInModSourceHref,
   CONCEPTS,
   KIND_COMPARISON,
   KIND_COMPARISON_COLUMNS,
@@ -16,6 +20,8 @@ import {
   LEARN_SOURCES,
   MODS_MIN_VERSION,
   OFFICIAL_MOD_DOCS,
+  WHERE_MODS_RUN,
+  WHERE_MODS_RUN_COLUMNS,
 } from "@/components/docs/learnContent";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { Button } from "@/components/ui/Button";
@@ -26,6 +32,13 @@ import { PAGE_SEO } from "@/lib/seo/pages";
 import { EVENT_FAMILIES, type EventFamily } from "@/lib/types";
 
 export const metadata: Metadata = buildStaticPageMetadata(PAGE_SEO.learn);
+
+/** A built-in mod's public source folder as a link, or a plain note when Anthropic has not published it. */
+function BuiltInModSource({ mod }: { readonly mod: BuiltInMod }): ReactNode {
+  const href = builtInModSourceHref(mod);
+  if (href === null) return "Not public";
+  return <TextLink href={href}>{`mods/${mod.sourceFolder ?? ""}`}</TextLink>;
+}
 
 function countByFamily(family: EventFamily): number {
   return getEvents().filter((event) => event.family === family).length;
@@ -61,15 +74,40 @@ export default function LearnPage(): ReactNode {
         <Prose>
           <p>
             A mod is a Claude Code plugin whose behaviour lives in a hooks module: one <InlineCode>register</InlineCode>{" "}
-            entry that hooks the engine&apos;s events with TypeScript functions shaped{" "}
+            entry that hooks the engine&apos;s events with JavaScript or TypeScript functions shaped{" "}
             <InlineCode>($, e, next)</InlineCode>. The announcement puts it this way: a mod is just a plugin that uses
             function hooks, and function hooks are the documented primitive that mods are built on.
           </p>
           <p>
-            Anthropic ships four mods inside Claude Code and publishes their source. Read them in the{" "}
-            <TextLink href="/browse/?kind=mod">directory</TextLink>, in the{" "}
+            Claude Code ships six built-in mods, and Anthropic publishes the source of four of them. Read those four in
+            the <TextLink href="/browse/?kind=mod">directory</TextLink>, in the{" "}
             <TextLink href={LEARN_SOURCES.modsReadme}>Mods README</TextLink>, or in the{" "}
             <TextLink href={LEARN_SOURCES.announcementIssue}>announcement issue</TextLink>.
+          </p>
+        </Prose>
+      </DocSection>
+      <DocSection id="built-in" title="Mods built into Claude Code">
+        <Prose>
+          <p>
+            Some of Claude Code&apos;s own features are mods. Run <InlineCode>/plugin</InlineCode> and open the
+            Installed tab to see the ones your session has, listed under Built-in. You cannot update or uninstall them,
+            and <InlineCode>--safe-mode</InlineCode>, <InlineCode>--bare</InlineCode> and{" "}
+            <InlineCode>disableAllHooks</InlineCode> do not stop them.
+          </p>
+        </Prose>
+        <ComparisonTable
+          caption="The mods built into Claude Code"
+          columns={BUILT_IN_MOD_COLUMNS}
+          rows={BUILT_IN_MODS.map((mod) => ({
+            id: mod.name,
+            header: <InlineCode>{mod.name}</InlineCode>,
+            cells: [mod.whatItDoes, <BuiltInModSource key="source" mod={mod} />],
+          }))}
+        />
+        <Prose>
+          <p className="text-sm">
+            Source: <TextLink href={LEARN_SOURCES.modsOverviewDocs}>Mods overview</TextLink>, which also says how to
+            turn each one off.
           </p>
         </Prose>
       </DocSection>
@@ -111,7 +149,9 @@ export default function LearnPage(): ReactNode {
         <Prose>
           <p>
             Claude Code can be extended in {KIND_COMPARISON.length - 1} other ways. They overlap, and a plugin can package
-            several of them. A mod is the only one that hooks the engine&apos;s own events as functions.
+            several of them. The others work from outside Claude Code: each runs a script, or gives Claude text or tools.
+            A mod runs inside Claude Code, so it is the only one that can draw in the interface. If one of the others
+            already does what you need, start there.
           </p>
         </Prose>
         <ComparisonTable
@@ -122,14 +162,45 @@ export default function LearnPage(): ReactNode {
             header: kind.name,
             cells: [
               kind.whatItIs,
-              kind.howYouWriteIt,
-              kind.whatItCanDo,
-              <TextLink key="source" href={kind.source.href}>
-                {kind.source.label}
-              </TextLink>,
+              kind.whatItCanChange,
+              kind.drawsInTheInterface,
+              kind.whatYouWrite,
+              kind.pickItWhen,
+              <span key="sources">
+                {kind.sources.map((source, index) => (
+                  <span key={source.href}>
+                    {index === 0 ? "" : ", "}
+                    <TextLink href={source.href}>{source.label}</TextLink>
+                  </span>
+                ))}
+              </span>,
             ],
           }))}
         />
+      </DocSection>
+      <DocSection id="where-mods-run" title="Where mods run">
+        <Prose>
+          <p>
+            A mod&apos;s hooks run in every kind of session that loads its plugin. What it draws shows up in fewer
+            places: only the terminal and the Code tab of the Desktop app show its panes, bands and replaced rows.
+          </p>
+        </Prose>
+        <ComparisonTable
+          caption="Where a mod's hooks run and where what it draws shows"
+          columns={WHERE_MODS_RUN_COLUMNS}
+          rows={WHERE_MODS_RUN.map((place) => ({
+            id: place.id,
+            header: place.where,
+            cells: [place.hooksRun, place.drawingShows],
+          }))}
+        />
+        <Prose>
+          <p>
+            A mod that draws can check which app it is running in, and fall back to a line in the transcript or a
+            command&apos;s text reply where nothing draws. Source:{" "}
+            <TextLink href={LEARN_SOURCES.modsOverviewDocs}>Mods overview</TextLink>.
+          </p>
+        </Prose>
       </DocSection>
       <DocSection id="events" title="What a mod can hook">
         <Prose>

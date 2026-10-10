@@ -94,6 +94,7 @@ describe("getting started page", () => {
     expect(within(element).getByText("1 mod active · first-mod")).toBeInTheDocument();
     expect(element.textContent).toMatch(/Built-in mods are left out of that line/);
     for (const off of ["--safe-mode", "\"disableAllHooks\": true"]) expect(element.textContent).toContain(off);
+    expect(element.textContent).toMatch(/stop the mods you installed, not the ones built into Claude Code/);
     expect(within(element).getByRole("link", { name: /^mods overview/ })).toHaveAttribute("href", LEARN_SOURCES.modsOverviewDocs);
   });
 

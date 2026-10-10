@@ -42,56 +42,180 @@ export interface KindComparison {
   readonly id: string;
   readonly name: string;
   readonly whatItIs: string;
-  readonly howYouWriteIt: string;
-  readonly whatItCanDo: string;
-  readonly source: LearnSource;
+  readonly whatItCanChange: string;
+  readonly drawsInTheInterface: string;
+  readonly whatYouWrite: string;
+  readonly pickItWhen: string;
+  /** Every source the row rests on: the overview's comparison first, then the kind's own docs. */
+  readonly sources: readonly LearnSource[];
 }
 
-export const KIND_COMPARISON_COLUMNS = ["Kind", "What it is", "How you write it", "What it can do", "Source"] as const;
+export const KIND_COMPARISON_COLUMNS = [
+  "Kind",
+  "What it is",
+  "What it can change",
+  "Draws in the interface",
+  "What you write",
+  "Pick it when",
+  "Sources",
+] as const;
 
-/** Ordered from the point of this site outward. Each row is written from the source it links. */
+const MODS_OVERVIEW: LearnSource = { label: "Mods overview", href: LEARN_SOURCES.modsOverviewDocs };
+
+/**
+ * Ordered from the point of this site outward. The mod, classic hook, skill and MCP server rows are
+ * written from the comparison table in the mods overview docs, which calls a classic hook a settings
+ * hook; the plugin row is written from the plugins docs.
+ */
 export const KIND_COMPARISON: readonly KindComparison[] = [
   {
     id: "mod",
     name: "Mod",
-    whatItIs: "A plugin whose behaviour lives in a hooks module.",
-    howYouWriteIt: "TypeScript functions shaped ($, e, next), registered with on(event, hook) in one register entry.",
-    whatItCanDo:
-      "Hooks the engine's own events: refuse or answer a tool call, add commands, draw interface elements. Its events and methods can change between releases.",
-    source: { label: "Mods README", href: LEARN_SOURCES.modsReadme },
+    whatItIs: "A plugin whose functions Claude Code calls inside its own process.",
+    whatItCanChange:
+      "Tool calls, prompts, commands, turns, and what the interface draws. Its events and methods can change between releases.",
+    drawsInTheInterface: "Yes",
+    whatYouWrite: "JavaScript or TypeScript.",
+    pickItWhen: "You want a pane, a band above the prompt, a custom command, or to rewrite an event.",
+    sources: [MODS_OVERVIEW],
   },
   {
     id: "plugin",
     name: "Plugin",
     whatItIs: "A self-contained directory that packages other extensions so they can be shared.",
-    howYouWriteIt: "A .claude-plugin/plugin.json manifest beside skills, agents, hooks or MCP servers.",
-    whatItCanDo: "Bundles those pieces so a team can install and version them together. A mod is a plugin.",
-    source: { label: "Plugins docs", href: LEARN_SOURCES.pluginsDocs },
+    whatItCanChange: "What the pieces it holds can change. A mod is a plugin, and can ship beside a skill and an MCP server.",
+    drawsInTheInterface: "Only through a mod it holds",
+    whatYouWrite: "A .claude-plugin/plugin.json manifest beside skills, agents, hooks or MCP servers.",
+    pickItWhen: "You want a team to install and version several pieces together.",
+    sources: [MODS_OVERVIEW, { label: "Plugins docs", href: LEARN_SOURCES.pluginsDocs }],
   },
   {
     id: "classic-hook",
     name: "Classic hook",
-    whatItIs: "A handler that Claude Code runs at a lifecycle event such as PreToolUse.",
-    howYouWriteIt: "A shell command, HTTP endpoint, MCP tool call, prompt or subagent, set up in configuration.",
-    whatItCanDo: "Receives JSON about the event and can block some of them: exit code 2 blocks a tool call at PreToolUse.",
-    source: { label: "Hooks docs", href: LEARN_SOURCES.hooksDocs },
+    whatItIs: "A handler that Claude Code runs at a lifecycle event such as PreToolUse. The docs call it a settings hook.",
+    whatItCanChange:
+      "Whether a tool call or prompt goes ahead, a tool call's arguments and result, and context added for Claude.",
+    drawsInTheInterface: "No",
+    whatYouWrite: "A shell command, HTTP endpoint, MCP tool call, prompt or subagent, set up in a settings file.",
+    pickItWhen: "You want to block, allow or log an event with a script you already have.",
+    sources: [MODS_OVERVIEW, { label: "Hooks docs", href: LEARN_SOURCES.hooksDocs }],
   },
   {
     id: "mcp-server",
     name: "MCP server",
-    whatItIs: "An external tool or data source that Claude Code connects to over the Model Context Protocol.",
-    howYouWriteIt: "Any program that speaks MCP, added with claude mcp add.",
-    whatItCanDo: "Gives Claude tools to call, such as an issue tracker, a database or an API.",
-    source: { label: "MCP docs", href: LEARN_SOURCES.mcpDocs },
+    whatItIs: "An external process or service that gives Claude tools over the Model Context Protocol.",
+    whatItCanChange: "Which tools Claude has.",
+    drawsInTheInterface: "No",
+    whatYouWrite: "A server in any language that speaks MCP, added with claude mcp add.",
+    pickItWhen: "Claude needs to reach an external system, such as an issue tracker, a database or an API.",
+    sources: [MODS_OVERVIEW, { label: "MCP docs", href: LEARN_SOURCES.mcpDocs }],
   },
   {
     id: "skill",
     name: "Skill or slash command",
-    whatItIs: "Instructions that Claude loads when they are relevant, or that you run as /skill-name.",
-    howYouWriteIt: "A SKILL.md file with instructions, in a folder that can hold supporting files.",
-    whatItCanDo:
-      "Teaches Claude a procedure. Its body loads only when used. Custom commands in .claude/commands have been merged into skills.",
-    source: { label: "Skills docs", href: LEARN_SOURCES.skillsDocs },
+    whatItIs:
+      "Instructions that Claude reads when they are relevant, or that you run as /skill-name. Custom commands in .claude/commands have been merged into skills.",
+    whatItCanChange: "What Claude knows and does.",
+    drawsInTheInterface: "No",
+    whatYouWrite: "Markdown: a SKILL.md file, in a folder that can hold supporting files.",
+    pickItWhen: "You keep pasting the same instructions into chat.",
+    sources: [MODS_OVERVIEW, { label: "Skills docs", href: LEARN_SOURCES.skillsDocs }],
+  },
+];
+
+export interface RunPlace {
+  readonly id: string;
+  readonly where: string;
+  readonly hooksRun: string;
+  readonly drawingShows: string;
+}
+
+export const WHERE_MODS_RUN_COLUMNS = ["Where you run Claude Code", "Its hooks run", "What it draws shows"] as const;
+
+/** Each place Claude Code runs, from "Where mods run" in the mods overview docs. */
+export const WHERE_MODS_RUN: readonly RunPlace[] = [
+  {
+    id: "terminal",
+    where: "claude in a terminal, an editor's integrated terminal, or the JetBrains plugin",
+    hooksRun: "Yes",
+    drawingShows: "Yes",
+  },
+  {
+    id: "desktop",
+    where: "The Code tab of the Desktop app, outside a WSL session",
+    hooksRun: "Yes",
+    drawingShows: "Yes, apart from the elements the mods reference marks as terminal only",
+  },
+  {
+    id: "desktop-wsl",
+    where: "A WSL session in the Desktop app",
+    hooksRun: "No, because plugins are not available in WSL sessions",
+    drawingShows: "No",
+  },
+  { id: "vscode", where: "The chat panel of the VS Code extension", hooksRun: "Yes", drawingShows: "No" },
+  { id: "headless", where: "claude -p and the Agent SDK", hooksRun: "Yes", drawingShows: "No" },
+  {
+    id: "remote-control",
+    where: "Remote Control from claude.ai or the mobile app",
+    hooksRun: "Yes, in the session on your machine",
+    drawingShows: "In the terminal on your machine",
+  },
+  {
+    id: "cloud",
+    where: "A cloud session",
+    hooksRun: "Yes, for a plugin that reaches the cloud session",
+    drawingShows: "No",
+  },
+];
+
+export interface BuiltInMod {
+  /** The name `/plugin` shows. */
+  readonly name: string;
+  readonly whatItDoes: string;
+  /** The mod's folder under mods/ in Anthropic's repository, or null when its source is not public. */
+  readonly sourceFolder: string | null;
+}
+
+export const BUILT_IN_MOD_COLUMNS = ["Name in /plugin", "What it does", "Public source"] as const;
+
+/** Where a built-in mod's public source lives, or null when Anthropic has not published it. */
+export function builtInModSourceHref(mod: BuiltInMod): string | null {
+  return mod.sourceFolder === null ? null : `${LEARN_SOURCES.modsFolder}/${mod.sourceFolder}`;
+}
+
+/** The mods built into Claude Code, from "Mods built into Claude Code" in the mods overview docs. */
+export const BUILT_IN_MODS: readonly BuiltInMod[] = [
+  {
+    name: "cc-plugin-agents-md",
+    whatItDoes: "Loads AGENTS.md as project instructions.",
+    sourceFolder: "agents-md",
+  },
+  {
+    name: "cc-plugin-diff",
+    whatItDoes: "Takes over /diff and draws its pane, in interactive terminal sessions.",
+    sourceFolder: "diff",
+  },
+  {
+    name: "cc-plugin-plugin-authoring",
+    whatItDoes: "Gives Claude the plugin-authoring skill for writing mods. It holds a skill and no mod code.",
+    sourceFolder: null,
+  },
+  {
+    name: "cc-plugin-sec-default",
+    whatItDoes:
+      "Guards what your organization manages from the mods a user installs. You cannot turn it off; an administrator sets the order in managed settings.",
+    sourceFolder: "sec-default",
+  },
+  {
+    name: "cc-plugin-telemetry",
+    whatItDoes: "Sends the analytics records that Claude Code and its built-in mods log.",
+    sourceFolder: "telemetry",
+  },
+  {
+    name: "cc-plugin-you-should-know",
+    whatItDoes:
+      "Runs a side agent that watches longer tasks and shows a note above the prompt when it finds something you might miss. Disabled by default.",
+    sourceFolder: null,
   },
 ];
 
@@ -166,7 +290,7 @@ export const LEARN_FAQ: readonly FaqEntry[] = [
     id: "faq-what-is-a-mod",
     question: "What is a Claude Mod?",
     answer:
-      "A Claude Mod is a Claude Code plugin whose behaviour lives in a hooks module: one register entry that hooks the engine's events with TypeScript functions shaped ($, e, next). Anthropic ships four mods inside Claude Code itself and publishes their source.",
+      "A Claude Mod is a Claude Code plugin whose behaviour lives in a hooks module: one register entry that hooks the engine's events with JavaScript or TypeScript functions shaped ($, e, next). Claude Code ships six built-in mods, and Anthropic publishes the source of four of them.",
   },
   {
     id: "faq-are-mods-ready",

@@ -3,6 +3,11 @@ import { DASH_PATTERN } from "@/components/docs/testSupport";
 import { STARTER_MOD_FILES } from "@/lib/starter-mod";
 import { ALLOWED_CATALOG_HOSTS } from "@/lib/url";
 import {
+  BUILT_IN_MOD_COLUMNS,
+  BUILT_IN_MODS,
+  builtInModSourceHref,
+  WHERE_MODS_RUN,
+  WHERE_MODS_RUN_COLUMNS,
   ASK_CLAUDE_KEEP,
   ASK_CLAUDE_SKIPPED,
   ASK_CLAUDE_STEPS,
@@ -66,27 +71,91 @@ describe("KIND_COMPARISON", () => {
     expect(KIND_COMPARISON.map((row) => row.id)).toEqual(["mod", "plugin", "classic-hook", "mcp-server", "skill"]);
   });
 
-  it("fills every column of every row, and links each row to its source", () => {
-    expect(KIND_COMPARISON_COLUMNS).toHaveLength(5);
+  it("fills every column of every row, and links each row to its sources, the mods overview first", () => {
+    expect(KIND_COMPARISON_COLUMNS).toHaveLength(7);
     for (const row of KIND_COMPARISON) {
-      for (const text of [row.name, row.whatItIs, row.howYouWriteIt, row.whatItCanDo, row.source.label]) {
+      for (const text of [row.name, row.whatItIs, row.whatItCanChange, row.drawsInTheInterface, row.whatYouWrite, row.pickItWhen]) {
         expect(text.trim(), row.id).not.toBe("");
       }
-      expect(Object.values(LEARN_SOURCES), row.id).toContain(row.source.href);
+      expect(row.sources[0]?.href, row.id).toBe(LEARN_SOURCES.modsOverviewDocs);
+      for (const source of row.sources) expect(Object.values(LEARN_SOURCES), row.id).toContain(source.href);
+      expect(new Set(row.sources.map((source) => source.href)).size, row.id).toBe(row.sources.length);
     }
+  });
+
+  it("says only a mod draws in the interface by itself, as the overview's table does", () => {
+    const [mod, ...others] = KIND_COMPARISON;
+    expect(mod.drawsInTheInterface).toBe("Yes");
+    for (const row of others) expect(row.drawsInTheInterface, row.id).not.toBe("Yes");
+    expect(mod.whatYouWrite).toBe("JavaScript or TypeScript.");
   });
 
   it("says a mod's events and methods can change, says it of no other row, and never says early access", () => {
     const [mod, ...others] = KIND_COMPARISON;
-    expect(mod.whatItCanDo).toContain("can change between releases");
-    for (const row of others) expect(row.whatItCanDo, row.id).not.toContain("can change between releases");
-    for (const row of KIND_COMPARISON) expect(row.whatItCanDo, row.id).not.toMatch(/early access/i);
+    expect(mod.whatItCanChange).toContain("can change between releases");
+    for (const row of others) expect(row.whatItCanChange, row.id).not.toContain("can change between releases");
+    for (const row of KIND_COMPARISON) expect(JSON.stringify(row), row.id).not.toMatch(/early access/i);
+  });
+
+  it("notes the docs' name for a classic hook without renaming the row", () => {
+    const classicHook = KIND_COMPARISON.find((row) => row.id === "classic-hook");
+    expect(classicHook?.name).toBe("Classic hook");
+    expect(classicHook?.whatItIs).toContain("The docs call it a settings hook.");
   });
 
   it("says custom commands were merged into skills instead of listing them apart", () => {
     const skill = KIND_COMPARISON.find((row) => row.id === "skill");
-    expect(skill?.whatItCanDo).toContain("merged into skills");
+    expect(skill?.whatItIs).toContain("merged into skills");
     expect(KIND_COMPARISON.some((row) => row.id === "slash-command")).toBe(false);
+  });
+});
+
+describe("WHERE_MODS_RUN", () => {
+  it("has one row for each place the overview's table names, in its order", () => {
+    expect(WHERE_MODS_RUN.map((place) => place.id)).toEqual([
+      "terminal",
+      "desktop",
+      "desktop-wsl",
+      "vscode",
+      "headless",
+      "remote-control",
+      "cloud",
+    ]);
+    expect(WHERE_MODS_RUN_COLUMNS).toHaveLength(3);
+  });
+
+  it("draws only in the terminal and the Desktop app, while hooks run everywhere but WSL", () => {
+    const draws = WHERE_MODS_RUN.filter((place) => place.drawingShows.startsWith("Yes")).map((place) => place.id);
+    expect(draws).toEqual(["terminal", "desktop"]);
+    const noHooks = WHERE_MODS_RUN.filter((place) => place.hooksRun.startsWith("No")).map((place) => place.id);
+    expect(noHooks).toEqual(["desktop-wsl"]);
+  });
+});
+
+describe("BUILT_IN_MODS", () => {
+  it("lists the six built-in mods by the names /plugin shows", () => {
+    expect(BUILT_IN_MODS.map((mod) => mod.name)).toEqual([
+      "cc-plugin-agents-md",
+      "cc-plugin-diff",
+      "cc-plugin-plugin-authoring",
+      "cc-plugin-sec-default",
+      "cc-plugin-telemetry",
+      "cc-plugin-you-should-know",
+    ]);
+    expect(BUILT_IN_MOD_COLUMNS).toHaveLength(3);
+  });
+
+  it("links public source for four, and says plugin-authoring and you-should-know have none", () => {
+    const withSource = BUILT_IN_MODS.filter((mod) => builtInModSourceHref(mod) !== null).map((mod) => mod.sourceFolder);
+    expect(withSource).toEqual(["agents-md", "diff", "sec-default", "telemetry"]);
+    for (const mod of BUILT_IN_MODS) {
+      const href = builtInModSourceHref(mod);
+      if (href !== null) expect(href, mod.name).toBe(`${LEARN_SOURCES.modsFolder}/${mod.sourceFolder ?? ""}`);
+    }
+    const authoring = BUILT_IN_MODS.find((mod) => mod.name === "cc-plugin-plugin-authoring");
+    expect(authoring?.whatItDoes).toContain("no mod code");
+    const youShouldKnow = BUILT_IN_MODS.find((mod) => mod.name === "cc-plugin-you-should-know");
+    expect(youShouldKnow?.whatItDoes).toContain("Disabled by default");
   });
 });
 
@@ -102,7 +171,16 @@ describe("the prose lists", () => {
 
   it("never use an em or en dash, which the copy rules forbid", () => {
     const everything = [
-      ...KIND_COMPARISON.flatMap((row) => [row.name, row.whatItIs, row.howYouWriteIt, row.whatItCanDo]),
+      ...KIND_COMPARISON.flatMap((row) => [
+        row.name,
+        row.whatItIs,
+        row.whatItCanChange,
+        row.drawsInTheInterface,
+        row.whatYouWrite,
+        row.pickItWhen,
+      ]),
+      ...WHERE_MODS_RUN.flatMap((place) => [place.where, place.hooksRun, place.drawingShows]),
+      ...BUILT_IN_MODS.map((mod) => mod.whatItDoes),
       ...CONCEPTS.flatMap((concept) => [concept.term, concept.description]),
       ...HOOKS_ENVIRONMENT_LIMITS,
       ...TEST_KIT_NOTES,
@@ -237,14 +315,14 @@ describe("LEARN_FAQ", () => {
     const plugin = KIND_COMPARISON.find((row) => row.id === "plugin");
     const entry = LEARN_FAQ.find((candidate) => candidate.id === "faq-mod-vs-plugin");
     expect(entry?.answer).toContain("skills, agents, hooks or MCP servers");
-    expect(plugin?.howYouWriteIt).toContain("skills, agents, hooks or MCP servers");
+    expect(plugin?.whatYouWrite).toContain("skills, agents, hooks or MCP servers");
   });
 
   it("keeps the mod vs classic hook answer's phrasing in sync with the comparison table's own classic hook row", () => {
     const classicHook = KIND_COMPARISON.find((row) => row.id === "classic-hook");
     const entry = LEARN_FAQ.find((candidate) => candidate.id === "faq-mod-vs-classic-hook");
     expect(entry?.answer).toContain("shell command, HTTP endpoint, MCP tool call, prompt or subagent");
-    expect(classicHook?.howYouWriteIt).toContain("shell command, HTTP endpoint, MCP tool call, prompt or subagent");
+    expect(classicHook?.whatYouWrite).toContain("shell command, HTTP endpoint, MCP tool call, prompt or subagent");
   });
 });
 

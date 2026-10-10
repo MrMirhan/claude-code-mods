@@ -104,7 +104,8 @@ export default function GettingStartedPage(): ReactNode {
           <p>
             To turn mods off, disable one in <InlineCode>/plugin</InlineCode>, start one session with{" "}
             <InlineCode>--safe-mode</InlineCode>, or set <InlineCode>&quot;disableAllHooks&quot;: true</InlineCode> in{" "}
-            <InlineCode>~/.claude/settings.json</InlineCode>, which also stops your settings hooks. The{" "}
+            <InlineCode>~/.claude/settings.json</InlineCode>, which also stops your settings hooks. The last two stop
+            the mods you installed, not the ones built into Claude Code. The{" "}
             <TextLink href={LEARN_SOURCES.modsOverviewDocs}>mods overview</TextLink> covers each one.
           </p>
         </Prose>
@@ -208,7 +209,7 @@ export default function GettingStartedPage(): ReactNode {
       <DocSection id="next" title="Where to go next">
         <Prose>
           <p>
-            Read how the four built-in mods are written in the <TextLink href="/browse/?kind=mod">directory</TextLink>,
+            Read how the four built-in mods with public source are written in the <TextLink href="/browse/?kind=mod">directory</TextLink>,
             look up an event on the <TextLink href="/hooks/">Hooks page</TextLink>, move a hook you already have with{" "}
             <TextLink href="/learn/migration/">classic hooks to function hooks</TextLink>, and see{" "}
             <TextLink href="/learn/">what a mod is and how it compares with plugins, hooks and skills</TextLink>.
