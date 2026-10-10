@@ -108,7 +108,7 @@ export default function SecurityPage(): ReactNode {
         </Callout>
         <Prose>
           <p>
-            A plugin that uses function hooks is loaded into one of five seats, outermost first. {RUNTIME_SEAT_NOTE}
+            A mod is loaded into one of five seats, outermost first. {RUNTIME_SEAT_NOTE}
           </p>
         </Prose>
         <ol role="list" className="flex max-w-[65ch] flex-col divide-y divide-border">

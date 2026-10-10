@@ -112,13 +112,13 @@ export const BEFORE_YOU_INSTALL: readonly InstallGuidance[] = [
 ];
 
 /**
- * How Claude Code itself keeps a function hooks plugin in check, as its declarations, the Mods README and
+ * How Claude Code itself keeps a mod in check, as its declarations, the Mods README and
  * the announcement describe it. This is not the site's proposed tier model above, which is a design for
  * a registry that does not exist: this is what the engine says it does. The site did not test it.
  */
 
 export const RUNTIME_SECTION_NOTE =
-  "Function hooks are early access. This section restates what Anthropic's type declarations, the Mods README and the announcement say the engine does. This site did not test it, and the API may change between releases without notice.";
+  "Mods are on by default in Claude Code v2.1.287 and later in the terminal, and from v2.1.286 in the Desktop app. This section restates what Anthropic's type declarations, the Mods README and the announcement say the engine does. This site did not test it.";
 
 /** Claude Code names these tiers. This page says seats, so they are not mistaken for the proposed tiers A, B, C and revoked. */
 export const RUNTIME_SEAT_NOTE =
@@ -182,7 +182,7 @@ export interface SecurityModFacts {
 /** The three moves the security mod's README says it has, and nothing else. Shown only beside the catalog's security mod. */
 export const SECURITY_MOD_FACTS: SecurityModFacts = {
   whatItIs:
-    "Its README says that, seated outermost, it keeps an organization's classic hooks, managed CLAUDE.md and rules, settings and MCP allowlist out of the reach of the plugins a person installs, and adds no policy of its own.",
+    "Its README says that, seated outermost, it keeps an organization's classic hooks, managed CLAUDE.md and rules, settings, MCP allowlist and deny rules out of the reach of the plugins a person installs, and adds no policy of its own.",
   moves:
     "It has three moves and nothing else: continue past the user seat, refuse a user seat caller by name, or pass. Its README seats it first in the prepend seat on a machine with managed settings or for a Team or Enterprise organization, unless managed prependPlugins says otherwise, and says that loading it with --plugin-dir seats a plugin that can only pass.",
   source: SEC_DEFAULT_README,

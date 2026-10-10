@@ -71,6 +71,7 @@ describe("security page", () => {
     expect(within(section).getByRole("heading", { level: 2, name: "How Claude Code keeps a mod in check" })).toBeInTheDocument();
     expect(within(section).getByRole("note")).toHaveTextContent(RUNTIME_SECTION_NOTE);
     expect(RUNTIME_SECTION_NOTE).toMatch(/This site did not test it/);
+    expect(RUNTIME_SECTION_NOTE).toMatch(/on by default in Claude Code v2\.1\.287 and later/);
     const order = Array.from(container.querySelectorAll("section")).map((element) => element.id);
     expect(order.indexOf("mod-runtime")).toBeLessThan(order.indexOf("tier-model"));
   });
@@ -141,6 +142,11 @@ describe("security page", () => {
     for (const title of ["Read the source", "Check the publisher", "Review permissions and hooks", "Prefer pinned versions"]) {
       expect(within(section as HTMLElement).getByRole("heading", { name: title })).toBeInTheDocument();
     }
+  });
+
+  it("carries no early access or function hooks flag copy now that mods are on by default", () => {
+    const { container } = render(<SecurityPage />);
+    expect(container.textContent).not.toMatch(/early access|CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1|function hooks are/i);
   });
 
   it("never uses concept wording or calls the mods runtime unconfirmed", () => {
