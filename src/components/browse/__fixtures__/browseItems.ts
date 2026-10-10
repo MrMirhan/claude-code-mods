@@ -32,7 +32,7 @@ function makeFixture(options: FixtureOptions): Extension {
     license: "MIT",
     availability,
     installCommands: availability === "installable" ? [`/plugin install ${options.slug}`] : [],
-    notice: availability === "built-in" ? "Fixture early access notice." : null,
+    notice: availability === "built-in" ? "Fixture caveat notice." : null,
     details: [],
     guide:
       options.kind === "mod"

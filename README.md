@@ -8,7 +8,9 @@ An unofficial community directory of Claude Code mods and extensions: mods, plug
 
 ## Mods first
 
-A mod is a Claude Code plugin whose behaviour lives in a hooks module. Anthropic publishes four in [anthropics/claude-code](https://github.com/anthropics/claude-code/tree/main/mods): `sec-default`, `diff`, `telemetry` and `agents-md`. They ship inside Claude Code, they are early access, and the API they are written against may change between releases without notice. Each has its own page here with what it does, how to run it from source and where to download it.
+A mod is a Claude Code plugin whose behaviour lives in a hooks module. Anthropic publishes four in [anthropics/claude-code](https://github.com/anthropics/claude-code/tree/main/mods): `sec-default`, `diff`, `telemetry` and `agents-md`. They ship inside Claude Code, and `/plugin` lists them on the Installed tab under Built-in. Mods are on by default in Claude Code v2.1.287 and later in the terminal, and from v2.1.286 in the Code tab of the Desktop app ([mods overview](https://code.claude.com/docs/en/plugins/mods/overview)). The mods README in that repository says the API they are written against may change between releases without notice. Each has its own page here with what it does, how to turn it off, how to run it from source and where to download it.
+
+Anthropic also shares three sample mods in [anthropics/claude-code-playground](https://github.com/anthropics/claude-code-playground/tree/main/claude-code/mods): `token-weather`, `blast-radius` and `replay-theater`. They are shared as they are, without support, under Apache-2.0. Their pages give the clone, `--plugin-dir` and local marketplace commands from each README.
 
 ## What is real
 
@@ -81,13 +83,13 @@ CI (`.github/workflows/validate.yml`) runs typecheck, lint, tests and a build on
 `templates/mod-starter/` is a complete mod that refuses a Bash call which force pushes with git. The Getting started page reads its files at build time through `src/lib/starter-mod.ts`, and a test fails if the folder holds a file the page does not show. To check it:
 
 ```bash
-npm run test:starter                          # CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1 claude plugin test templates/mod-starter
+npm run test:starter                          # claude plugin test templates/mod-starter
 claude plugin validate templates/mod-starter
 ```
 
-`claude plugin test` does not exist unless `CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1` is set, which the script does for that one command. CI does not run it, because the Claude Code CLI is not installed there, so the page dates its claim ("passed on Claude Code X on DATE") and this script is how a maintainer re-checks it.
+It needs Claude Code v2.1.287 or later, where mods are on by default. CI does not run it, because the Claude Code CLI is not installed there, so the page dates its claim ("passed on Claude Code X on DATE") and this script is how a maintainer re-checks it.
 
-Testing a mod runs its code, so read a folder before you run it. The variable is set on the command, not exported, so it is not left on for later sessions.
+Testing a mod runs its code, so read a folder before you run it.
 
 `templates/migration-example/` moves three classic hooks to the `classic.<Name>` events for the Migration page. The test kit cannot fire a classic event, so it has no tests. Check both templates against Anthropic's declarations with:
 
@@ -97,7 +99,7 @@ npm run typecheck:templates     # fetches the declarations at the pinned commit 
 
 That script also compiles `scripts/fixtures/*.negative.ts`, whose `@ts-expect-error` lines must keep failing: they hold the result-shape claims on the Migration page. It compiles TypeScript and never runs it, refuses a symbolic link under `templates/` and `scripts/fixtures/`, and stops `tsc` after three minutes. The declarations it fetches are the ones at the commit in `src/data/events.json`, so treat a change to that commit in a pull request as something to review.
 
-The folders are excluded from `tsconfig.json`: they import `claude-code` types that Claude Code writes with `/plugin-types`, and the site's own tests do not run them. Re-run the tests above when Claude Code updates, and update `TESTED_WITH` when you do.
+The folders are excluded from `tsconfig.json`: they import `claude-code` types that Claude Code writes into a mod's `.claude-plugin/types/` folder when it loads the mod with `--plugin-dir`, and the site's own tests do not run them. Re-run the tests above when Claude Code updates, and update `TESTED_WITH` when you do.
 
 `/learn/tutorials/` plays the 9 official videos from the announcement issue, from data in `src/components/docs/tutorialsContent.ts`. The titles, captions and asset ids there are copied exactly from the issue's own body; nothing is paraphrased. The clips are not re-hosted: `<video>` points at GitHub's own stable attachment URL (`github.com/user-attachments/assets/<id>`), the same one the issue embeds, which GitHub keeps redirecting to a fresh short-lived link on every request. That needs `media-src` and `img-src` allowances in `vercel.json`'s CSP for `github.com` and the one GitHub attachment CDN host the videos resolve to, added by exact hostname, not a wildcard. If GitHub ever serves attachments from a different host, the videos and the poster images will stop loading and the CSP entry needs updating; `src/lib/vercel-config.test.ts` checks the policy still names the hosts `tutorialsContent.ts`'s `VIDEO_HOSTS` constant uses, so the two cannot silently drift apart.
 

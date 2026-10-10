@@ -135,7 +135,7 @@ This is an example, not a real listing. The publisher, the repository and every 
   {
     "title": "Setup",
     "paragraphs": [
-      "What has to be enabled first, and how to load the mod from a local folder."
+      "Which Claude Code version it needs, and how to load the mod from a local folder."
     ],
     "commands": [
       "claude --plugin-dir example-hook-mod"
@@ -157,7 +157,7 @@ This is an example, not a real listing. The publisher, the repository and every 
 
 A mod is a Claude Code plugin whose behaviour lives in a hooks module. Anthropic's own mods are described in the [mods README](https://github.com/anthropics/claude-code/blob/main/mods/README.md), and the typings the engine offers them are in the [mods types folder](https://github.com/anthropics/claude-code/tree/main/mods/types). Use only event names you find there.
 
-You load a mod from a local folder, and test it, with these commands. Function hooks must be enabled for a hooks module to load.
+You load a mod from a local folder, and test it, with these commands. Mods are on by default in Claude Code v2.1.287 and later, so nothing has to be turned on first.
 
 ```bash
 claude --plugin-dir <path-to-mod>
@@ -166,7 +166,7 @@ claude plugin test <path-to-mod>
 
 In an entry, only the first form is allowed as a command, so describe testing in prose.
 
-This is early access: the API mods are written against may change between Claude Code releases without notice, and mods are not listed in a plugin marketplace. Say so in the entry's `notice`.
+Do not tell readers to set `CLAUDE_CODE_ENABLE_FUNCTION_HOOKS`: the [mods overview](https://code.claude.com/docs/en/plugins/mods/overview) says Claude Code v2.1.287 and later ignores it. If your mod needs a later version, or has a caveat a reader must see first, say so in the entry's `notice`.
 
 For how plugins are packaged, read the official [plugin docs](https://code.claude.com/docs/en/plugins) and [plugin marketplace docs](https://code.claude.com/docs/en/plugin-marketplaces).
 

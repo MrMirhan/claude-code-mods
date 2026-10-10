@@ -9,8 +9,9 @@ export interface InstallSectionProps {
   readonly extension: Pick<Extension, "availability" | "installCommands">;
 }
 
-export const NO_INSTALL_COMMAND = "No install command listed. See the source repository.";
-/** Defines the availability label. Caveats such as early access come from the entry's own notice, shown above. */
+/** Source-only copy. A mod guide may still give clone, load or local marketplace steps, so this never says there are none. */
+export const NO_INSTALL_COMMAND = "No one-step install command is listed. See the source repository, and any setup steps on this page.";
+/** Defines the availability label. Caveats such as a minimum version come from the entry's own notice, shown above. */
 export const BUILT_IN_EXPLANATION = "Built in. This ships inside Claude Code. Its source is published so you can read it.";
 
 /**

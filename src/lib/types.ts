@@ -137,7 +137,7 @@ export const extensionSchema = z
     availability: z.enum(AVAILABILITIES),
     /** Commands a user can run to install it. Required for `installable`, empty otherwise. */
     installCommands: z.array(z.string().min(1)),
-    /** Caveat a reader must see before using the entry (for example early access), or null. */
+    /** Caveat a reader must see before using the entry (for example a minimum Claude Code version), or null. */
     notice: z.string().min(1).nullable(),
     /** Extra labelled facts, such as where a mod is seated or how to run it from source. */
     details: z.array(detailSchema),

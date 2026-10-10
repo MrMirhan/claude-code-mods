@@ -224,13 +224,13 @@ describe("leadSentences", () => {
 
 describe("sharedNoticeLead", () => {
   it("returns the lead the notices agree on", () => {
-    const entries = [{ notice: "Early access. A. B." }, { notice: "Early access. C." }];
-    expect(sharedNoticeLead(entries, 1)).toBe("Early access.");
+    const entries = [{ notice: "Fixture lead. A. B." }, { notice: "Fixture lead. C." }];
+    expect(sharedNoticeLead(entries, 1)).toBe("Fixture lead.");
     expect(sharedNoticeLead(entries, 2)).toBeNull();
   });
 
   it("is null when any notice is missing, or there are no entries", () => {
-    expect(sharedNoticeLead([{ notice: "Early access." }, { notice: null }], 1)).toBeNull();
+    expect(sharedNoticeLead([{ notice: "Fixture lead." }, { notice: null }], 1)).toBeNull();
     expect(sharedNoticeLead([{ notice: null }], 1)).toBeNull();
     expect(sharedNoticeLead([], 1)).toBeNull();
   });
@@ -256,7 +256,7 @@ describe("selectBuiltInMods and describeBuiltInMods", () => {
   it("describes one Anthropic mod in the singular, with the repository and the notice lead", () => {
     const [one] = buildFeaturedMods(1);
     expect(describeBuiltInMods([one, communityMod()])).toBe(
-      "Anthropic publishes 1 mod in fixture-vendor/fixture-repo. It ships built in. Early access.",
+      "Anthropic publishes 1 mod in fixture-vendor/fixture-repo. It ships built in. Fixture lead.",
     );
   });
 
@@ -265,7 +265,7 @@ describe("selectBuiltInMods and describeBuiltInMods", () => {
     const catalog = [...mods, communityMod()];
     expect(selectBuiltInMods(catalog)).toHaveLength(3);
     expect(describeBuiltInMods(catalog)).toBe(
-      "Anthropic publishes 3 mods in fixture-vendor/fixture-repo. They ship built in. Early access.",
+      "Anthropic publishes 3 mods in fixture-vendor/fixture-repo. They ship built in. Fixture lead.",
     );
   });
 
@@ -275,7 +275,7 @@ describe("selectBuiltInMods and describeBuiltInMods", () => {
       name: "a-mod",
       kind: "mod",
       repositoryUrl: "https://github.com/one/repo-a",
-      notice: "Early access. Same.",
+      notice: "Fixture lead. Same.",
     });
     const second = buildFixture({
       slug: "b-mod",

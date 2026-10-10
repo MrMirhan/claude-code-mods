@@ -163,7 +163,7 @@ export function leadSentences(text: string, count: number): string {
 
 /**
  * The opening sentences the entries' own notices agree on, or null when a notice is missing or
- * the notices differ. Caveats such as "early access" are only repeated on the home page when
+ * the notices differ. Caveats such as a minimum version are only repeated on the home page when
  * every entry in the group actually says the same thing.
  */
 export function sharedNoticeLead(entries: readonly Pick<Extension, "notice">[], count: number): string | null {

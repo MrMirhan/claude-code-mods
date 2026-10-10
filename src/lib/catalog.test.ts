@@ -46,6 +46,10 @@ describe("the shipped data", () => {
   const curatedSlugs = readCuratedSlugs();
   const curated = all.filter((entry) => curatedSlugs.has(entry.slug));
   const anthropicMods = curated.filter((entry) => entry.publisher.kind === "anthropic" && entry.kind === "mod");
+  /** Mods that ship inside Claude Code, read from anthropics/claude-code under "All rights reserved" terms. */
+  const builtInMods = anthropicMods.filter((entry) => entry.availability === "built-in");
+  /** Anthropic's sample mods, shared from anthropics/claude-code-playground under Apache-2.0. */
+  const sampleMods = anthropicMods.filter((entry) => entry.availability === "source-only");
 
   it("passes catalogSchema", () => {
     expect(catalogSchema.safeParse(getCatalog()).success).toBe(true);
@@ -112,7 +116,8 @@ describe("the shipped data", () => {
     });
 
     it("give the download section git commands that name the mod folder, and state the license", () => {
-      for (const mod of anthropicMods) {
+      expect(builtInMods.length).toBeGreaterThan(0);
+      for (const mod of builtInMods) {
         const download = mod.guide.find((section) => section.title.toLowerCase().includes("download"));
         const commands = download?.commands ?? [];
         expect(commands.length, mod.slug).toBeGreaterThan(0);
@@ -122,8 +127,8 @@ describe("the shipped data", () => {
       }
     });
 
-    it("never call the source open source or name a permissive license", () => {
-      for (const mod of anthropicMods) {
+    it("never call the built-in source open source or name a permissive license", () => {
+      for (const mod of builtInMods) {
         for (const section of mod.guide) {
           expect(section.paragraphs.join(" "), `${mod.slug}: ${section.title}`).not.toMatch(
             /\bis open source\b|\bopen-source\b|\bMIT\b|\bApache\b/i,
@@ -132,21 +137,55 @@ describe("the shipped data", () => {
       }
     });
 
-    it("say the source is silent on enabling function hooks, and cite the announcement issue for the flag", () => {
-      for (const mod of anthropicMods) {
+    it("give the documented versions and /plugin name, and never tell a reader to set the early access flag", () => {
+      for (const mod of builtInMods) {
         const setup = mod.guide.find((section) => /set ?up/i.test(section.title));
         const text = setup?.paragraphs.join(" ") ?? "";
-        expect(text, mod.slug).toContain("The source does not document how to enable function hooks.");
-        expect(text, mod.slug).toContain("CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1");
-        expect(text, mod.slug).toMatch(/not documentation/);
+        expect(text, mod.slug).toContain("v2.1.287");
+        expect(text, mod.slug).toContain("v2.1.286");
+        expect(text, mod.slug).toContain(`cc-plugin-${mod.slug}`);
+        expect(text, mod.slug).not.toMatch(/CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1|does not document how to enable/);
+        expect(mod.notice ?? "", mod.slug).not.toMatch(/early access|function hooks are enabled/i);
         expect(
-          mod.links.some((link) => link.url === "https://github.com/anthropics/claude-code/issues/91870"),
-          `${mod.slug} links the announcement issue`,
+          mod.details.some((detail) => detail.label === "Name in /plugin" && detail.value === `cc-plugin-${mod.slug}`),
+          `${mod.slug} names its /plugin entry`,
+        ).toBe(true);
+        expect(
+          mod.links.some((link) => link.url === "https://code.claude.com/docs/en/plugins/mods/overview"),
+          `${mod.slug} links the mods overview`,
         ).toBe(true);
       }
     });
 
-    it("keep every command on one line and never repeat the early access notice", () => {
+    it("say the sample mods are shared as is, and give the clone, load and marketplace commands from their README", () => {
+      expect(sampleMods.map((mod) => mod.slug).sort()).toEqual(["blast-radius", "replay-theater", "token-weather"]);
+      for (const mod of sampleMods) {
+        expect(mod.isFeatured, mod.slug).toBe(false);
+        expect(mod.license, mod.slug).toBe("Apache-2.0");
+        expect(mod.repositoryUrl, mod.slug).toBe(
+          `https://github.com/anthropics/claude-code-playground/tree/main/claude-code/mods/${mod.slug}`,
+        );
+        expect(mod.notice ?? "", mod.slug).toMatch(/as it is, without support/);
+        const setup = mod.guide.find((section) => /set ?up/i.test(section.title));
+        expect(setup?.paragraphs.join(" "), mod.slug).toContain("2.1.287");
+        expect(setup?.commands, mod.slug).toEqual([
+          `claude plugin validate ./${mod.slug}`,
+          `claude --plugin-dir ./${mod.slug}`,
+          "claude plugin marketplace add ./",
+          `claude plugin install ${mod.slug}@claude-code-playground-mods --scope user`,
+        ]);
+        const download = mod.guide.find((section) => section.title.toLowerCase().includes("download"));
+        expect(download?.commands, mod.slug).toEqual([
+          "git clone https://github.com/anthropics/claude-code-playground.git",
+          "cd claude-code-playground/claude-code/mods",
+        ]);
+        expect(download?.paragraphs.join(" "), mod.slug).toMatch(/Apache License 2\.0/);
+        const text = `${mod.notice ?? ""} ${mod.guide.flatMap((section) => section.paragraphs).join(" ")}`;
+        expect(text, mod.slug).not.toMatch(/CLAUDE_CODE_ENABLE_FUNCTION_HOOKS|early access/i);
+      }
+    });
+
+    it("keep every command on one line and never repeat the notice", () => {
       for (const mod of anthropicMods) {
         const guideText = mod.guide.flatMap((section) => section.paragraphs).join(" ");
         expect(mod.notice, mod.slug).not.toBeNull();
@@ -160,13 +199,13 @@ describe("the shipped data", () => {
     });
   });
 
-  it("features exactly the Anthropic mods", () => {
+  it("features exactly the built-in Anthropic mods", () => {
     const featured = getFeaturedExtensions();
-    expect(featured.map((entry) => entry.slug).sort()).toEqual(anthropicMods.map((entry) => entry.slug).sort());
+    expect(featured.map((entry) => entry.slug).sort()).toEqual(builtInMods.map((entry) => entry.slug).sort());
     for (const entry of featured) {
       expect(entry.availability, entry.slug).toBe("built-in");
     }
-    expect(all.filter((entry) => entry.kind === "mod" && entry.publisher.kind === "anthropic" && !entry.isFeatured)).toEqual([]);
+    expect(builtInMods.filter((entry) => !entry.isFeatured)).toEqual([]);
   });
 
   it("never lists an idea in the directory", () => {
