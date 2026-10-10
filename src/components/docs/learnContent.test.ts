@@ -3,6 +3,9 @@ import { DASH_PATTERN } from "@/components/docs/testSupport";
 import { STARTER_MOD_FILES } from "@/lib/starter-mod";
 import { ALLOWED_CATALOG_HOSTS } from "@/lib/url";
 import {
+  ASK_CLAUDE_KEEP,
+  ASK_CLAUDE_SKIPPED,
+  ASK_CLAUDE_STEPS,
   CONCEPTS,
   HOOKS_ENVIRONMENT_LIMITS,
   KIND_COMPARISON,
@@ -101,6 +104,9 @@ describe("the prose lists", () => {
       ...HOOKS_ENVIRONMENT_LIMITS,
       ...TEST_KIT_NOTES,
       ...RUN_WARNING,
+      ...ASK_CLAUDE_STEPS.flatMap((step) => [step.title, step.description, ...(step.details ?? [])]),
+      ...ASK_CLAUDE_SKIPPED,
+      ASK_CLAUDE_KEEP,
       STARTER_LIMITS,
       MOD_FOLDER_TREE,
     ];
@@ -121,6 +127,31 @@ describe("the prose lists", () => {
   it("say the starter is not a security boundary, and name what it misses", () => {
     expect(STARTER_LIMITS).toContain("not a security boundary");
     for (const missed of ["sudo", "bash -c", "--force-with-lease", "--delete", "--mirror"]) expect(STARTER_LIMITS).toContain(missed);
+  });
+});
+
+describe("asking Claude for a mod", () => {
+  it("has the four steps of the Create a mod docs, in order, with unique titles", () => {
+    expect(ASK_CLAUDE_STEPS.map((step) => step.title)).toEqual([
+      "Describe the mod",
+      "Approve the mod",
+      "Check that it loaded",
+      "Try it, and ask for changes",
+    ]);
+  });
+
+  it("names where Claude writes the mod, both answers to the reload prompt, and the Installed tab", () => {
+    const text = ASK_CLAUDE_STEPS.flatMap((step) => [step.description, ...(step.details ?? [])]).join(" ");
+    expect(text).toContain("~/.claude/dev-mods/");
+    expect(text).toContain("Enable for this session");
+    expect(text).toContain("Not now");
+    expect(text).toContain("Installed tab");
+  });
+
+  it("says when such a mod does not load, and that it is deleted with its session", () => {
+    expect(ASK_CLAUDE_SKIPPED.join(" ")).toMatch(/claude -p.*dontAsk/);
+    expect(ASK_CLAUDE_SKIPPED.join(" ")).toMatch(/--safe-mode or --bare.*disableAllHooks/);
+    expect(ASK_CLAUDE_KEEP).toContain("cleanupPeriodDays");
   });
 });
 

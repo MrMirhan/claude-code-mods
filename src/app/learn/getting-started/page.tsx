@@ -6,7 +6,11 @@ import { DocPage } from "@/components/docs/DocPage";
 import { DocSection, Prose } from "@/components/docs/DocSection";
 import { InlineCode } from "@/components/docs/InlineCode";
 import { TextLink } from "@/components/docs/TextLink";
+import { Timeline } from "@/components/docs/Timeline";
 import {
+  ASK_CLAUDE_KEEP,
+  ASK_CLAUDE_SKIPPED,
+  ASK_CLAUDE_STEPS,
   HOOKS_ENVIRONMENT_LIMITS,
   LEARN_SOURCES,
   MOD_FOLDER_TREE,
@@ -33,7 +37,7 @@ export default function GettingStartedPage(): ReactNode {
   return (
     <DocPage
       title="Build your first Claude Mod"
-      description="Check that mods are on, then test and run a small starter mod that refuses force pushes."
+      description="Ask Claude to write a mod for you, or test and run a small starter mod that refuses force pushes."
     >
       <JsonLd data={buildDocPageGraph(PAGE_SEO.learnGettingStarted)} />
       <Callout tone="warning">
@@ -43,6 +47,40 @@ export default function GettingStartedPage(): ReactNode {
           check them against <TextLink href={LEARN_SOURCES.modsCreateDocs}>Create a mod</TextLink> in the official docs.
         </p>
       </Callout>
+      <DocSection id="ask-claude" title="The easiest way: ask Claude for a mod">
+        <Prose>
+          <p>
+            Describe the mod you want and Claude writes it. Claude works from a skill built into Claude Code named{" "}
+            <InlineCode>plugin-authoring</InlineCode>, which tells it where to write the mod, which events and methods
+            your version has, and how the mod loads. Claude can load the skill on its own when you ask for a mod, or
+            you can run <InlineCode>/plugin-authoring</InlineCode> at the Claude Code prompt yourself. You need a
+            version where <TextLink href="#enable">mods are on</TextLink>.
+          </p>
+        </Prose>
+        <Timeline items={ASK_CLAUDE_STEPS} label="Steps to have Claude write a mod" />
+        <Callout tone="warning">
+          <p>
+            A mod is code that runs with your permissions, the one Claude writes included. Read its files before you
+            approve them.
+          </p>
+        </Callout>
+        <Prose>
+          <p>{ASK_CLAUDE_KEEP}</p>
+        </Prose>
+        <CopyCommand command="claude --plugin-dir ~/mods/git-branch" label="Load a mod you copied out of the session" />
+        <Prose>
+          <p>A mod Claude writes does not load in these sessions:</p>
+          <ul className="flex list-disc flex-col gap-2 pl-5">
+            {ASK_CLAUDE_SKIPPED.map((reason) => (
+              <li key={reason}>{reason}</li>
+            ))}
+          </ul>
+          <p>
+            The steps are from <TextLink href={LEARN_SOURCES.modsCreateDocs}>Create a mod</TextLink> in the official
+            docs. To learn how a mod&apos;s code works, build the starter below yourself.
+          </p>
+        </Prose>
+      </DocSection>
       <DocSection id="enable" title="Check that mods are on">
         <Prose>
           <p>

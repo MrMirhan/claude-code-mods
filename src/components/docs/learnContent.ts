@@ -4,6 +4,8 @@
  * copied from Anthropic's type declarations: they are published under "All rights reserved" terms.
  */
 
+import type { TimelineItem } from "@/components/docs/Timeline";
+
 /** Where the copy comes from, so a reader can check it. */
 export const LEARN_SOURCES = {
   announcementIssue: "https://github.com/anthropics/claude-code/issues/91870",
@@ -195,6 +197,50 @@ export const LEARN_FAQ: readonly FaqEntry[] = [
     question: "How do I build my first mod?",
     answer: "Build a small mod in the Getting started guide, move a hook you already have, or watch the official video tutorials.",
   },
+];
+
+/** The example request "Ask Claude for a mod" in the Create a mod docs uses. */
+export const ASK_CLAUDE_EXAMPLE_PROMPT = "make a mod that shows the current git branch above the prompt";
+
+/** The steps of "Ask Claude for a mod" in the Create a mod docs, in their order. */
+export const ASK_CLAUDE_STEPS: readonly TimelineItem[] = [
+  {
+    title: "Describe the mod",
+    description: `In an interactive session, ask in your own words, for example: ${ASK_CLAUDE_EXAMPLE_PROMPT}. Claude writes the mod in a folder of its own under ~/.claude/dev-mods/, inside a folder named for the session's ID.`,
+    details: [
+      "In the default and acceptEdits permission modes, Claude Code asks before Claude creates each file, because ~/.claude is a protected path. Approve each one.",
+    ],
+  },
+  {
+    title: "Approve the mod",
+    description:
+      "When Claude saves the first file, Claude Code asks whether to enable hot reloading for the session.",
+    details: [
+      "Enable for this session: the mod loads when the turn ends, and reloads at the end of each turn that changes it.",
+      "Not now: nothing loads for now. The files stay where Claude wrote them, and the mod loads the next time that session starts.",
+    ],
+  },
+  {
+    title: "Check that it loaded",
+    description:
+      "Run /plugin at the Claude Code prompt and press Tab until the Installed tab is selected. It lists the mod, and you can turn it off there.",
+  },
+  {
+    title: "Try it, and ask for changes",
+    description:
+      "Use what you asked for. If it does not do what you wanted, tell Claude what to change. The mod reloads at the end of each turn that changes its files.",
+  },
+];
+
+/** What happens to a mod Claude wrote after its session, and how to keep it, from the Create a mod docs. */
+export const ASK_CLAUDE_KEEP =
+  "A mod Claude writes loads only in the session that made it, and Claude Code deletes that session's mods folder once it is older than cleanupPeriodDays. To keep one, copy its folder somewhere of your own, such as ~/mods/git-branch, and load it from there:";
+
+/** The sessions where a mod Claude writes does not load, from the Create a mod docs. */
+export const ASK_CLAUDE_SKIPPED: readonly string[] = [
+  "Nobody is there to approve it, as in a claude -p run or dontAsk mode.",
+  "You have not accepted the trust prompt for the folder.",
+  "You started with --safe-mode or --bare, you set disableAllHooks, or your organization's managed settings block it.",
 ];
 
 export const MOD_FOLDER_TREE = [

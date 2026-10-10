@@ -2,6 +2,10 @@ import { render, screen, within } from "@testing-library/react";
 import { beforeAll, describe, expect, it } from "vitest";
 import { DASH_PATTERN, stubIntersectionObserver } from "@/components/docs/testSupport";
 import {
+  ASK_CLAUDE_EXAMPLE_PROMPT,
+  ASK_CLAUDE_KEEP,
+  ASK_CLAUDE_SKIPPED,
+  ASK_CLAUDE_STEPS,
   LEARN_SOURCES,
   MODS_MIN_VERSION,
   RETIRED_FLAG_NAME,
@@ -38,6 +42,39 @@ describe("getting started page", () => {
       "href",
       LEARN_SOURCES.modsCreateDocs,
     );
+  });
+
+  it("offers asking Claude for a mod as the first section, before any manual setup", () => {
+    const { container } = render(<GettingStartedPage />);
+    const sectionIds = Array.from(container.querySelectorAll("section[id]")).map((section) => section.id);
+    expect(sectionIds[0]).toBe("ask-claude");
+    expect(sectionIds.indexOf("ask-claude")).toBeLessThan(sectionIds.indexOf("starter"));
+  });
+
+  it("walks through asking Claude for a mod, from the plugin-authoring skill to keeping the mod", () => {
+    const { container } = render(<GettingStartedPage />);
+    const element = container.querySelector("#ask-claude") as HTMLElement;
+    const section = within(element);
+    expect(section.getByText("plugin-authoring")).toBeInTheDocument();
+    expect(section.getByText("/plugin-authoring")).toBeInTheDocument();
+    const steps = section.getByRole("list", { name: "Steps to have Claude write a mod" });
+    for (const step of ASK_CLAUDE_STEPS) expect(within(steps).getByText(step.title)).toBeInTheDocument();
+    expect(element.textContent).toContain(ASK_CLAUDE_EXAMPLE_PROMPT);
+    expect(element.textContent).toContain(ASK_CLAUDE_KEEP);
+    expect(section.getByText("claude --plugin-dir ~/mods/git-branch")).toBeInTheDocument();
+    for (const reason of ASK_CLAUDE_SKIPPED) expect(section.getByText(reason)).toBeInTheDocument();
+    expect(section.getByRole("link", { name: /^Create a mod/ })).toHaveAttribute("href", LEARN_SOURCES.modsCreateDocs);
+    expect(section.getByRole("link", { name: "mods are on" })).toHaveAttribute("href", "#enable");
+  });
+
+  it("warns that a mod Claude writes runs with your permissions, before the command that loads one", () => {
+    const { container } = render(<GettingStartedPage />);
+    const section = within(container.querySelector("#ask-claude") as HTMLElement);
+    const warning = section.getByRole("note");
+    expect(warning).toHaveAttribute("data-tone", "warning");
+    expect(warning).toHaveTextContent(/runs with your permissions/);
+    const command = section.getByText("claude --plugin-dir ~/mods/git-branch");
+    expect(warning.compareDocumentPosition(command) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("gives the terminal and Desktop versions separately, with a way to check each", () => {
