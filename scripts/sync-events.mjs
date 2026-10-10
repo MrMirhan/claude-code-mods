@@ -8,6 +8,10 @@
 // It never writes without --write, so a change to the event list is always a diff someone reviews.
 // The declarations are read into memory and dropped: only event names, their family and the line
 // each is declared on are kept (see scripts/lib/dts-events.mjs for why).
+//
+// The declarations on GitHub can trail the release. Names Anthropic's mods reference or changelog
+// lists before then live in src/data/event-supplement.json, kept by hand; this script never writes
+// it, and prints the names a sync has made redundant there so they can be deleted.
 
 import { readFile, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
@@ -22,10 +26,14 @@ import {
   diffEvents,
   extractEvents,
   formatEventsFile,
+  supplementNamesDeclared,
 } from "./lib/dts-events.mjs";
 
 const API_HOST = "api.github.com";
 const EVENTS_PATH = fileURLToPath(new URL("../src/data/events.json", import.meta.url));
+// Hand-kept: names Anthropic's mods reference and changelog list before the declarations on GitHub
+// declare them. This script only reads it, to say which names a sync has made redundant.
+const SUPPLEMENT_PATH = fileURLToPath(new URL("../src/data/event-supplement.json", import.meta.url));
 const COMMIT_SHA = /^[0-9a-f]{40}$/;
 
 function describeError(error) {
@@ -81,6 +89,20 @@ async function readCurrentFile() {
   return file;
 }
 
+/** Names in the supplement, or none when it is missing. A file that cannot be parsed stops the run. */
+async function readSupplementNames() {
+  let text;
+  try {
+    text = await readFile(SUPPLEMENT_PATH, "utf8");
+  } catch (error) {
+    if (error?.code === "ENOENT") return [];
+    throw error;
+  }
+  const file = JSON.parse(text);
+  if (!Array.isArray(file.events)) throw new Error("src/data/event-supplement.json has no events list");
+  return file.events.map((event) => String(event?.name));
+}
+
 async function main() {
   const options = parseArguments(process.argv.slice(2));
   const sha = options.sha ?? (await latestCommitSha());
@@ -102,6 +124,10 @@ async function main() {
   console.log(`Removed ${list(changes.removed)}`);
   console.log(`Changed family ${list(changes.refamilied)}`);
   console.log(`Moved to another line ${changes.moved.length}${previousFile?.source.sha === sha ? "" : " (the pinned commit changes)"}`);
+  const redundant = supplementNamesDeclared(await readSupplementNames(), events);
+  if (redundant.length > 0) {
+    console.log(`Now declared upstream, so delete from src/data/event-supplement.json: ${list(redundant)}`);
+  }
 
   const hasChange = previousFile === null || previousFile.source.sha !== sha || Object.values(changes).some((names) => names.length > 0);
   if (!hasChange) {

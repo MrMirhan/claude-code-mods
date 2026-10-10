@@ -6,6 +6,7 @@ import {
   diffEvents,
   extractEvents,
   formatEventsFile,
+  supplementNamesDeclared,
 } from "../../scripts/lib/dts-events.mjs";
 import { EVENT_FAMILIES, eventsFileSchema } from "@/lib/types";
 
@@ -204,5 +205,18 @@ describe("diffEvents", () => {
       moved: ["a.one"],
       refamilied: ["a.two"],
     });
+  });
+});
+
+describe("supplementNamesDeclared", () => {
+  const events = [{ name: "ui.notify" }, { name: "tool.call" }, { name: "prompt.autocomplete" }];
+
+  it("lists, sorted, the supplement names the declarations now declare", () => {
+    expect(supplementNamesDeclared(["ui.notify", "ui.copy", "prompt.autocomplete"], events)).toEqual(["prompt.autocomplete", "ui.notify"]);
+  });
+
+  it("is empty when the declarations have not caught up, or the supplement is empty", () => {
+    expect(supplementNamesDeclared(["ui.copy"], events)).toEqual([]);
+    expect(supplementNamesDeclared([], events)).toEqual([]);
   });
 });

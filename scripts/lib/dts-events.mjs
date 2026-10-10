@@ -198,6 +198,19 @@ export function formatEventsFile(file) {
 }
 
 /**
+ * Names in the hand-kept supplement (src/data/event-supplement.json) that the declarations now
+ * declare. The supplement holds names Anthropic's docs list before the declarations on GitHub catch
+ * up, so each of these should be deleted from it once the sync is written.
+ * @param {readonly string[]} supplementNames
+ * @param {readonly { name: string }[]} events
+ * @returns {string[]} sorted
+ */
+export function supplementNamesDeclared(supplementNames, events) {
+  const declared = new Set(events.map((event) => event.name));
+  return supplementNames.filter((name) => declared.has(name)).sort();
+}
+
+/**
  * What changed between two event lists, by name: added, removed, moved to another line, or moved to
  * another family. A moved line is not a change to the API, but it changes the source links, so it is
  * reported separately.
