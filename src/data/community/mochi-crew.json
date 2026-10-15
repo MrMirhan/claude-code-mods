@@ -1,0 +1,135 @@
+{
+  "slug": "mochi-crew",
+  "name": "Mochi Crew",
+  "kind": "mod",
+  "categories": [
+    "workflow",
+    "observability"
+  ],
+  "summary": "A pixel-art cat in a side pane that reacts to your real session, with a kitten crew for subagents, XP and missions, a session meter and a live file tree.",
+  "description": [
+    "Mochi is a pixel-art cat that lives in a Claude Code side pane and reacts to what the session is really doing. It types when Claude edits a file, grabs a hammer when a command runs, thinks along while Claude works, and waves when it is your turn. Every reaction comes from a real event in the session; nothing is random or simulated.",
+    "Subagents join as a crew of kittens in role costumes picked from the agent's type: a SWAT helmet for security agents, a police cap for reviewers, a lab coat for testers, a deerstalker for explorers. Each kitten's HUD row shows the call it is running right now.",
+    "Clean edits, the turn's first passing test run, squashed bugs and finished turns earn XP and badges kept across sessions, and complete missions that reset every session. A test run only counts when the suite really ran and passed.",
+    "A session meter under the HUD shows the model, context fill, the prompt-cache hit rate, and plan limits or an estimated cost. A file tree shows the folders and files Claude edited this session, with git status badges, and clicking a file opens it in your editor. It is a community project, not made or endorsed by Anthropic."
+  ],
+  "publisher": {
+    "name": "joeVenner",
+    "url": "https://github.com/joeVenner",
+    "kind": "community"
+  },
+  "repositoryUrl": "https://github.com/joeVenner/mochi-crew/tree/main/plugins/mochi-crew",
+  "license": "MIT",
+  "availability": "source-only",
+  "installCommands": [],
+  "notice": "Mods need Claude Code 2.1.287 or later, and their API can change between releases without notice. It installs from its own repository's marketplace, not from Anthropic's.",
+  "details": [
+    {
+      "label": "Version",
+      "value": "1.2.1",
+      "isCommand": false
+    },
+    {
+      "label": "Plugin id",
+      "value": "mochi-crew",
+      "isCommand": false
+    },
+    {
+      "label": "Run from source",
+      "value": "claude --plugin-dir mochi-crew/plugins/mochi-crew",
+      "isCommand": true
+    }
+  ],
+  "guide": [
+    {
+      "title": "What it does",
+      "paragraphs": [
+        "Edit, Write and NotebookEdit send Mochi to the desk to type, then a jump with a green check or a red cross when the edit succeeds or fails. Bash gets a hammer, or a magnifier for read-only commands such as rg, ls and git status. A failed command lets a bug scuttle in, and the next passing command squashes it. When Claude hands the turn back, Mochi waves and the HUD shows how long the turn took.",
+        "Between tasks Mochi looks around, strolls, sips coffee, reads, stretches and eventually naps. The window shows the real sky for your local time."
+      ],
+      "commands": []
+    },
+    {
+      "title": "How it works",
+      "paragraphs": [
+        "tool.call reacts to Edit, Write, NotebookEdit, Bash, Read, WebSearch, WebFetch and MCP tools, and passes every call on unchanged; other tools go straight through. agent.spawn adds a kitten for each subagent. turn.start and turn.complete track turns, XP and missions. session.measure feeds the session meter. command.run answers /mascot and /mochi. session.start loads saved progress, registers the commands and opens the pane, ui.render draws it, and session.end resets the session's figures.",
+        "The file tree runs git status, git diff --numstat and git branch in the project by argument list, never through a shell, and only for files inside the project. Clicking a file runs your windowed editor with that file's path, also without a shell. The mod makes no network requests. Level, XP, outfit, settings, mood, energy and badges persist in the plugin store; the journal, missions, meter and the tree's touched files reset every session."
+      ],
+      "commands": []
+    },
+    {
+      "title": "Set up",
+      "paragraphs": [
+        "Inside Claude Code, add the marketplace and install the mod. The pane opens on its own when a session starts; run /mascot to open it again. Focus the pane and press p to pet, f to feed, d to dance, o for the next outfit, s for sound and t for the file tree.",
+        "New releases bump the plugin's version. Run /plugin marketplace update mochi-crew to pick one up, or turn on auto-update for the mochi-crew marketplace in /plugin."
+      ],
+      "commands": [
+        "/plugin marketplace add joeVenner/mochi-crew",
+        "/plugin install mochi-crew@mochi-crew"
+      ]
+    },
+    {
+      "title": "Commands",
+      "paragraphs": [
+        "Run /mascot to open the pane; /mochi works too, for every command. /mascot journal lists this session's turns, edits, commands, fixes and files. /mascot missions and /mascot achievements show goals and badges. /mascot meter prints the full session meter with notes for your provider. /mascot files off hides the file tree. /mascot outfit takes classic, wizard, pirate, party, shades or crown, and /mascot sound on turns on 8-bit sound effects."
+      ],
+      "commands": []
+    },
+    {
+      "title": "Download the source",
+      "paragraphs": [
+        "Clone the repository and load the plugin folder. To run its tests, run claude plugin test . in that folder."
+      ],
+      "commands": [
+        "git clone https://github.com/joeVenner/mochi-crew",
+        "claude --plugin-dir mochi-crew/plugins/mochi-crew"
+      ]
+    }
+  ],
+  "hooks": [
+    "session.start",
+    "session.end",
+    "session.measure",
+    "command.run",
+    "tool.call",
+    "agent.spawn",
+    "turn.start",
+    "turn.complete",
+    "ui.render"
+  ],
+  "tags": [
+    "companion",
+    "pixel-art",
+    "gamification",
+    "pane",
+    "hud",
+    "subagents",
+    "context",
+    "prompt-cache",
+    "usage",
+    "file-tree",
+    "slash-command",
+    "function-hooks"
+  ],
+  "links": [
+    {
+      "label": "README",
+      "url": "https://github.com/joeVenner/mochi-crew/blob/main/README.md"
+    },
+    {
+      "label": "Privacy and safety",
+      "url": "https://github.com/joeVenner/mochi-crew/blob/main/README.md#privacy-and-safety"
+    },
+    {
+      "label": "Changelog",
+      "url": "https://github.com/joeVenner/mochi-crew/blob/main/CHANGELOG.md"
+    }
+  ],
+  "stars": null,
+  "isFeatured": false,
+  "verification": {
+    "status": "verified",
+    "checkedAt": "2026-10-15",
+    "sourceUrl": "https://github.com/joeVenner/mochi-crew"
+  }
+}

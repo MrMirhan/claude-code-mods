@@ -20,6 +20,7 @@ vi.mock("@/lib/catalog", () => {
   return {
     getAllExtensions: () => catalog,
     getFeaturedExtensions: () => featuredMods,
+    getExtensionBySlug: (slug: string) => catalog.find((extension) => extension.slug === slug),
     countByKind: () => counts,
     getCatalogGeneratedAt: () => "2026-01-02",
   };

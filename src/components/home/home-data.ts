@@ -199,3 +199,25 @@ export function describeBuiltInMods(extensions: readonly Extension[]): string | 
   if (caveat !== null) sentences.push(caveat);
   return sentences.join(" ");
 }
+
+export interface CommunitySpotlight {
+  /** Slug of a catalog entry; the section's copy is read from that entry, never repeated here. */
+  readonly slug: string;
+  /** Artwork copied from the entry's own repository into `public/`, because the CSP allows no raw GitHub host. */
+  readonly imageSrc: string;
+  readonly imageAlt: string;
+  readonly imageWidth: number;
+  readonly imageHeight: number;
+  /** Shown under the summary: a plain statement of who made it and how the site relates to them. */
+  readonly disclosure: string;
+}
+
+/** The community entry highlighted on the home page. A maintainer choice, like `isFeatured`. */
+export const COMMUNITY_SPOTLIGHT: CommunitySpotlight = {
+  slug: "mochi-crew",
+  imageSrc: "/spotlight/mochi-crew.png",
+  imageAlt: "Mochi the pixel cat at home, with three kitten crewmates in role costumes",
+  imageWidth: 768,
+  imageHeight: 384,
+  disclosure: "Made by joeVenner, who also maintains this site. A spotlight is an editorial choice, not a security review.",
+};
