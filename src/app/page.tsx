@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Hero } from "@/components/home/Hero";
+import { CommunitySpotlightSection } from "@/components/home/CommunitySpotlightSection";
 import { FeaturedSection } from "@/components/home/FeaturedSection";
 import { InstallFlow } from "@/components/home/InstallFlow";
 import { KindExplorer } from "@/components/home/KindExplorer";
 import { TrustModel } from "@/components/home/TrustModel";
 import { TutorialsShowcase } from "@/components/home/TutorialsShowcase";
 import {
+  COMMUNITY_SPOTLIGHT,
   describeBuiltInMods,
   pickFeatured,
   pickInstallExamples,
@@ -18,6 +20,7 @@ import {
   countByKind,
   getAllExtensions,
   getCatalogGeneratedAt,
+  getExtensionBySlug,
   getFeaturedExtensions,
 } from "@/lib/catalog";
 import { JsonLd } from "@/components/seo/JsonLd";
@@ -37,6 +40,10 @@ export default function HomePage(): ReactNode {
     <>
       <JsonLd data={buildHomeGraph()} />
       <Hero extensions={toListItems(allExtensions)} />
+      <CommunitySpotlightSection
+        extension={getExtensionBySlug(COMMUNITY_SPOTLIGHT.slug)}
+        spotlight={COMMUNITY_SPOTLIGHT}
+      />
       <KindExplorer counts={countByKind()} builtInModsNote={describeBuiltInMods(allExtensions)} />
       <FeaturedSection extensions={featuredPick.extensions} isEditorialPick={featuredPick.isEditorial} />
       <TutorialsShowcase />

@@ -2,6 +2,7 @@ import { render, screen, within } from "@testing-library/react";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { HOME_FIXTURES, buildFixture } from "@/components/home/__fixtures__/extensions";
 import { stubIntersectionObserver } from "@/components/home/__fixtures__/intersection-observer";
+import { COMMUNITY_SPOTLIGHT } from "@/components/home/home-data";
 import type { Extension } from "@/lib/types";
 import HomePage from "./page";
 
@@ -11,6 +12,7 @@ const catalogState = vi.hoisted(() => ({ all: [] as readonly Extension[], featur
 vi.mock("@/lib/catalog", () => ({
   getAllExtensions: () => catalogState.all,
   getFeaturedExtensions: () => catalogState.featured,
+  getExtensionBySlug: (slug: string) => catalogState.all.find((extension) => extension.slug === slug),
   countByKind: () => ({ plugin: 0, skill: 0, agent: 0, hook: 0, "mcp-server": 0, command: 0, mod: 0 }),
   getCatalogGeneratedAt: () => "2026-01-02",
 }));
@@ -64,5 +66,25 @@ describe("home page when nothing is featured", () => {
     render(<HomePage />);
     expect(screen.queryByText("/plugin install community-plugin")).not.toBeInTheDocument();
     expect(screen.getByText("No copyable commands yet")).toBeInTheDocument();
+  });
+
+  it("shows the community spotlight only while its entry is in the catalog", () => {
+    const { unmount } = render(<HomePage />);
+    expect(screen.queryByRole("region", { name: "Community spotlight" })).toBeNull();
+    unmount();
+
+    catalogState.all = [
+      ...catalogState.all,
+      buildFixture({
+        slug: COMMUNITY_SPOTLIGHT.slug,
+        name: "Spotlit Mod",
+        kind: "mod",
+        availability: "source-only",
+        publisherKind: "community",
+      }),
+    ];
+    render(<HomePage />);
+    const spotlight = within(screen.getByRole("region", { name: "Community spotlight" }));
+    expect(spotlight.getByRole("heading", { name: "Spotlit Mod" })).toBeInTheDocument();
   });
 });
