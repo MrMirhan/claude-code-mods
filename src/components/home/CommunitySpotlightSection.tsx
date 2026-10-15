@@ -20,8 +20,8 @@ export interface CommunitySpotlightSectionProps {
 
 /**
  * One community entry, shown large: its artwork, name, summary and the events it hooks, with a
- * link to its page and its source. All copy except the disclosure comes from the catalog entry, so
- * the section can never drift from the listing. It renders nothing when the entry is gone.
+ * link to its page and its source. The name, summary, hooks and links come from the catalog entry,
+ * so they can never drift from the listing. It renders nothing when the entry is gone.
  */
 export function CommunitySpotlightSection({ extension, spotlight }: CommunitySpotlightSectionProps): ReactNode {
   if (extension === undefined) return null;
@@ -34,7 +34,7 @@ export function CommunitySpotlightSection({ extension, spotlight }: CommunitySpo
         <SectionHeading
           eyebrow="Community spotlight"
           title={name}
-          body="A mod from the community, picked by the maintainers to show what a mod can draw inside Claude Code."
+          body="A community mod the maintainers picked to show what a mod can add to Claude Code's interface."
         />
         <Reveal>
           <div className="grid items-center gap-8 md:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] md:gap-12">
