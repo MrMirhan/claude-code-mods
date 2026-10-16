@@ -1,0 +1,143 @@
+{
+  "slug": "sweet-spot",
+  "name": "sweet-spot",
+  "kind": "mod",
+  "categories": [
+    "optimization",
+    "workflow"
+  ],
+  "summary": "Hands a long session over before the context gets too big: to a fresh session that starts from a handoff, or by Claude Code's own /compact.",
+  "description": [
+    "sweet-spot keeps the context of a Claude Code session in the range where it is big enough to hold the work and still small enough to be cheap and reliable. Past a threshold (200k tokens by default) it waits for a pause at the end of an answer, counts down above the prompt with a \"Not now\", and then hands the session over.",
+    "By default Claude writes a handoff, the mod clears the session and submits the text of the handoff as the first message of a fresh one. If that fails, it compacts the session with Claude Code's own /compact instead. The old session stays as it was, and /resume takes you back to it.",
+    "It never acts in the middle of a turn, and a turn that ended in an error, a refusal or Esc is no pause. While a subagent, a background task or a timer is running it postpones, up to an emergency brake 150k tokens past the threshold. A dev server or a watcher does not hold it back; the fresh session is told it still runs. What you type during a handover is held and goes in when it is done.",
+    "With an hour of prompt cache it also writes a handoff shortly before the cache expires in a long pause, so a message sent after it has expired starts a fresh session instead of sending the whole conversation again.",
+    "It writes no files, makes no network calls and starts one process only: tail, to read the end of a transcript above 4 MiB. It is a community project, not made or endorsed by Anthropic."
+  ],
+  "publisher": {
+    "name": "Patrick Müller",
+    "url": "https://github.com/muellerei",
+    "kind": "community"
+  },
+  "repositoryUrl": "https://github.com/muellerei/sweet-spot",
+  "license": "MIT",
+  "availability": "source-only",
+  "installCommands": [],
+  "notice": "Developed against Claude Code 2.1.296; older versions are not tested, and versions before 2.1.271 cannot load the mod at all. It installs from its own repository's marketplace, not from Anthropic's.",
+  "details": [
+    {
+      "label": "Version",
+      "value": "0.2.0",
+      "isCommand": false
+    },
+    {
+      "label": "Plugin id",
+      "value": "sweet-spot",
+      "isCommand": false
+    },
+    {
+      "label": "Run from source",
+      "value": "claude --plugin-dir sweet-spot",
+      "isCommand": true
+    }
+  ],
+  "guide": [
+    {
+      "title": "What it does",
+      "paragraphs": [
+        "At the end of an answer it looks at the context size. Past the threshold, and when nothing else is going on, a line above the prompt counts down countdown_seconds (10 by default). Key 1 in an empty prompt moves the handover back; typing or sending a message stops the countdown without moving anything, and the next pause counts down again.",
+        "/sweet-spot status shows the context against the window, where the next handover comes and the emergency brake. /sweet-spot later 50k moves one handover back by 50k tokens, /sweet-spot asap hands over at the next pause wherever the context stands, and /sweet-spot redeliver submits a held message again if delivering it failed."
+      ],
+      "commands": []
+    },
+    {
+      "title": "Handoff or compact",
+      "paragraphs": [
+        "handoff_method picks the way and handoff_fallback the one tried when it fails before it changed the session. internal-handoff (the default) writes a handoff with a built-in prompt, which ~/.claude/sweet-spot/handoff-prompt.md replaces. builtin-compact is Claude Code's own /compact, and the session stays. external-command runs a handoff command of your own and reads its file.",
+        "Measured in real handovers, a fresh session starts at 62k to 98k tokens. A threshold below 130000 is refused with the reason, and the mod stays off."
+      ],
+      "commands": []
+    },
+    {
+      "title": "How it works",
+      "paragraphs": [
+        "ui.render draws the countdown above the prompt and command.run answers /sweet-spot. The other events tell it when a turn starts, steps and completes, what is typed and submitted, which tools run, and when a session starts, ends or is compacted: turn.start, turn.step, turn.complete, prompt.edit, prompt.submit, tool.call, session.start, session.end and session.compact. It also registers the classic events Stop, UserPromptSubmit, SessionStart, PermissionRequest and PostModelSwitch.",
+        "It reads the session transcript to learn how long its prompt cache lives, the handoff file, the optional handoff prompt, a listing of the temp directory to find a handoff, and the environment variables HOME and TMPDIR. To check this against the code, run claude plugin validate . in the repository: it lists every call the hooks make and every environment variable they read."
+      ],
+      "commands": []
+    },
+    {
+      "title": "Set up",
+      "paragraphs": [
+        "Inside Claude Code, add the marketplace and install the mod, then run /reload-plugins. The settings are in the /config menu under sweet-spot. To watch first, turn dry_run on: then it only says when it would hand over."
+      ],
+      "commands": [
+        "/plugin marketplace add muellerei/sweet-spot",
+        "/plugin install sweet-spot@muellerei-sweet-spot"
+      ]
+    },
+    {
+      "title": "Download the source",
+      "paragraphs": [
+        "Clone the repository and load it as a plugin folder. To run its tests, run claude plugin test . in that folder."
+      ],
+      "commands": [
+        "git clone https://github.com/muellerei/sweet-spot",
+        "claude --plugin-dir sweet-spot"
+      ]
+    }
+  ],
+  "hooks": [
+    "session.start",
+    "session.end",
+    "session.compact",
+    "command.run",
+    "tool.call",
+    "turn.start",
+    "turn.step",
+    "turn.complete",
+    "prompt.edit",
+    "prompt.submit",
+    "ui.render",
+    "classic.Stop",
+    "classic.UserPromptSubmit",
+    "classic.SessionStart",
+    "classic.PermissionRequest",
+    "classic.PostModelSwitch"
+  ],
+  "tags": [
+    "context",
+    "context-window",
+    "handoff",
+    "compaction",
+    "prompt-cache",
+    "session-management",
+    "slash-command",
+    "function-hooks"
+  ],
+  "links": [
+    {
+      "label": "README",
+      "url": "https://github.com/muellerei/sweet-spot/blob/main/README.md"
+    },
+    {
+      "label": "What it can reach",
+      "url": "https://github.com/muellerei/sweet-spot/blob/main/README.md#what-it-can-reach"
+    },
+    {
+      "label": "Handoff after a long pause",
+      "url": "https://github.com/muellerei/sweet-spot/blob/main/docs/idle-handoff.md"
+    },
+    {
+      "label": "Changelog",
+      "url": "https://github.com/muellerei/sweet-spot/blob/main/CHANGELOG.md"
+    }
+  ],
+  "stars": null,
+  "isFeatured": false,
+  "verification": {
+    "status": "verified",
+    "checkedAt": "2026-10-16",
+    "sourceUrl": "https://github.com/muellerei/sweet-spot"
+  }
+}
