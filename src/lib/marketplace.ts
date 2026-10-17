@@ -31,18 +31,27 @@ const pluginName = z
 const commitSha = z.string().regex(/^[0-9a-f]{40}$/, "expected a full 40-character lowercase commit SHA");
 const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "expected YYYY-MM-DD");
 
+/** A repository name segment: GitHub's characters, but never `.` or `..`. */
+const isRealRepoName = (repo: string): boolean => !/^\.+$/.test(repo);
+
 const githubSource = z.object({
   source: z.literal("github"),
-  repo: z.string().regex(/^[A-Za-z0-9-]+\/[A-Za-z0-9._-]+$/, "expected owner/repo"),
+  repo: z
+    .string()
+    .regex(/^[A-Za-z0-9-]+\/[A-Za-z0-9._-]+$/, "expected owner/repo")
+    .refine((value) => isRealRepoName(value.split("/")[1]), "repository name cannot be . or .."),
   sha: commitSha,
 });
 const gitSubdirSource = z.object({
   source: z.literal("git-subdir"),
-  url: z.string().regex(/^https:\/\/github\.com\/[A-Za-z0-9-]+\/[A-Za-z0-9._-]+\.git$/, "expected https://github.com/owner/repo.git"),
+  url: z
+    .string()
+    .regex(/^https:\/\/github\.com\/[A-Za-z0-9-]+\/[A-Za-z0-9._-]+\.git$/, "expected https://github.com/owner/repo.git")
+    .refine((value) => isRealRepoName(value.split("/")[4].replace(/\.git$/, "")), "repository name cannot be . or .."),
   path: z
     .string()
     .regex(/^[A-Za-z0-9._-]+(?:\/[A-Za-z0-9._-]+)*$/, "expected a relative path")
-    .refine((value) => !value.split("/").includes(".."), "must not contain .."),
+    .refine((value) => value.split("/").every((segment) => !/^\.+$/.test(segment)), "path segments cannot be . or .."),
   sha: commitSha,
 });
 

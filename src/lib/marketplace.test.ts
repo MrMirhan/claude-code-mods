@@ -89,6 +89,12 @@ describe("marketplaceFileSchema", () => {
       parse({ ...rootPin, source: { source: "git-subdir", url: "https://github.com/a/b.git", path: "../x", sha: SHA } }),
     ).toBe(false);
     expect(parse({ ...rootPin, source: { source: "url", url: "https://example.com/x.git", sha: SHA } })).toBe(false);
+    expect(parse({ ...rootPin, source: { source: "github", repo: "owner/..", sha: SHA } })).toBe(false);
+    const subdir = (url: string, path: string) => ({ ...rootPin, source: { source: "git-subdir", url, path, sha: SHA } });
+    expect(parse(subdir("https://github.com/a/...git", "x"))).toBe(false);
+    expect(parse(subdir("https://github.com/a/b.git", "./x"))).toBe(false);
+    expect(parse(subdir("https://github.com/a/b.git", "x/./y"))).toBe(false);
+    expect(parse(subdir("https://github.com/a/b.git", "plugins/x"))).toBe(true);
   });
 });
 
