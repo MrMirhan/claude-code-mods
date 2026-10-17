@@ -8,6 +8,7 @@ import { getAllExtensions } from "@/lib/catalog";
 import ExtensionPage, { dynamicParams, generateMetadata, generateStaticParams } from "./page";
 import { marketplaceInstallCommands } from "@/lib/marketplace";
 import { getMarketplacePin } from "@/lib/marketplace-data";
+import { PINNED_INSTALL_LABEL } from "@/components/detail/ExtensionDetail";
 
 beforeAll(stubIntersectionObserver);
 
@@ -91,6 +92,8 @@ describe("extension detail route", () => {
         if (pin !== undefined) {
           for (const command of marketplaceInstallCommands(pin)) expect(screen.getByText(command)).toBeInTheDocument();
           expect(screen.queryByText(NO_INSTALL_COMMAND)).not.toBeInTheDocument();
+          expect(screen.getByText(PINNED_INSTALL_LABEL)).toBeInTheDocument();
+          expect(screen.queryByText("Source only")).not.toBeInTheDocument();
         } else {
           const expectedInstallCopy = mod?.availability === "built-in" ? BUILT_IN_EXPLANATION : NO_INSTALL_COMMAND;
           expect(screen.getByText(expectedInstallCopy)).toBeInTheDocument();

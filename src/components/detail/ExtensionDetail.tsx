@@ -27,6 +27,8 @@ import { InstallSection, type MarketplaceInstall } from "./InstallSection";
 import { VerificationExplainer, VerificationNote } from "./VerificationNote";
 
 const NO_HOOK_LINKS: ReadonlyMap<string, string> = new Map();
+/** Header chip for an entry pinned in the site's marketplace, in place of its availability label. */
+export const PINNED_INSTALL_LABEL = "Pinned install";
 
 export interface ExtensionDetailProps {
   readonly extension: Extension;
@@ -224,7 +226,8 @@ export function ExtensionDetail({
             <div className="flex flex-wrap items-center gap-2">
               <StatusBadge verification={verification} />
               <CommunityBadge publisher={extension.publisher} />
-              <AvailabilityChip availability={availability} />
+              {/* A pinned entry installs from the site's marketplace, so "Source only" would contradict its Install box. */}
+              {marketplaceInstall === null ? <AvailabilityChip availability={availability} /> : <Chip>{PINNED_INSTALL_LABEL}</Chip>}
               <ul className="flex flex-wrap gap-1.5" aria-label="Categories">
                 {categories.map((category) => (
                   <li key={category}>
