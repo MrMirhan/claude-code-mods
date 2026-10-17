@@ -8,6 +8,7 @@ import { describeBuiltInMods } from "@/components/home/home-data";
 import { getAllExtensions, getFeaturedExtensions } from "@/lib/catalog";
 import type { ReactElement } from "react";
 import { Hero } from "@/components/home/Hero";
+import { marketplaceAddCommand } from "@/lib/marketplace";
 import HomePage, { metadata } from "./page";
 import { stubIntersectionObserver } from "@/components/home/__fixtures__/intersection-observer";
 
@@ -110,5 +111,11 @@ describe("home page", () => {
   it("exports metadata with a canonical path and a description", () => {
     expect(metadata.alternates?.canonical).toBe(`${SITE_URL}/`);
     expect(metadata.description).toBeTruthy();
+  });
+
+  it("offers the community marketplace command in the hero, linked to how it works", () => {
+    render(<Hero extensions={[]} />);
+    expect(screen.getByText(marketplaceAddCommand())).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "How the marketplace works" }).getAttribute("href")).toMatch(/^\/security\/?#marketplace$/);
   });
 });

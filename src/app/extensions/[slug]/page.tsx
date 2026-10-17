@@ -5,6 +5,8 @@ import { ExtensionDetail } from "@/components/detail/ExtensionDetail";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { getAllExtensions, getExtensionBySlug, getRelatedExtensions } from "@/lib/catalog";
 import { hookEventHrefs } from "@/lib/event-names";
+import { marketplaceInstallCommands, pinTreeUrl } from "@/lib/marketplace";
+import { getMarketplacePin } from "@/lib/marketplace-data";
 import { getEvents } from "@/lib/events";
 import { buildExtensionGraph } from "@/lib/seo/jsonLd";
 import { buildExtensionMetadata } from "@/lib/seo/metadata";
@@ -32,6 +34,11 @@ export default async function ExtensionPage({ params }: ExtensionPageProps): Pro
   const { slug } = await params;
   const extension = getExtensionBySlug(slug);
   if (extension === undefined) notFound();
+  const pin = getMarketplacePin(slug);
+  const marketplaceInstall =
+    pin === undefined
+      ? null
+      : { commands: marketplaceInstallCommands(pin), sha: pin.source.sha, treeUrl: pinTreeUrl(pin), pinnedAt: pin.pinnedAt };
   return (
     <>
       <JsonLd data={buildExtensionGraph(extension)} />
@@ -39,6 +46,7 @@ export default async function ExtensionPage({ params }: ExtensionPageProps): Pro
         extension={extension}
         related={getRelatedExtensions(slug)}
         hookHrefs={hookEventHrefs(extension.hooks, getEvents(), PAGE_SEO.hooks.path, extension.kind !== "mod")}
+        marketplaceInstall={marketplaceInstall}
       />
     </>
   );

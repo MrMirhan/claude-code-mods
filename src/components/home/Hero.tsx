@@ -1,6 +1,9 @@
 import { ArrowRight } from "@phosphor-icons/react/ssr";
 import type { ReactNode } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/Button";
+import { CopyCommand } from "@/components/ui/CopyCommand";
+import { MARKETPLACE_INFO_PATH, marketplaceAddCommand } from "@/lib/marketplace";
 import { Container } from "@/components/ui/Container";
 import type { ExtensionListItem } from "@/components/catalog/ExtensionListItem";
 import { HeroEntry } from "./HeroEntry";
@@ -50,8 +53,17 @@ export function Hero({ extensions }: HeroProps): ReactNode {
               Read the security model
             </Button>
           </HeroEntry>
+          <HeroEntry order={3} className="flex w-full max-w-lg flex-col gap-2">
+            <CopyCommand command={marketplaceAddCommand()} label="Add the community marketplace in Claude Code" />
+            <p className="text-sm text-fg-muted">
+              Community plugins, each pinned to one commit.{" "}
+              <Link href={MARKETPLACE_INFO_PATH} className="text-accent-text underline decoration-1 underline-offset-4 hover:text-fg">
+                How the marketplace works
+              </Link>
+            </p>
+          </HeroEntry>
         </div>
-        <HeroEntry order={3}>
+        <HeroEntry order={4}>
           <HeroSearch extensions={extensions} />
         </HeroEntry>
       </Container>

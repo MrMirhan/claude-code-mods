@@ -66,6 +66,16 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      # Marketplace pins decide what users install, so only maintainers change them, in their own pull request.
+      - name: Fail if a contributor changes the marketplace pins
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          if ! git diff --quiet --no-renames "origin/${BASE_REF}...HEAD" -- src/data/marketplace.json; then
+            echo "::error::src/data/marketplace.json holds the marketplace pins, which only maintainers change. Please leave it out of this pull request; a maintainer adds or moves pins after reading the plugin's source."
+            exit 1
+          fi
+
       - name: Fail if a submission also changes files elsewhere
         env:
           BASE_REF: ${{ github.base_ref }}
