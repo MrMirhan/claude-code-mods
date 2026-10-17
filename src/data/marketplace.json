@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "plugins": [
+    {
+      "slug": "claude-devtools",
+      "name": "devtools",
+      "source": { "source": "github", "repo": "NMenzel/claude-devtools-mod", "sha": "5015f53869ef2a7ff70796503e8fb9db7e4caaed" },
+      "pinnedAt": "2026-10-17"
+    },
+    {
+      "slug": "mochi-crew",
+      "name": "mochi-crew",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/joeVenner/mochi-crew.git",
+        "path": "plugins/mochi-crew",
+        "sha": "e8078077ccec22ced55a7936290408b048419dba"
+      },
+      "pinnedAt": "2026-10-17"
+    },
+    {
+      "slug": "sweet-spot",
+      "name": "sweet-spot",
+      "source": { "source": "github", "repo": "muellerei/sweet-spot", "sha": "8750a5390d58c52919973453efed63a330d5f4f9" },
+      "pinnedAt": "2026-10-17"
+    },
+    {
+      "slug": "yylo-skills",
+      "name": "yylo-skills",
+      "source": { "source": "github", "repo": "yylo-dev/yylo-skills", "sha": "d0f7c91fb5681d027bbf40d2dde574bb6c4f6de7" },
+      "pinnedAt": "2026-10-17"
+    }
+  ]
+}
