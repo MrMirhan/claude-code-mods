@@ -79,6 +79,7 @@ The format is based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.
 
 ### Security
 
+- Marketplace pins are guarded: the schema refuses `.` and `..` as repository or path parts, the build fails unless a pin installs from the folder its listing shows, and CI fails a contributor's pull request that changes `src/data/marketplace.json` (advisory, like the other path guard; code-owner review on `main` is the real gate).
 - Validation workflows run on `pull_request` (never `pull_request_target`) or on a schedule, with read-only permissions, no secrets, actions pinned to full commit SHAs, `npm ci --ignore-scripts`, and changed file names passed NUL separated. The community diff uses `--no-renames`.
 - Link components reject any href that is not an internal path, an anchor or a plain https URL, and external links keep `noopener noreferrer`.
 - Catalog URLs must be https, on an allowlisted host, with no credentials or custom ports.
