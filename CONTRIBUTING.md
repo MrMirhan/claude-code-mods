@@ -176,7 +176,7 @@ This repository has no LICENSE file yet. The maintainer will decide the license 
 
 ## The community marketplace
 
-The site serves a Claude Code plugin marketplace at `/marketplace.json` (named `claudecodemods`). It is built from `src/data/marketplace.json`, which only maintainers edit. A listing pull request never adds a plugin to it: a community entry stays source only unless a maintainer pins it.
+The site serves a Claude Code plugin marketplace at `/marketplace.json` (named `claudecodemods`). It is built from `src/data/marketplace.json`, which only maintainers edit. A listing pull request never adds a plugin to it: a community entry stays source only unless a maintainer pins it. The marketplace's display text (name, summary, author, license, tags) is read from the pinned entry's listing, so an edit to that listing changes what users see before they install; review such edits with that in mind. Changing a pinned entry's `repositoryUrl` or publisher fails the build until a maintainer moves or removes the pin.
 
 - Only community entries can be pinned, and each pin must install from the exact repository and folder that the entry's `repositoryUrl` shows. The build fails otherwise.
 - A pin names a full 40-character commit SHA. Claude Code installs that commit, so users get new code only when a pin moves.
