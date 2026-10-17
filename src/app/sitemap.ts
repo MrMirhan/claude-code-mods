@@ -15,6 +15,11 @@ type StaticPagePlan = Pick<SitemapEntry, "changeFrequency" | "priority">;
 const STATIC_PAGE_PLAN: Readonly<Record<keyof typeof PAGE_SEO, StaticPagePlan>> = {
   home: { changeFrequency: "weekly", priority: 1 },
   browse: { changeFrequency: "weekly", priority: 0.9 },
+  modsHub: { changeFrequency: "weekly", priority: 0.9 },
+  pluginsHub: { changeFrequency: "weekly", priority: 0.8 },
+  skillsHub: { changeFrequency: "weekly", priority: 0.7 },
+  agentsHub: { changeFrequency: "weekly", priority: 0.7 },
+  mcpServersHub: { changeFrequency: "weekly", priority: 0.8 },
   learn: { changeFrequency: "weekly", priority: 0.8 },
   learnGettingStarted: { changeFrequency: "weekly", priority: 0.7 },
   learnMigration: { changeFrequency: "weekly", priority: 0.7 },

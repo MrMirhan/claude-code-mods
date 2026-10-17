@@ -38,6 +38,46 @@ export const PAGE_SEO = {
       "Search and filter Claude Code mods, plugins, skills, agents, hooks, commands and MCP servers by kind, category and how you get them.",
     breadcrumbLabel: "Browse",
   },
+  modsHub: {
+    path: "/mods/",
+    title: "Claude Code mods: built-in and community",
+    description:
+      "Every Claude Code mod in the directory: the mods built into Claude Code, Anthropic's sample mods and community mods, with how to run each one.",
+    breadcrumbLabel: "Mods",
+    breadcrumbParent: { label: "Browse", path: "/browse/" },
+  },
+  pluginsHub: {
+    path: "/plugins/",
+    title: "Claude Code plugins directory",
+    description:
+      "Claude Code plugins listed in the directory, from Anthropic's official marketplace and other publishers, with the install command for each one.",
+    breadcrumbLabel: "Plugins",
+    breadcrumbParent: { label: "Browse", path: "/browse/" },
+  },
+  skillsHub: {
+    path: "/skills/",
+    title: "Claude Code skills directory",
+    description:
+      "Claude Code skills in the directory: SKILL.md instructions that Claude loads when a task matches, with the plugin or source each one comes from.",
+    breadcrumbLabel: "Skills",
+    breadcrumbParent: { label: "Browse", path: "/browse/" },
+  },
+  agentsHub: {
+    path: "/agents/",
+    title: "Claude Code subagents directory",
+    description:
+      "Claude Code subagents in the directory: agents with their own prompt, tools and context window, and the plugin you install to get each one.",
+    breadcrumbLabel: "Agents",
+    breadcrumbParent: { label: "Browse", path: "/browse/" },
+  },
+  mcpServersHub: {
+    path: "/mcp-servers/",
+    title: "MCP servers for Claude Code",
+    description:
+      "MCP servers that give Claude Code extra tools and data, with the claude mcp add or plugin command that sets up each one and a link to its source.",
+    breadcrumbLabel: "MCP servers",
+    breadcrumbParent: { label: "Browse", path: "/browse/" },
+  },
   learn: {
     path: "/learn/",
     title: "Learn Claude Mods and function hooks",
@@ -116,6 +156,11 @@ export type StaticPageKey = keyof typeof PAGE_SEO;
 export const STATIC_PAGE_KEYS: readonly StaticPageKey[] = [
   "home",
   "browse",
+  "modsHub",
+  "pluginsHub",
+  "skillsHub",
+  "agentsHub",
+  "mcpServersHub",
   "learn",
   "learnGettingStarted",
   "learnMigration",

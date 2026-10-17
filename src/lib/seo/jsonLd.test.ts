@@ -204,17 +204,25 @@ describe("extension graph", () => {
     expect(roundTrip(graph)).toEqual(graph);
   });
 
-  it("walks Home, Browse, then the entry in the breadcrumb", () => {
+  it("walks Home, Browse, the kind page, then the entry in the breadcrumb", () => {
+    // The fixture is a skill, and skills have a page of their own at /skills/.
     const crumbs = nodeOfType(buildExtensionGraph(sourceOnlyExtension), "BreadcrumbList").itemListElement as readonly {
       name: string;
       item: string;
     }[];
-    expect(crumbs.map((crumb) => crumb.name)).toEqual(["Home", "Browse", sourceOnlyExtension.name]);
+    expect(crumbs.map((crumb) => crumb.name)).toEqual(["Home", "Browse", "Skills", sourceOnlyExtension.name]);
     expect(crumbs.map((crumb) => crumb.item)).toEqual([
       `${SITE_URL}/`,
       `${SITE_URL}/browse/`,
+      `${SITE_URL}/skills/`,
       `${SITE_URL}/extensions/${sourceOnlyExtension.slug}/`,
     ]);
+  });
+
+  it("skips the kind step for a kind without a page of its own", () => {
+    const hook: Extension = { ...sourceOnlyExtension, kind: "hook" };
+    const crumbs = nodeOfType(buildExtensionGraph(hook), "BreadcrumbList").itemListElement as readonly { name: string }[];
+    expect(crumbs.map((crumb) => crumb.name)).toEqual(["Home", "Browse", hook.name]);
   });
 
   it("includes license only for a recognisable SPDX id", () => {

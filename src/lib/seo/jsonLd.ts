@@ -3,6 +3,7 @@ import type { Extension } from "@/lib/types";
 import { PAGE_SEO, type PageSeo } from "@/lib/seo/pages";
 import { absoluteUrl as rawAbsoluteUrl, buildExtensionDescription, extensionPath } from "@/lib/seo/metadata";
 import { toSingleLine } from "@/lib/seo/text";
+import { kindHubPage } from "@/lib/kind-hubs";
 import { toSafeOutputUrl } from "@/lib/url";
 import { VIDEO_GROUP_DURATIONS, type Video } from "@/components/docs/tutorialsContent";
 import type { FaqEntry } from "@/components/docs/learnContent";
@@ -141,8 +142,15 @@ export const BROWSE_LIST_MAX_ITEMS = 200;
 
 /** Browse page: a collection page whose main entity lists the first entries by name and URL. */
 export function buildBrowseGraph(allExtensions: readonly Extension[]): JsonLdGraph {
+  return buildCollectionGraph(PAGE_SEO.browse, allExtensions);
+}
+
+/**
+ * A page that lists entries (the browse page or a kind page such as `/mods/`): a CollectionPage whose
+ * main entity is an ItemList of the first entries, plus its breadcrumb through any parent page.
+ */
+export function buildCollectionGraph(page: PageSeo, allExtensions: readonly Extension[]): JsonLdGraph {
   const extensions = allExtensions.slice(0, BROWSE_LIST_MAX_ITEMS);
-  const page = PAGE_SEO.browse;
   const listId = `${absoluteUrl(page.path)}#list`;
   return graph(
     {
@@ -165,8 +173,17 @@ export function buildBrowseGraph(allExtensions: readonly Extension[]): JsonLdGra
         url: absoluteUrl(extensionPath(extension.slug)),
       })),
     },
-    buildBreadcrumbList([HOME_STEP, { name: page.breadcrumbLabel, path: page.path }]),
+    buildBreadcrumbList(pageSteps(page)),
   );
+}
+
+/** Home, the parent page when there is one, then `page` itself. */
+function pageSteps(page: PageSeo): readonly { readonly name: string; readonly path: string }[] {
+  return [
+    HOME_STEP,
+    ...(page.breadcrumbParent === undefined ? [] : [{ name: page.breadcrumbParent.label, path: page.breadcrumbParent.path }]),
+    { name: page.breadcrumbLabel, path: page.path },
+  ];
 }
 
 /** Any documentation page: a WebPage and its breadcrumb, with the parent page as a step for a nested page. */
@@ -181,11 +198,7 @@ export function buildDocPageGraph(page: PageSeo): JsonLdGraph {
       isPartOf: { "@id": WEBSITE_ID },
       inLanguage: "en",
     },
-    buildBreadcrumbList([
-      HOME_STEP,
-      ...(page.breadcrumbParent === undefined ? [] : [{ name: page.breadcrumbParent.label, path: page.breadcrumbParent.path }]),
-      { name: page.breadcrumbLabel, path: page.path },
-    ]),
+    buildBreadcrumbList(pageSteps(page)),
   );
 }
 
@@ -210,11 +223,7 @@ export function buildLearnGraph(faqItems: readonly FaqEntry[]): JsonLdGraph {
       inLanguage: "en",
       ...(faqItems.length === 0 ? {} : { mainEntity: { "@id": faqId } }),
     },
-    buildBreadcrumbList([
-      HOME_STEP,
-      ...(page.breadcrumbParent === undefined ? [] : [{ name: page.breadcrumbParent.label, path: page.breadcrumbParent.path }]),
-      { name: page.breadcrumbLabel, path: page.path },
-    ]),
+    buildBreadcrumbList(pageSteps(page)),
     ...(faqItems.length === 0
       ? []
       : [
@@ -245,10 +254,12 @@ export function buildExtensionGraph(extension: Extension): JsonLdGraph {
     ...(extension.publisher.url === null ? {} : { url: toSafeOutputUrl(extension.publisher.url) }),
   };
   const licenseUrl = spdxLicenseUrl(extension.license);
+  const hubPage = kindHubPage(extension.kind);
   return graph(
     buildBreadcrumbList([
       HOME_STEP,
       { name: PAGE_SEO.browse.breadcrumbLabel, path: PAGE_SEO.browse.path },
+      ...(hubPage === null ? [] : [{ name: hubPage.breadcrumbLabel, path: hubPage.path }]),
       { name: toSingleLine(extension.name), path },
     ]),
     {
@@ -304,11 +315,7 @@ export function buildTutorialsGraph(videos: readonly Video[]): JsonLdGraph {
       inLanguage: "en",
       ...(videos.length > 0 ? { video: videos.map((video) => ({ "@id": `${absoluteUrl(page.path)}#${video.id}` })) } : {}),
     },
-    buildBreadcrumbList([
-      HOME_STEP,
-      ...(page.breadcrumbParent === undefined ? [] : [{ name: page.breadcrumbParent.label, path: page.breadcrumbParent.path }]),
-      { name: page.breadcrumbLabel, path: page.path },
-    ]),
+    buildBreadcrumbList(pageSteps(page)),
     ...videos.map(buildVideoObjectNode),
   );
 }
