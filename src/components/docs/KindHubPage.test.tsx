@@ -37,9 +37,10 @@ describe("KindHubPage", () => {
 
   it("links the official docs page in a new tab, and the other kind pages", () => {
     render(<KindHubPage kind="plugin" extensions={entriesOf("plugin")} />);
-    expect(screen.getByRole("link", { name: /Install plugins in the Claude Code docs/ }).getAttribute("href")).toBe(
-      KIND_HUB_CONTENT.plugin.docsUrl,
-    );
+    const docsLink = screen.getByRole("link", { name: /Install plugins in the Claude Code docs/ });
+    expect(docsLink.getAttribute("href")).toBe(KIND_HUB_CONTENT.plugin.docsUrl);
+    expect(docsLink.getAttribute("target")).toBe("_blank");
+    expect(docsLink.getAttribute("rel")).toBe("noopener noreferrer");
     const otherKinds = screen.getByRole("region", { name: "Other kinds" });
     expect(within(otherKinds).getByRole("link", { name: "Claude Code mods" })).toBeInTheDocument();
     expect(within(otherKinds).queryByRole("link", { name: "Claude Code plugins" })).not.toBeInTheDocument();
