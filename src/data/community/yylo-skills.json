@@ -1,0 +1,73 @@
+{
+  "slug": "yylo-skills",
+  "name": "YYLO Skills",
+  "kind": "skill",
+  "categories": [
+    "workflow",
+    "development"
+  ],
+  "summary": "Eight reusable agent skills for the YYLO agent workflow: Ledger task management and planning, project discovery, wiki and artifact records, and benchmark runs.",
+  "description": [
+    "YYLO Skills is the canonical, independently versioned source for eight reusable agent skills used by YYLO CLI, YYLO Ledger and YYLO Benchmark. Each skill lives in its own skills/<name>/ folder with a SKILL.md and a README.",
+    "The skills cover the workflow end to end: Ledger task and record management (ledger-tasks-yylo), planning a Product Development Requirement into implementation-sized tasks (plan-ledger-tasks-yylo), inspecting a product's architecture before changing it (understand-project-yylo), durable wiki and artifact records (wiki-yylo, artifact-yylo), validated workflow records (workflow-yylo), reviewed benchmark cases and evaluations (benchmark-yylo) and the Ralph execution loop for one assigned task (ralph-loop-yylo).",
+    "Every canonical slug ends in -yylo. The repository installs with the open skills CLI: npx skills add yylo-dev/yylo-skills installs all skills, and passing --skill wiki-yylo installs one. The README asks you to review skill instructions and scripts before installing them. It is a community project, not made or endorsed by Anthropic."
+  ],
+  "publisher": {
+    "name": "YYLO",
+    "url": "https://github.com/yylo-dev",
+    "kind": "community"
+  },
+  "repositoryUrl": "https://github.com/yylo-dev/yylo-skills",
+  "license": "MIT",
+  "availability": "source-only",
+  "installCommands": [],
+  "notice": null,
+  "details": [
+    {
+      "label": "Packs",
+      "value": "artifact-yylo, benchmark-yylo, ledger-tasks-yylo, plan-ledger-tasks-yylo, ralph-loop-yylo, understand-project-yylo, wiki-yylo, workflow-yylo",
+      "isCommand": false
+    },
+    {
+      "label": "Install",
+      "value": "With the open skills CLI: npx skills add yylo-dev/yylo-skills installs every skill; npx skills add yylo-dev/yylo-skills --skill wiki-yylo installs one.",
+      "isCommand": false
+    },
+    {
+      "label": "Download the source",
+      "value": "git clone https://github.com/yylo-dev/yylo-skills",
+      "isCommand": true
+    }
+  ],
+  "guide": [],
+  "hooks": [],
+  "tags": [
+    "skills",
+    "kanban",
+    "task-management",
+    "ledger",
+    "planning",
+    "workflow"
+  ],
+  "links": [
+    {
+      "label": "README",
+      "url": "https://github.com/yylo-dev/yylo-skills/blob/main/README.md"
+    },
+    {
+      "label": "SKILL.md (ledger-tasks-yylo)",
+      "url": "https://github.com/yylo-dev/yylo-skills/blob/main/skills/ledger-tasks-yylo/SKILL.md"
+    },
+    {
+      "label": "LICENSE",
+      "url": "https://github.com/yylo-dev/yylo-skills/blob/main/LICENSE"
+    }
+  ],
+  "stars": null,
+  "isFeatured": false,
+  "verification": {
+    "status": "verified",
+    "checkedAt": "2026-10-16",
+    "sourceUrl": "https://github.com/yylo-dev/yylo-skills"
+  }
+}
