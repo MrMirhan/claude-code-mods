@@ -6,6 +6,7 @@ import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { cn } from "@/lib/cn";
+import { kindHref } from "@/lib/kind-hubs";
 import { KIND_LABELS } from "@/lib/types";
 import type { ExtensionKind } from "@/lib/types";
 import { KIND_DESCRIPTIONS } from "./kind-descriptions";
@@ -92,10 +93,6 @@ function formatCountLabel(count: number): string {
   return `${count} ${count === 1 ? "listing" : "listings"}`;
 }
 
-export function kindBrowseHref(kind: ExtensionKind): string {
-  return `/browse/?kind=${encodeURIComponent(kind)}`;
-}
-
 /** One tile per extension kind. Counts come from the catalog, never from this file. */
 export function KindExplorer({ counts, builtInModsNote = null }: KindExplorerProps): ReactNode {
   return (
@@ -103,7 +100,7 @@ export function KindExplorer({ counts, builtInModsNote = null }: KindExplorerPro
       <Container className="flex flex-col gap-10 py-16 md:py-20">
         <SectionHeading
           title="Browse by kind"
-          body="Claude Code can be extended in several ways. Each tile opens the directory filtered to that kind."
+          body="Claude Code can be extended in several ways. Each tile opens the listings of that kind."
         />
         <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-12">
           {KIND_CELL_ORDER.map((kind, index) => {
@@ -113,7 +110,7 @@ export function KindExplorer({ counts, builtInModsNote = null }: KindExplorerPro
               <li key={kind} className={style.placement}>
                 <Reveal delay={index * REVEAL_STEP_SECONDS} className="h-full">
                   <Link
-                    href={kindBrowseHref(kind)}
+                    href={kindHref(kind)}
                     className={cn(
                       "group relative flex h-full flex-col justify-between gap-8 overflow-hidden rounded-panel border p-5",
                       "transition-[transform,border-color] duration-150 hover:-translate-y-0.5 hover:border-fg-muted active:translate-y-0 active:scale-[0.99] motion-reduce:hover:translate-y-0",

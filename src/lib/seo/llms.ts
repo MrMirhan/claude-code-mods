@@ -103,6 +103,11 @@ function indexLine(extension: Extension, siteUrl: string): string {
 
 function docLines(siteUrl: string): readonly string[] {
   return [
+    PAGE_SEO.modsHub,
+    PAGE_SEO.pluginsHub,
+    PAGE_SEO.skillsHub,
+    PAGE_SEO.agentsHub,
+    PAGE_SEO.mcpServersHub,
     PAGE_SEO.learn,
     PAGE_SEO.learnGettingStarted,
     PAGE_SEO.learnMigration,

@@ -1,6 +1,7 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { beforeAll, describe, expect, it } from "vitest";
 import { stubIntersectionObserver } from "@/components/home/__fixtures__/intersection-observer";
+import { kindHref } from "@/lib/kind-hubs";
 import { EXTENSION_KINDS } from "@/lib/types";
 import HomePage from "./page";
 
@@ -17,9 +18,12 @@ describe("home page with the bundled catalog", () => {
     expect(container.textContent).not.toMatch(EM_OR_EN_DASH);
     expect(container.textContent).not.toMatch(/concept/i);
 
-    const kindLinks = screen
+    const kindRegion = screen.getByRole("region", { name: "Extension kinds" });
+    const kindLinkHrefs = within(kindRegion)
       .getAllByRole("link")
-      .filter((link) => (link.getAttribute("href") ?? "").includes("kind="));
-    expect(kindLinks).toHaveLength(EXTENSION_KINDS.length);
+      .map((link) => (link.getAttribute("href") ?? "").replace(/\/(?=\?|$)/, ""));
+    expect(kindLinkHrefs).toHaveLength(EXTENSION_KINDS.length);
+    // Next's Link drops the trailing slash under test, so both sides are compared without it.
+    expect(new Set(kindLinkHrefs)).toEqual(new Set(EXTENSION_KINDS.map((kind) => kindHref(kind).replace(/\/(?=\?|$)/, ""))));
   });
 });

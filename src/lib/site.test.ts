@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { HUB_KINDS, kindHref } from "@/lib/kind-hubs";
 import {
   COMMUNITY_REPOSITORY_URL,
   DISCLAIMER,
@@ -30,11 +31,13 @@ describe("NAV_LINKS", () => {
     }
   });
 
-  it("only Learn has a dropdown, and only Learn's own subpages are in it", () => {
+  it("only Learn and Browse have dropdowns, and Browse's lists exactly the kind pages", () => {
     for (const link of NAV_LINKS) {
-      if (link.label === "Learn") continue;
+      if (link.label === "Learn" || link.label === "Browse") continue;
       expect(link.children, link.label).toBeUndefined();
     }
+    const browse = NAV_LINKS.find((link) => link.label === "Browse");
+    expect(browse?.children?.map((child) => child.href)).toEqual(HUB_KINDS.map(kindHref));
     const learn = NAV_LINKS.find((link) => link.label === "Learn");
     expect(learn?.children?.map((child) => child.href)).toEqual(["/learn/getting-started/", "/learn/migration/", "/learn/tutorials/"]);
     for (const child of learn?.children ?? []) {

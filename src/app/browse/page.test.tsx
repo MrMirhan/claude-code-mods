@@ -16,7 +16,7 @@ describe("browse page", () => {
     render(<BrowsePage />);
     const headings = screen.getAllByRole("heading", { level: 1 });
     expect(headings).toHaveLength(1);
-    expect(headings[0]).toHaveTextContent("Browse extensions");
+    expect(headings[0]).toHaveTextContent("Browse Claude Code mods and plugins");
   });
 
   it("hands the full extension list to the explorer", () => {
@@ -36,7 +36,7 @@ describe("browse page", () => {
   });
 
   it("exports metadata with a canonical path and no dashes in visible strings", () => {
-    expect(metadata.title).toBe("Browse Claude Code extensions");
+    expect(metadata.title).toBe("Browse Claude Code mods and plugins");
     expect(metadata.alternates?.canonical).toBe(`${SITE_URL}/browse/`);
     expect(String(metadata.description)).not.toMatch(/[\u2013\u2014]/);
     expect(String(metadata.description)).not.toMatch(/concept/i);

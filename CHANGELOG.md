@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.
 
 ### Added
 
+- Kind landing pages at `/mods/`, `/plugins/`, `/skills/`, `/agents/` and `/mcp-servers/`: what the kind is (restating the linked Claude Code docs page), every entry of that kind as server-rendered cards, how you get one, and links to the other kinds. Each has its own title, canonical URL and CollectionPage plus ItemList JSON-LD, and is in the sitemap and `llms.txt`. Hooks and commands have too few entries for a page and stay as browse filters.
+- A Browse dropdown in the header listing the five kind pages.
 - Mochi Crew, a community mod by joeVenner (a pixel-art cat in a side pane that reacts to the real session, with a kitten crew for subagents, XP, a session meter and a file tree), listed at `/extensions/mochi-crew/` from `src/data/community/mochi-crew.json`.
 - A Community spotlight section on the home page, right under the hero. It reads the name, summary, hooks and links from the catalog entry named in `COMMUNITY_SPOTLIGHT` (`src/components/home/home-data.ts`), says who made it, and renders nothing if that entry leaves the catalog. Its artwork is copied from the mod's MIT repository into `public/spotlight/`.
 - A directory of Claude Code extensions whose source URLs were checked: Anthropic's four built-in mods (`sec-default`, `diff`, `telemetry`, `agents-md`) from `anthropics/claude-code/mods`, plus real plugins, skills, agents, hooks, commands and MCP servers.
@@ -55,6 +57,9 @@ The format is based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.
 
 ### Changed
 
+- The home page title, h1 and description, and the browse page title and h1, now lead with "Claude Code mods and plugins" instead of "extensions", which is not a Claude Code term. The new copy claims nothing about testing or curation, and a test forbids those words in page titles and descriptions.
+- A detail page's h1 now carries the kind as a phrase ("Claude Code command /clean_gone"), in place of the kind line above it.
+- The home page's kind tiles open the kind pages, and a detail page's breadcrumb, visible and in JSON-LD, passes through its kind page (Browse, Mods, name).
 - The Hooks page's event list is grouped behind one collapsed, native `<details>`/`<summary>` per family (Engine, Calls on `$`, Classic), closed by default instead of always rendering all 125 events open at once. Each family keeps its real heading in the outline whether open or closed. A link to a specific event, from the Migration page, an extension's guide or the tutorials page, still opens the right family and scrolls to the row: the browser does this natively from the row's existing anchor id, with no script of this site's own. Typing a filter or picking a family still switches to the flat, always-open list of just the matches, unchanged from before.
 - The guides of the four Anthropic mods now say where the flag for enabling function hooks comes from: `CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1` is named in the Sep 9 update of the announcement issue (anthropics/claude-code #91870), not in any documentation, and may change. The issue is linked from each mod page, and the four entries were re-checked on 2026-09-21.
 

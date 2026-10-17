@@ -8,7 +8,7 @@ import {
 import { DASH_PATTERN, stubIntersectionObserver } from "@/components/ui/testSupport";
 import type { Extension } from "@/lib/types";
 import { hookEventHrefs } from "@/lib/event-names";
-import { ExtensionDetail } from "./ExtensionDetail";
+import { ExtensionDetail, kindHeadingLabel } from "./ExtensionDetail";
 import { collectExtensionLinks } from "./ExtensionLinks";
 import { BUILT_IN_EXPLANATION, NO_INSTALL_COMMAND } from "./InstallSection";
 
@@ -28,8 +28,8 @@ describe("ExtensionDetail: verified entry with install commands", () => {
   it("renders exactly one h1 with the name, plus kind, badge, license and stars with capture date", () => {
     render(<ExtensionDetail extension={extension} related={[]} />);
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
-    expect(screen.getByRole("heading", { level: 1, name: "Fixture Lint Runner" })).toBeInTheDocument();
-    expect(screen.getByText("Plugin")).toBeInTheDocument();
+    // The kind phrase is part of the heading, so search engines read what the name is.
+    expect(screen.getByRole("heading", { level: 1, name: "Claude Code plugin Fixture Lint Runner" })).toBeInTheDocument();
     expect(screen.getByText("Source verified")).toBeInTheDocument();
     expect(screen.getByText("MIT")).toBeInTheDocument();
     expect(screen.getByText("1,234 stars")).toBeInTheDocument();
@@ -360,5 +360,14 @@ describe("collectExtensionLinks", () => {
   it("lists the repository and the entry's own links for a mod", () => {
     const links = collectExtensionLinks(builtInModExtension);
     expect(links[0]).toEqual({ label: "Source repository", url: builtInModExtension.repositoryUrl });
+  });
+});
+
+describe("kindHeadingLabel", () => {
+  it("keeps acronyms and lower-cases plain kind labels", () => {
+    expect(kindHeadingLabel("mcp-server")).toBe("Claude Code MCP server");
+    expect(kindHeadingLabel("command")).toBe("Claude Code command");
+    expect(kindHeadingLabel("mod")).toBe("Claude Code mod");
+    expect(kindHeadingLabel("agent")).toBe("Claude Code subagent");
   });
 });

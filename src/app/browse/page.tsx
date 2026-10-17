@@ -25,7 +25,7 @@ export default function BrowsePage(): ReactNode {
       <JsonLd data={buildBrowseGraph(allExtensions)} />
       <SectionHeading
         as="h1"
-        title="Browse extensions"
+        title="Browse Claude Code mods and plugins"
         body="Search the directory, then narrow by kind, category, or how you get it."
       />
       <div className="mt-8 md:mt-10">

@@ -34,7 +34,7 @@ describe("home page", () => {
   it("renders exactly one h1 and an ordered heading outline", () => {
     render(<HomePage />);
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
-    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Mods and extensions for Claude Code");
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Claude Code mods, plugins and skills");
     expect(screen.getAllByRole("heading", { level: 2 }).length).toBeGreaterThanOrEqual(4);
   });
 
@@ -63,7 +63,7 @@ describe("home page", () => {
     const { container } = render(<HomePage />);
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(/mods/i);
     const kindCells = screen.getByRole("region", { name: "Extension kinds" }).querySelectorAll("li");
-    expect(kindCells[0].querySelector("a")?.getAttribute("href")).toMatch(/kind=mod$/);
+    expect(kindCells[0].querySelector("a")?.getAttribute("href")).toMatch(/^\/mods\/?$/);
     const featured = within(screen.getByRole("region", { name: "Featured entries" }));
     for (const mod of getFeaturedExtensions()) {
       expect(featured.getByRole("link", { name: mod.name })).toBeInTheDocument();

@@ -12,7 +12,9 @@ import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
 import { cn } from "@/lib/cn";
 import { CATEGORY_LABELS, KIND_LABELS } from "@/lib/types";
-import type { Extension } from "@/lib/types";
+import type { Extension, ExtensionKind } from "@/lib/types";
+import { lowerCaseLabel } from "@/lib/seo/text";
+import { kindHubPage } from "@/lib/kind-hubs";
 import { DetailCallout } from "./DetailCallout";
 import { DetailsList } from "./DetailsList";
 import { ExtensionLinks, collectExtensionLinks } from "./ExtensionLinks";
@@ -43,21 +45,45 @@ function NoticeCallout({ notice }: { readonly notice: string }): ReactNode {
   );
 }
 
-function Breadcrumb({ name }: { readonly name: string }): ReactNode {
+/** The kind as a search phrase, "Claude Code MCP server", shown above the name in the page heading. */
+export function kindHeadingLabel(kind: ExtensionKind): string {
+  // "Subagent" is the docs' term and the agents page's heading, so the detail pages use it too.
+  const label = kind === "agent" ? "subagent" : lowerCaseLabel(KIND_LABELS[kind]);
+  return `Claude Code ${label}`;
+}
+
+const BREADCRUMB_LINK_CLASS = "inline-flex min-h-11 items-center rounded-control pr-1 hover:text-fg md:min-h-9";
+
+function BreadcrumbSeparator(): ReactNode {
+  return (
+    <li aria-hidden="true" className="flex items-center">
+      <CaretRight size={14} weight="regular" />
+    </li>
+  );
+}
+
+/** Browse, then the kind's own page when it has one, then this entry: the same steps as the page's JSON-LD breadcrumb. */
+function Breadcrumb({ name, kind }: { readonly name: string; readonly kind: ExtensionKind }): ReactNode {
+  const hubPage = kindHubPage(kind);
   return (
     <nav aria-label="Breadcrumb" className="mb-6">
       <ol className="flex flex-wrap items-center gap-1 text-sm text-fg-muted">
         <li>
-          <Link
-            href="/browse/"
-            className="inline-flex min-h-11 items-center rounded-control pr-1 hover:text-fg md:min-h-9"
-          >
+          <Link href="/browse/" className={BREADCRUMB_LINK_CLASS}>
             Browse
           </Link>
         </li>
-        <li aria-hidden="true" className="flex items-center">
-          <CaretRight size={14} weight="regular" />
-        </li>
+        <BreadcrumbSeparator />
+        {hubPage === null ? null : (
+          <>
+            <li>
+              <Link href={hubPage.path} className={BREADCRUMB_LINK_CLASS}>
+                {hubPage.breadcrumbLabel}
+              </Link>
+            </li>
+            <BreadcrumbSeparator />
+          </>
+        )}
         <li aria-current="page" className="text-fg">
           {name}
         </li>
@@ -164,7 +190,7 @@ export function ExtensionDetail({ extension, related, hookHrefs = NO_HOOK_LINKS 
 
   return (
     <Container className="py-8 md:py-12">
-      <Breadcrumb name={name} />
+      <Breadcrumb name={name} kind={kind} />
 
       <div
         className={cn(
@@ -178,12 +204,15 @@ export function ExtensionDetail({ extension, related, hookHrefs = NO_HOOK_LINKS 
 
         <article className="flex min-w-0 flex-col gap-8">
           <header className="flex flex-col gap-4">
-            <p className="flex items-center gap-2 font-mono text-sm text-fg-muted">
-              <KindIcon kind={kind} size={18} />
-              {KIND_LABELS[kind]}
-            </p>
-            <h1 className="text-4xl font-semibold leading-[1.05] tracking-tight text-fg text-balance md:text-5xl">
-              {name}
+            {/* The kind line sits inside the h1 so the heading says what the name is ("Claude Code command /clean_gone"). */}
+            <h1 className="flex flex-col gap-4">
+              <span className="flex items-center gap-2 font-mono text-sm font-normal text-fg-muted">
+                <KindIcon kind={kind} size={18} />
+                {kindHeadingLabel(kind)}
+              </span>{" "}
+              <span className="text-4xl font-semibold leading-[1.05] tracking-tight text-fg text-balance md:text-5xl">
+                {name}
+              </span>
             </h1>
             <div className="flex flex-wrap items-center gap-2">
               <StatusBadge verification={verification} />

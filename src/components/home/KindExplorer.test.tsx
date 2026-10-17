@@ -2,7 +2,8 @@ import { render, screen, within } from "@testing-library/react";
 import { beforeAll, describe, expect, it } from "vitest";
 import { EXTENSION_KINDS, KIND_LABELS } from "@/lib/types";
 import type { ExtensionKind } from "@/lib/types";
-import { KIND_CELL_ORDER, KindExplorer, kindBrowseHref } from "./KindExplorer";
+import { KIND_CELL_ORDER, KindExplorer } from "./KindExplorer";
+import { kindHref } from "@/lib/kind-hubs";
 import { KIND_DESCRIPTIONS } from "./kind-descriptions";
 import { buildFeaturedMods, buildFixture } from "./__fixtures__/extensions";
 import { stubIntersectionObserver } from "./__fixtures__/intersection-observer";
@@ -18,10 +19,15 @@ const COUNTS: Readonly<Record<ExtensionKind, number>> = {
   mod: 4,
 };
 
+/** Next's Link drops the trailing slash under test (no `trailingSlash` config), so compare without it. */
+function withoutTrailingSlash(href: string | null): string | null {
+  return href === null ? null : href.replace(/\/(?=\?|$)/, "");
+}
+
 describe("KindExplorer", () => {
   beforeAll(stubIntersectionObserver);
 
-  it("renders exactly one cell per extension kind, each a link with a kind param", () => {
+  it("renders exactly one cell per extension kind, each linking to its kind page or kind filter", () => {
     render(<KindExplorer counts={COUNTS} />);
     const cells = screen.getAllByRole("listitem");
     expect(cells).toHaveLength(EXTENSION_KINDS.length);
@@ -30,20 +36,18 @@ describe("KindExplorer", () => {
       const cell = cells.find((candidate) => within(candidate).queryByText(KIND_LABELS[kind]) !== null);
       expect(cell, `cell for ${kind}`).toBeDefined();
       const link = within(cell as HTMLElement).getByRole("link");
-      const url = new URL(link.getAttribute("href") ?? "", "http://localhost");
-      expect(url.pathname.replace(/\/$/, "")).toBe("/browse");
-      expect(url.searchParams.get("kind")).toBe(kind);
+      expect(withoutTrailingSlash(link.getAttribute("href"))).toBe(withoutTrailingSlash(kindHref(kind)));
     }
   });
 
-  it("puts the mod cell first, as the largest cell, linking to the mod filter", () => {
+  it("puts the mod cell first, as the largest cell, linking to the mods page", () => {
     render(<KindExplorer counts={COUNTS} />);
     const cells = screen.getAllByRole("listitem");
     const [firstCell] = cells;
 
     expect(KIND_CELL_ORDER[0]).toBe("mod");
     expect(within(firstCell).getByText("Mod")).toBeInTheDocument();
-    expect(within(firstCell).getByRole("link").getAttribute("href")).toMatch(/^\/browse\/?\?kind=mod$/);
+    expect(withoutTrailingSlash(within(firstCell).getByRole("link").getAttribute("href"))).toBe("/mods");
     // The mod cell is the only one spanning two rows at lg and both columns at md.
     expect(firstCell.className).toContain("lg:row-span-2");
     expect(firstCell.className).toContain("lg:col-span-6");
@@ -120,8 +124,9 @@ describe("KindExplorer", () => {
     }
   });
 
-  it("encodes the kind in the browse href", () => {
-    expect(kindBrowseHref("mcp-server")).toBe("/browse/?kind=mcp-server");
-    expect(kindBrowseHref("mod")).toBe("/browse/?kind=mod");
+  it("links a kind with a page to it, and any other kind to the filtered directory", () => {
+    expect(kindHref("mcp-server")).toBe("/mcp-servers/");
+    expect(kindHref("mod")).toBe("/mods/");
+    expect(kindHref("hook")).toBe("/browse/?kind=hook");
   });
 });
