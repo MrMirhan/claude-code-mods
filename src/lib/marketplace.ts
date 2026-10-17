@@ -94,8 +94,9 @@ export interface MarketplaceDocument {
 
 /** `owner/repo` and the folder inside it, read from a GitHub `repositoryUrl` such as `.../tree/main/plugins/x`. */
 export function parseGithubRepositoryUrl(url: string): { readonly repo: string; readonly path: string | null } | null {
+  // A ref containing "/" is not supported: its tail would read as part of the path, which then fails the pin check.
   const match = /^https:\/\/github\.com\/([A-Za-z0-9-]+\/[A-Za-z0-9._-]+?)(?:\.git)?(?:\/tree\/[^/]+\/(.+?))?\/?$/.exec(url);
-  if (match === null) return null;
+  if (match === null || !isRealRepoName(match[1].split("/")[1])) return null;
   return { repo: match[1], path: match[2] ?? null };
 }
 
@@ -154,6 +155,13 @@ export function marketplaceAddCommand(siteUrl: string = SITE_URL): string {
   return `/plugin marketplace add ${siteUrl}${MARKETPLACE_PATH}`;
 }
 
+/** Length of a commit id shown in text; links always carry the full SHA. */
+const SHORT_SHA_LENGTH = 7;
+
+export function shortSha(sha: string): string {
+  return sha.slice(0, SHORT_SHA_LENGTH);
+}
+
 /** The pinned commit's tree on GitHub, at the plugin's own folder, so a reader sees exactly what installs. */
 export function pinTreeUrl(pin: Pick<MarketplacePin, "source">): string {
   const { repo, path } = pinnedLocation(pin.source);
@@ -179,8 +187,9 @@ export function buildMarketplace(
     owner: { name: SITE_NAME, url: siteUrl },
     description: MARKETPLACE_DESCRIPTION,
     plugins: pins.map((pin) => {
-      // findPinProblems has checked that every slug exists.
-      const extension = bySlug.get(pin.slug) as Extension;
+      const extension = bySlug.get(pin.slug);
+      // Unreachable after findPinProblems, which checks every slug; kept so the type needs no cast.
+      if (extension === undefined) throw new Error(`no catalog entry has slug ${pin.slug}`);
       const { repo } = pinnedLocation(pin.source);
       return {
         name: pin.name,

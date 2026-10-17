@@ -42,6 +42,12 @@ describe("parseGithubRepositoryUrl", () => {
     expect(parseGithubRepositoryUrl("https://github.com/a/b.git")).toEqual({ repo: "a/b", path: null });
     expect(parseGithubRepositoryUrl("https://github.com/a/b/tree/main/plugins/x")).toEqual({ repo: "a/b", path: "plugins/x" });
     expect(parseGithubRepositoryUrl("https://gitlab.com/a/b")).toBeNull();
+    expect(parseGithubRepositoryUrl("https://github.com/a/b/")).toEqual({ repo: "a/b", path: null });
+    expect(parseGithubRepositoryUrl("https://github.com/a/b.git/")).toEqual({ repo: "a/b", path: null });
+    expect(parseGithubRepositoryUrl("https://github.com/A/B/tree/main/plugins/x/")).toEqual({ repo: "A/B", path: "plugins/x" });
+    expect(parseGithubRepositoryUrl("https://github.com/a/..")).toBeNull();
+    expect(parseGithubRepositoryUrl("https://github.com/a/b/blob/main/README.md")).toBeNull();
+    expect(parseGithubRepositoryUrl("https://github.com/a/b?tab=readme")).toBeNull();
   });
 });
 
