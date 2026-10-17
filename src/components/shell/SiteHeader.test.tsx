@@ -127,10 +127,10 @@ describe("SiteHeader", () => {
       expect(within(mobileNav).getByRole("link", { name: children[0].label })).toHaveAttribute("aria-current", "page");
     });
 
-    it("does not give any other top-level link a dropdown", () => {
+    it("does not give any link without children a dropdown", () => {
       render(<SiteHeader />);
       const desktopNav = screen.getByRole("navigation", { name: "Primary" });
-      const others = NAV_LINKS.filter((link) => link.label !== "Learn");
+      const others = NAV_LINKS.filter((link) => link.children === undefined);
       for (const link of others) {
         expect(within(desktopNav).queryByRole("button", { name: `${link.label} submenu` }), link.label).not.toBeInTheDocument();
       }

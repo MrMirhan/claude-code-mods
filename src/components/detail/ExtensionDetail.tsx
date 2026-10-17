@@ -14,6 +14,7 @@ import { cn } from "@/lib/cn";
 import { CATEGORY_LABELS, KIND_LABELS } from "@/lib/types";
 import type { Extension, ExtensionKind } from "@/lib/types";
 import { lowerCaseLabel } from "@/lib/seo/text";
+import { kindHubPage } from "@/lib/kind-hubs";
 import { DetailCallout } from "./DetailCallout";
 import { DetailsList } from "./DetailsList";
 import { ExtensionLinks, collectExtensionLinks } from "./ExtensionLinks";
@@ -49,21 +50,38 @@ export function kindHeadingLabel(kind: ExtensionKind): string {
   return `Claude Code ${lowerCaseLabel(KIND_LABELS[kind])}`;
 }
 
-function Breadcrumb({ name }: { readonly name: string }): ReactNode {
+const BREADCRUMB_LINK_CLASS = "inline-flex min-h-11 items-center rounded-control pr-1 hover:text-fg md:min-h-9";
+
+function BreadcrumbSeparator(): ReactNode {
+  return (
+    <li aria-hidden="true" className="flex items-center">
+      <CaretRight size={14} weight="regular" />
+    </li>
+  );
+}
+
+/** Browse, then the kind's own page when it has one, then this entry: the same steps as the page's JSON-LD breadcrumb. */
+function Breadcrumb({ name, kind }: { readonly name: string; readonly kind: ExtensionKind }): ReactNode {
+  const hubPage = kindHubPage(kind);
   return (
     <nav aria-label="Breadcrumb" className="mb-6">
       <ol className="flex flex-wrap items-center gap-1 text-sm text-fg-muted">
         <li>
-          <Link
-            href="/browse/"
-            className="inline-flex min-h-11 items-center rounded-control pr-1 hover:text-fg md:min-h-9"
-          >
+          <Link href="/browse/" className={BREADCRUMB_LINK_CLASS}>
             Browse
           </Link>
         </li>
-        <li aria-hidden="true" className="flex items-center">
-          <CaretRight size={14} weight="regular" />
-        </li>
+        <BreadcrumbSeparator />
+        {hubPage === null ? null : (
+          <>
+            <li>
+              <Link href={hubPage.path} className={BREADCRUMB_LINK_CLASS}>
+                {hubPage.breadcrumbLabel}
+              </Link>
+            </li>
+            <BreadcrumbSeparator />
+          </>
+        )}
         <li aria-current="page" className="text-fg">
           {name}
         </li>
@@ -170,7 +188,7 @@ export function ExtensionDetail({ extension, related, hookHrefs = NO_HOOK_LINKS 
 
   return (
     <Container className="py-8 md:py-12">
-      <Breadcrumb name={name} />
+      <Breadcrumb name={name} kind={kind} />
 
       <div
         className={cn(

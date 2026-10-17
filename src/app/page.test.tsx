@@ -63,7 +63,7 @@ describe("home page", () => {
     const { container } = render(<HomePage />);
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(/mods/i);
     const kindCells = screen.getByRole("region", { name: "Extension kinds" }).querySelectorAll("li");
-    expect(kindCells[0].querySelector("a")?.getAttribute("href")).toMatch(/kind=mod$/);
+    expect(kindCells[0].querySelector("a")?.getAttribute("href")).toMatch(/^\/mods\/?$/);
     const featured = within(screen.getByRole("region", { name: "Featured entries" }));
     for (const mod of getFeaturedExtensions()) {
       expect(featured.getByRole("link", { name: mod.name })).toBeInTheDocument();
