@@ -21,15 +21,15 @@ describe("InstallSection with a marketplace pin", () => {
     expect(screen.getByRole("region", { name: "Install" }).textContent).not.toMatch(/\b(reviewed|audited|safe|tested)\b/i);
   });
 
-  it("keeps an entry's own install commands when it has them", () => {
+  it("shows the pinned commands even when the listing also gives its own, unpinned ones", () => {
     render(
       <InstallSection
         extension={{ availability: "installable", installCommands: ["/plugin install own@market"] }}
         marketplaceInstall={install}
       />,
     );
-    expect(screen.getByText("/plugin install own@market")).toBeInTheDocument();
-    expect(screen.queryByText(install.commands[1])).not.toBeInTheDocument();
+    expect(screen.getByText(install.commands[1])).toBeInTheDocument();
+    expect(screen.queryByText("/plugin install own@market")).not.toBeInTheDocument();
   });
 
   it("shows the source-only note without a pin", () => {

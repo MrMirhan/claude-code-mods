@@ -4,6 +4,7 @@ import { CopyCommand } from "@/components/ui/CopyCommand";
 import { cn } from "@/lib/cn";
 import type { Extension } from "@/lib/types";
 import { DetailCallout } from "./DetailCallout";
+import { shortSha } from "@/lib/marketplace";
 
 /** How to install an entry from this site's own marketplace, pre-resolved by the page from its pin. */
 export interface MarketplaceInstall {
@@ -21,8 +22,6 @@ export interface InstallSectionProps {
   readonly marketplaceInstall?: MarketplaceInstall | null;
 }
 
-/** Length of the commit id shown in text; the link carries the full SHA. */
-const SHORT_SHA_LENGTH = 7;
 
 /** Source-only copy. A mod guide may still give clone, load or local marketplace steps, so this never says there are none. */
 export const NO_INSTALL_COMMAND = "No one-step install command is listed. See the source repository, and any setup steps on this page.";
@@ -37,7 +36,8 @@ export const BUILT_IN_EXPLANATION = "Built in. This ships inside Claude Code. It
 export function InstallSection({ extension, marketplaceInstall = null }: InstallSectionProps): ReactNode {
   const { availability, installCommands } = extension;
   const isInstallable = availability === "installable" && installCommands.length > 0;
-  if (marketplaceInstall !== null && !isInstallable) return <MarketplaceInstallPanel install={marketplaceInstall} />;
+  // The pin wins: an unpinned command the listing also gives must never hide the pinned commit.
+  if (marketplaceInstall !== null) return <MarketplaceInstallPanel install={marketplaceInstall} />;
 
   return (
     <section
@@ -86,8 +86,9 @@ function MarketplaceInstallPanel({ install }: { readonly install: MarketplaceIns
       </div>
       <p className="text-sm leading-relaxed text-fg-muted">
         From this site&apos;s community marketplace, pinned on <time dateTime={install.pinnedAt}>{install.pinnedAt}</time> to
-        commit <InlineLink href={install.treeUrl}>{install.sha.slice(0, SHORT_SHA_LENGTH)}</InlineLink>. You get that
-        commit until the pin is moved. Read the source before you install it.{" "}
+        commit <InlineLink href={install.treeUrl}>{shortSha(install.sha)}</InlineLink>. Its files
+        stay at that commit until the pin moves; anything it downloads when you use it is not pinned. Read the source
+        before you install it.{" "}
         <InlineLink href="/security/#before-you-install">What to check first</InlineLink>
       </p>
     </section>
