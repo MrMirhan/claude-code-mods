@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.
 
 ### Added
 
+- A Claude Code plugin marketplace at `/marketplace.json`, named `claudecodemods`, listing the community plugins claude-devtools, mochi-crew, sweet-spot and yylo-skills. Each is pinned to a full commit SHA in the maintainer-owned `src/data/marketplace.json`, and the build fails unless a pin installs from the exact repository and folder its directory page shows. The file passes `claude plugin validate`, and all four plugins were installed from it at their pinned commits with Claude Code 2.1.301.
+- A pinned entry's Install box shows the add and install commands and links the pinned commit. The home page hero offers the add command, and a new Security section explains what a pin does and does not promise.
 - Kind landing pages at `/mods/`, `/plugins/`, `/skills/`, `/agents/` and `/mcp-servers/`: what the kind is (restating the linked Claude Code docs page), every entry of that kind as server-rendered cards, how you get one, and links to the other kinds. Each has its own title, canonical URL and CollectionPage plus ItemList JSON-LD, and is in the sitemap and `llms.txt`. Hooks and commands have too few entries for a page and stay as browse filters.
 - A Browse dropdown in the header listing the five kind pages.
 - Mochi Crew, a community mod by joeVenner (a pixel-art cat in a side pane that reacts to the real session, with a kitten crew for subagents, XP, a session meter and a file tree), listed at `/extensions/mochi-crew/` from `src/data/community/mochi-crew.json`.

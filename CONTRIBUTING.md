@@ -174,6 +174,16 @@ For how plugins are packaged, read the official [plugin docs](https://code.claud
 
 This repository has no LICENSE file yet. The maintainer will decide the license that applies to submitted data. Until that is decided, do not assume one.
 
+## The community marketplace
+
+The site serves a Claude Code plugin marketplace at `/marketplace.json` (named `claudecodemods`). It is built from `src/data/marketplace.json`, which only maintainers edit. A listing pull request never adds a plugin to it: a community entry stays source only unless a maintainer pins it.
+
+- Only community entries can be pinned, and each pin must install from the exact repository and folder that the entry's `repositoryUrl` shows. The build fails otherwise.
+- A pin names a full 40-character commit SHA. Claude Code installs that commit, so users get new code only when a pin moves.
+- Before setting or moving a pin, read the plugin's source at that commit: network calls, commands it runs, files it reads or writes, and any skill or agent text that tells Claude to run something. Record the new SHA and the date (`pinnedAt`) in the same pull request.
+- Check a change with `claude plugin validate` on a folder holding the built file as `.claude-plugin/marketplace.json`, then add the marketplace and install the plugin under an empty `CLAUDE_CONFIG_DIR` so your own setup is untouched.
+- An author who asks to leave the marketplace is removed from it; their directory listing stays.
+
 ## Review expectations
 
 - A pull request should change one file in `src/data/community/` and nothing else. A pull request that changes files there and files elsewhere fails a path check and will be asked to split.
