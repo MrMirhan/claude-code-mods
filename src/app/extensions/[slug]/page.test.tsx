@@ -6,6 +6,8 @@ import { BUILT_IN_EXPLANATION, NO_INSTALL_COMMAND } from "@/components/detail/In
 import { buildExtensionMetadata } from "@/lib/seo/metadata";
 import { getAllExtensions } from "@/lib/catalog";
 import ExtensionPage, { dynamicParams, generateMetadata, generateStaticParams } from "./page";
+import { marketplaceInstallCommands } from "@/lib/marketplace";
+import { getMarketplacePin } from "@/lib/marketplace-data";
 
 beforeAll(stubIntersectionObserver);
 
@@ -64,7 +66,7 @@ describe("extension detail route", () => {
     });
 
     it.each(mods.map((mod) => [mod.slug] as const))(
-      "%s has a guide with set up and download sections, unique anchors and no install rows",
+      "%s has a guide with set up and download sections, unique anchors and the right install copy",
       async (slug) => {
         const mod = getAllExtensions().find((extension) => extension.slug === slug);
         expect(mod?.guide.length ?? 0).toBeGreaterThan(0);
@@ -83,9 +85,16 @@ describe("extension detail route", () => {
         }
         expect(container.textContent).not.toMatch(DASH_PATTERN);
         expect(screen.getByRole("heading", { level: 2, name: "Install" })).toBeInTheDocument();
-        // Community mods must be source only, so only Anthropic's built-in mods carry the built-in copy.
-        const expectedInstallCopy = mod?.availability === "built-in" ? BUILT_IN_EXPLANATION : NO_INSTALL_COMMAND;
-        expect(screen.getByText(expectedInstallCopy)).toBeInTheDocument();
+        // A mod pinned in the site's marketplace shows its marketplace commands; any other community mod is
+        // source only, and only Anthropic's built-in mods carry the built-in copy.
+        const pin = getMarketplacePin(slug);
+        if (pin !== undefined) {
+          for (const command of marketplaceInstallCommands(pin)) expect(screen.getByText(command)).toBeInTheDocument();
+          expect(screen.queryByText(NO_INSTALL_COMMAND)).not.toBeInTheDocument();
+        } else {
+          const expectedInstallCopy = mod?.availability === "built-in" ? BUILT_IN_EXPLANATION : NO_INSTALL_COMMAND;
+          expect(screen.getByText(expectedInstallCopy)).toBeInTheDocument();
+        }
       },
     );
   });
