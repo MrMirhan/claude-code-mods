@@ -29,7 +29,7 @@ export function Hero({ extensions }: HeroProps): ReactNode {
               id="hero-heading"
               className="text-balance text-4xl font-semibold leading-[1.05] tracking-tight text-fg lg:text-[2.5rem]"
             >
-              Mods and extensions for Claude Code
+              Claude Code mods, plugins and skills
             </h1>
           </HeroEntry>
           <HeroEntry order={1}>

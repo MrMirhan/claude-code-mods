@@ -98,17 +98,18 @@ describe("static page metadata", () => {
     ]);
   });
 
-  it("words the home description as a link check, not a claim about the code", () => {
-    expect(PAGE_SEO.home.description).toContain("whose URL responded when last checked");
+  it("words the home description as a pointer to public source, not a claim about the code", () => {
+    expect(PAGE_SEO.home.description).toContain("links to its public source");
+    expect(PAGE_SEO.home.description).toContain("Unofficial");
     expect(PAGE_SEO.home.description).not.toContain("that was checked");
   });
 
   it("never claims that entries were reviewed, scanned, audited or vetted", () => {
     for (const { page } of entries) {
-      expect(`${page.title} ${page.description}`, page.path).not.toMatch(/\b(reviewed|scanned|audited|vetted|guaranteed)\b/i);
+      expect(`${page.title} ${page.description}`, page.path).not.toMatch(/\b(reviewed|scanned|audited|vetted|guaranteed|tested|curated)\b/i);
     }
     for (const extension of getAllExtensions()) {
-      expect(buildExtensionDescription(extension), extension.slug).not.toMatch(/\b(reviewed|scanned|audited|vetted|guaranteed)\b/i);
+      expect(buildExtensionDescription(extension), extension.slug).not.toMatch(/\b(reviewed|scanned|audited|vetted|guaranteed|tested|curated)\b/i);
     }
   });
 

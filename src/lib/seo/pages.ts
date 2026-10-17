@@ -25,15 +25,15 @@ export interface PageSeo {
 export const PAGE_SEO = {
   home: {
     path: "/",
-    title: "Claude Code Mods: community directory of extensions",
+    title: "Claude Code Mods & Plugins Directory: skills, MCP servers",
     description:
-      "An unofficial community directory of Claude Code mods, plugins, skills and MCP servers. Each entry links to public source whose URL responded when last checked.",
+      "Find Claude Code mods, plugins, skills, agents and MCP servers. Each listing shows how to get it and links to its public source. Unofficial, community run.",
     breadcrumbLabel: "Home",
     hasAbsoluteTitle: true,
   },
   browse: {
     path: "/browse/",
-    title: "Browse Claude Code extensions",
+    title: "Browse Claude Code mods and plugins",
     description:
       "Search and filter Claude Code mods, plugins, skills, agents, hooks, commands and MCP servers by kind, category and how you get them.",
     breadcrumbLabel: "Browse",
