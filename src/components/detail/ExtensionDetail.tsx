@@ -47,7 +47,9 @@ function NoticeCallout({ notice }: { readonly notice: string }): ReactNode {
 
 /** The kind as a search phrase, "Claude Code MCP server", shown above the name in the page heading. */
 export function kindHeadingLabel(kind: ExtensionKind): string {
-  return `Claude Code ${lowerCaseLabel(KIND_LABELS[kind])}`;
+  // "Subagent" is the docs' term and the agents page's heading, so the detail pages use it too.
+  const label = kind === "agent" ? "subagent" : lowerCaseLabel(KIND_LABELS[kind]);
+  return `Claude Code ${label}`;
 }
 
 const BREADCRUMB_LINK_CLASS = "inline-flex min-h-11 items-center rounded-control pr-1 hover:text-fg md:min-h-9";

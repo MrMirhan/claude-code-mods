@@ -63,7 +63,7 @@ export const NAV_LINKS: readonly NavLink[] = [
     label: "Browse",
     href: "/browse/",
     matchPrefixes: ["/extensions/"],
-    // Kept in step with HUB_KINDS in kind-hubs.ts; a test checks the two match.
+    // Children count as the section too (see isNavLinkActive). Kept in step with HUB_KINDS in kind-hubs.ts; a test checks the two match.
     children: [
       { label: "Mods", href: "/mods/" },
       { label: "Plugins", href: "/plugins/" },

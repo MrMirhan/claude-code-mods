@@ -368,5 +368,6 @@ describe("kindHeadingLabel", () => {
     expect(kindHeadingLabel("mcp-server")).toBe("Claude Code MCP server");
     expect(kindHeadingLabel("command")).toBe("Claude Code command");
     expect(kindHeadingLabel("mod")).toBe("Claude Code mod");
+    expect(kindHeadingLabel("agent")).toBe("Claude Code subagent");
   });
 });
