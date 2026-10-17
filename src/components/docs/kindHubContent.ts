@@ -47,7 +47,7 @@ export const KIND_HUB_CONTENT: Readonly<Record<HubKind, KindHubContent>> = {
       "A plugin is what Claude Code installs. One plugin can hold slash commands, agents, skills, hooks, MCP servers and mods, so a single install adds all of them.",
     ],
     gettingIt: [
-      "You install a plugin from a marketplace with /plugin install and the plugin's name followed by @ and the marketplace's name. Anthropic's official marketplace, claude-plugins-official, needs no setup; any other marketplace must be added first.",
+      "You install a plugin from a marketplace with /plugin install and the plugin's name followed by @ and the marketplace's name. Claude Code adds Anthropic's official marketplace, claude-plugins-official, the first time you start an interactive terminal session; any other marketplace must be added first.",
       "A plugin can run code on your machine with your user permissions, so install only plugins you trust.",
     ],
     commandShapes: ["/plugin marketplace add <owner>/<repo>", "/plugin install <plugin>@<marketplace>"],
@@ -87,7 +87,7 @@ export const KIND_HUB_CONTENT: Readonly<Record<HubKind, KindHubContent>> = {
     singular: "MCP server",
     lead: "MCP servers listed in the directory, each with the command that sets it up.",
     about: [
-      "An MCP server is a program that gives Claude Code extra tools and data through the Model Context Protocol, such as file access, a browser or a memory store.",
+      "An MCP server is a program that gives Claude Code extra tools and data through the Model Context Protocol, giving it access to your tools, databases and APIs.",
     ],
     gettingIt: [
       "Most are added with claude mcp add, followed by a name and the command that starts the server. Some are also packaged as plugins, and install like any other plugin.",

@@ -42,7 +42,7 @@ export const PAGE_SEO = {
     path: "/mods/",
     title: "Claude Code mods: built-in and community",
     description:
-      "Every Claude Code mod in the directory: the mods built into Claude Code, Anthropic's sample mods and community mods, with how to run each one.",
+      "Every Claude Code mod in the directory: the mods built into Claude Code, Anthropic's sample mods and community mods, with how to get each one.",
     breadcrumbLabel: "Mods",
     breadcrumbParent: { label: "Browse", path: "/browse/" },
   },
@@ -50,7 +50,7 @@ export const PAGE_SEO = {
     path: "/plugins/",
     title: "Claude Code plugins directory",
     description:
-      "Claude Code plugins listed in the directory, from Anthropic's official marketplace and other publishers, with the install command for each one.",
+      "Claude Code plugins listed in the directory, with the /plugin install command for each one, what it adds to Claude Code and a link to its source.",
     breadcrumbLabel: "Plugins",
     breadcrumbParent: { label: "Browse", path: "/browse/" },
   },
