@@ -1,6 +1,6 @@
 # Claude Code Mods
 
-An unofficial community directory of Claude Code mods and extensions: mods, plugins, skills, agents, hooks, MCP servers and slash commands.
+An unofficial community directory of Claude Code mods and plugins: mods, plugins, skills, agents, hooks, MCP servers and slash commands. Browse them by kind at [claudecodemods.com/mods](https://claudecodemods.com/mods/), [/plugins](https://claudecodemods.com/plugins/), [/skills](https://claudecodemods.com/skills/), [/agents](https://claudecodemods.com/agents/) and [/mcp-servers](https://claudecodemods.com/mcp-servers/).
 
 **Live site: [claudecodemods.com](https://claudecodemods.com)**
 
