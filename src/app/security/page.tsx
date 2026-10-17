@@ -25,6 +25,8 @@ import { cn } from "@/lib/cn";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { BeforeYouInstallSection } from "@/components/security/BeforeYouInstallSection";
 import { ForOrganizationsSection } from "@/components/security/ForOrganizationsSection";
+import { MarketplaceSection } from "@/components/security/MarketplaceSection";
+import { getMarketplacePins } from "@/lib/marketplace-data";
 import { buildDocPageGraph } from "@/lib/seo/jsonLd";
 import { buildStaticPageMetadata } from "@/lib/seo/metadata";
 import { PAGE_SEO } from "@/lib/seo/pages";
@@ -104,6 +106,8 @@ export default function SecurityPage(): ReactNode {
       ) : null}
 
       <BeforeYouInstallSection />
+
+      <MarketplaceSection pins={getMarketplacePins()} extensions={getAllExtensions()} />
 
       <DocSection id="mod-runtime" title="How Claude Code keeps a mod in check">
         <Callout>
