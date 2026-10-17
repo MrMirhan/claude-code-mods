@@ -12,7 +12,8 @@ import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
 import { cn } from "@/lib/cn";
 import { CATEGORY_LABELS, KIND_LABELS } from "@/lib/types";
-import type { Extension } from "@/lib/types";
+import type { Extension, ExtensionKind } from "@/lib/types";
+import { lowerCaseLabel } from "@/lib/seo/text";
 import { DetailCallout } from "./DetailCallout";
 import { DetailsList } from "./DetailsList";
 import { ExtensionLinks, collectExtensionLinks } from "./ExtensionLinks";
@@ -41,6 +42,11 @@ function NoticeCallout({ notice }: { readonly notice: string }): ReactNode {
       <p>{notice}</p>
     </DetailCallout>
   );
+}
+
+/** The kind as a search phrase, "Claude Code MCP server", shown above the name in the page heading. */
+export function kindHeadingLabel(kind: ExtensionKind): string {
+  return `Claude Code ${lowerCaseLabel(KIND_LABELS[kind])}`;
 }
 
 function Breadcrumb({ name }: { readonly name: string }): ReactNode {
@@ -178,12 +184,15 @@ export function ExtensionDetail({ extension, related, hookHrefs = NO_HOOK_LINKS 
 
         <article className="flex min-w-0 flex-col gap-8">
           <header className="flex flex-col gap-4">
-            <p className="flex items-center gap-2 font-mono text-sm text-fg-muted">
-              <KindIcon kind={kind} size={18} />
-              {KIND_LABELS[kind]}
-            </p>
-            <h1 className="text-4xl font-semibold leading-[1.05] tracking-tight text-fg text-balance md:text-5xl">
-              {name}
+            {/* The kind line sits inside the h1 so the heading says what the name is ("Claude Code command /clean_gone"). */}
+            <h1 className="flex flex-col gap-4">
+              <span className="flex items-center gap-2 font-mono text-sm font-normal text-fg-muted">
+                <KindIcon kind={kind} size={18} />
+                {kindHeadingLabel(kind)}
+              </span>{" "}
+              <span className="text-4xl font-semibold leading-[1.05] tracking-tight text-fg text-balance md:text-5xl">
+                {name}
+              </span>
             </h1>
             <div className="flex flex-wrap items-center gap-2">
               <StatusBadge verification={verification} />
