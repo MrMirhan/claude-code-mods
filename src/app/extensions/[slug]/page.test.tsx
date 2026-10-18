@@ -86,14 +86,18 @@ describe("extension detail route", () => {
         }
         expect(container.textContent).not.toMatch(DASH_PATTERN);
         expect(screen.getByRole("heading", { level: 2, name: "Install" })).toBeInTheDocument();
-        // A mod pinned in the site's marketplace shows its marketplace commands; any other community mod is
-        // source only, and only Anthropic's built-in mods carry the built-in copy.
+        // A mod pinned in the site's marketplace shows its marketplace commands, an installable mod shows its own
+        // commands, and the rest show the built-in or source-only copy.
         const pin = getMarketplacePin(slug);
         if (pin !== undefined) {
           for (const command of marketplaceInstallCommands(pin)) expect(screen.getByText(command)).toBeInTheDocument();
           expect(screen.queryByText(NO_INSTALL_COMMAND)).not.toBeInTheDocument();
           expect(screen.getByText(PINNED_INSTALL_LABEL)).toBeInTheDocument();
           expect(screen.queryByText("Source only")).not.toBeInTheDocument();
+        } else if (mod?.availability === "installable") {
+          // A guide may repeat a command in its setup steps, so the command only has to appear.
+          for (const command of mod.installCommands) expect(screen.getAllByText(command).length).toBeGreaterThan(0);
+          expect(screen.queryByText(NO_INSTALL_COMMAND)).not.toBeInTheDocument();
         } else {
           const expectedInstallCopy = mod?.availability === "built-in" ? BUILT_IN_EXPLANATION : NO_INSTALL_COMMAND;
           expect(screen.getByText(expectedInstallCopy)).toBeInTheDocument();
