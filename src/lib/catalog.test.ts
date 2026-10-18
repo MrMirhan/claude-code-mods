@@ -91,16 +91,22 @@ describe("the shipped data", () => {
     }
   });
 
-  it("lists built-in only for Anthropic publishers, and makes every mod built in or source only", () => {
+  it("lists built-in only for Anthropic publishers, and installs a mod only from its own repository's marketplace", () => {
     for (const entry of all) {
       if (entry.availability === "built-in") expect(entry.publisher.kind, entry.slug).toBe("anthropic");
     }
     const mods = all.filter((entry) => entry.kind === "mod");
     expect(mods.length).toBeGreaterThan(0);
     for (const mod of mods) {
-      expect(["built-in", "source-only"], mod.slug).toContain(mod.availability);
       expect(mod.hooks.length, mod.slug).toBeGreaterThan(0);
       expect(mod.repositoryUrl, mod.slug).toMatch(/^https:\/\/github\.com\//);
+      // Since the mods launch, a mod can ship in its own plugin marketplace. The marketplace it adds must be the
+      // repository its page links to, so the install command and the source a reader checks are the same code.
+      const ownRepository = mod.repositoryUrl.replace(/^https:\/\/github\.com\//, "").split("/").slice(0, 2).join("/");
+      for (const command of mod.installCommands) {
+        const added = /^\/plugin marketplace add (\S+)$/.exec(command)?.[1];
+        if (added !== undefined) expect(added.toLowerCase(), mod.slug).toBe(ownRepository.toLowerCase());
+      }
     }
   });
 
