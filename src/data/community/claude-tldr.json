@@ -1,0 +1,125 @@
+{
+  "slug": "claude-tldr",
+  "name": "TL;DR for Claude Code",
+  "kind": "mod",
+  "categories": [
+    "observability",
+    "quality"
+  ],
+  "summary": "Every Claude Code turn as one card: files changed, tests before and after, and what to check.",
+  "description": [
+    "TL;DR folds each turn into one card in place of the tool rows. The card shows the goal, the time, the size of the turn and its files, the test runs in order, the other commands in one Ran row, and what Claude read and searched. Every raw line stays one click away.",
+    "The card turns amber and says what to check: a test file changed in the turn that made tests pass, a write outside the project, a deleted file, an added skip, only or xfail marker, --no-verify, or a force push.",
+    "It also draws a context bar above the prompt (the conversation in blue, which /compact frees, and the setup in gray), a mode-aware spinner, and a line that shows how far a running turn got. Cards stay after /compact and a resume; /tldr history lists them.",
+    "It makes no network calls and starts no processes. It is a community project, not made or endorsed by Anthropic."
+  ],
+  "publisher": {
+    "name": "Kushal Banda",
+    "url": "https://github.com/kushalBanda",
+    "kind": "community"
+  },
+  "repositoryUrl": "https://github.com/kushalBanda/claude-tldr",
+  "license": "MIT",
+  "availability": "installable",
+  "installCommands": [
+    "/plugin marketplace add kushalBanda/claude-tldr",
+    "/plugin install tldr@claude-tldr"
+  ],
+  "notice": "Needs Claude Code 2.1.301 or later. On desktop and in VS Code, Claude Code draws its own rows; the card is for the terminal. It installs from its own repository's marketplace, not from Anthropic's.",
+  "details": [
+    {
+      "label": "Version",
+      "value": "0.1.2",
+      "isCommand": false
+    },
+    {
+      "label": "Plugin id",
+      "value": "tldr",
+      "isCommand": false
+    },
+    {
+      "label": "Run from source",
+      "value": "claude --plugin-dir claude-tldr",
+      "isCommand": true
+    }
+  ],
+  "guide": [
+    {
+      "title": "What it does",
+      "paragraphs": [
+        "In fullscreen, click a card row (Changed, Tests, Check, Ran, Looked at) to open its detail inside the card, and click it again to close. Click the goal to see the turn as steps. On the main screen, the band above the prompt holds the rows of the latest card as digit keys.",
+        "/tldr show opens a row's detail, /tldr context explains the context bar, /tldr history lists kept cards, /tldr copy copies the reply as clean text, and /tldr diff prints the net diff of the turn. Every feature is a switch in /plugin configure."
+      ],
+      "commands": []
+    },
+    {
+      "title": "How it works",
+      "paragraphs": [
+        "ui.render draws the card, the spinner and the band above the prompt, and command.run answers /tldr. The other events tell it when a session starts or is compacted and when a turn starts, steps and completes, and which tools run: session.start, session.compact, turn.start, turn.step, turn.complete and tool.call.",
+        "All parsing is static: it never runs a command to learn what a command did. It reads the session's tool calls and results, and the files Claude edits for the net diff. Kept cards stay in Claude Code's local plugin store, at most 50 per session. To check this against the code, run claude plugin validate . in the repository."
+      ],
+      "commands": []
+    },
+    {
+      "title": "Set up",
+      "paragraphs": [
+        "Inside Claude Code, add the marketplace and install the mod. It starts at once, with no restart."
+      ],
+      "commands": [
+        "/plugin marketplace add kushalBanda/claude-tldr",
+        "/plugin install tldr@claude-tldr"
+      ]
+    },
+    {
+      "title": "Download the source",
+      "paragraphs": [
+        "Clone the repository and load it as a plugin folder. To run its tests, run claude plugin test . in that folder."
+      ],
+      "commands": [
+        "git clone https://github.com/kushalBanda/claude-tldr",
+        "claude --plugin-dir claude-tldr"
+      ]
+    }
+  ],
+  "hooks": [
+    "session.start",
+    "session.compact",
+    "turn.start",
+    "turn.step",
+    "turn.complete",
+    "tool.call",
+    "command.run",
+    "ui.render"
+  ],
+  "tags": [
+    "turn-card",
+    "tests",
+    "diff",
+    "code-review",
+    "trust",
+    "context-window",
+    "spinner",
+    "slash-command"
+  ],
+  "links": [
+    {
+      "label": "README",
+      "url": "https://github.com/kushalBanda/claude-tldr/blob/main/README.md"
+    },
+    {
+      "label": "Changelog",
+      "url": "https://github.com/kushalBanda/claude-tldr/blob/main/CHANGELOG.md"
+    },
+    {
+      "label": "Releases",
+      "url": "https://github.com/kushalBanda/claude-tldr/releases"
+    }
+  ],
+  "stars": null,
+  "isFeatured": false,
+  "verification": {
+    "status": "verified",
+    "checkedAt": "2026-10-18",
+    "sourceUrl": "https://github.com/kushalBanda/claude-tldr"
+  }
+}
