@@ -1,0 +1,80 @@
+{
+  "slug": "dc-hub",
+  "name": "DC Hub",
+  "kind": "mcp-server",
+  "categories": [
+    "integration"
+  ],
+  "summary": "Remote MCP server with live data for data-center site selection, including DCPI, a daily score of where data centers can get grid power across 300+ markets.",
+  "description": [
+    "DC Hub is the live data layer for data-center site selection. Its Data Center Power Index (DCPI) is a daily score of where data centers can get grid power, across 300+ markets. Agents can query it and cite it.",
+    "It also covers mapped power, grid, gas and fiber assets and carries live grid feeds from the seven US ISOs (PJM, ERCOT, CAISO, MISO, SPP, NYISO, ISO-NE), plus retail and wholesale electricity prices by state and ISO. Answers carry an as-of timestamp and a citation line.",
+    "It is a hosted remote server over streamable HTTP. Without a key you get previews. A free key adds a daily allowance of full answers, and some tools need a paid plan (see dchub.cloud/pricing). It is a community listing, not made or endorsed by Anthropic."
+  ],
+  "publisher": {
+    "name": "DC Hub",
+    "url": "https://github.com/azmartone67",
+    "kind": "community"
+  },
+  "repositoryUrl": "https://github.com/azmartone67/dchub-mcp-server",
+  "license": "MIT",
+  "availability": "source-only",
+  "installCommands": [],
+  "notice": "Every tool call, including its parameters, the session id and the API key if one is sent, is logged by DC Hub for rate limits, billing and quality. See the README's privacy notes before querying sites you are evaluating.",
+  "details": [
+    {
+      "label": "Transport",
+      "value": "Remote, streamable HTTP",
+      "isCommand": false
+    },
+    {
+      "label": "Endpoint",
+      "value": "dchub.cloud/mcp/github (https), all 94 tools",
+      "isCommand": false
+    }
+  ],
+  "guide": [
+    {
+      "title": "Set up",
+      "paragraphs": [
+        "Add it to Claude Code as a remote HTTP server: run claude mcp add with the http transport, the name dchub and the endpoint https://dchub.cloud/mcp/github, which is the endpoint the README uses and loads all 94 tools. Without a key you get previews. A free key adds a daily allowance of full answers, and some tools need a paid plan (see dchub.cloud/pricing). The repository README has the same setup for other clients."
+      ],
+      "commands": []
+    },
+    {
+      "title": "Download the source",
+      "paragraphs": [
+        "The repository holds the server source, its manifests and the tool list."
+      ],
+      "commands": [
+        "git clone https://github.com/azmartone67/dchub-mcp-server"
+      ]
+    }
+  ],
+  "hooks": [],
+  "tags": [
+    "mcp",
+    "remote-mcp",
+    "data-center",
+    "energy",
+    "power-grid",
+    "site-selection"
+  ],
+  "links": [
+    {
+      "label": "README",
+      "url": "https://github.com/azmartone67/dchub-mcp-server/blob/main/README.md"
+    },
+    {
+      "label": "Claude Code MCP docs",
+      "url": "https://code.claude.com/docs/en/mcp"
+    }
+  ],
+  "stars": null,
+  "isFeatured": false,
+  "verification": {
+    "status": "verified",
+    "checkedAt": "2026-10-18",
+    "sourceUrl": "https://github.com/azmartone67/dchub-mcp-server"
+  }
+}
