@@ -1,0 +1,118 @@
+{
+  "slug": "buddy-chat",
+  "name": "buddy-chat",
+  "kind": "mod",
+  "categories": [
+    "integration",
+    "workflow"
+  ],
+  "summary": "End-to-end encrypted chat between Claude Code users in a pane: direct chats, groups, read receipts and linked devices, with no server to run.",
+  "description": [
+    "buddy-chat adds a chat pane to Claude Code for messages between people who use Claude Code. It has direct chats and groups of up to 8, friend requests that the other person accepts, a display name and username, and nicknames that only you see. You can edit and delete your own messages, copy any message, mute a chat, and see message states (sending, sent, delivered and read) and a typing indicator.",
+    "Messages are end-to-end encrypted with X25519 and XSalsa20-Poly1305 (TweetNaCl). After two people become friends, their plugins run an ML-KEM-768 handshake, and each message key then comes from both secrets. There is no account and no server of its own: sealed messages go through the public ntfy.sh relay, which keeps them for 12 hours and sees metadata such as timing and size.",
+    "One account can be used on several computers: a new device shows a link code, and the device that has the account sends it a sealed snapshot. Linked devices then sync sent messages, edits and settings. It is a community project, not made or endorsed by Anthropic."
+  ],
+  "publisher": {
+    "name": "MrMirhan",
+    "url": "https://github.com/MrMirhan",
+    "kind": "community"
+  },
+  "repositoryUrl": "https://github.com/MrMirhan/claude-buddy-chat",
+  "license": "MIT",
+  "availability": "installable",
+  "installCommands": [
+    "/plugin marketplace add MrMirhan/claude-buddy-chat",
+    "/plugin install buddy-chat@claude-buddy-chat"
+  ],
+  "notice": "Sends sealed messages to ntfy.sh and starts curl to receive them when curl is available. Both people need buddy-chat installed. It installs from its own repository's marketplace, not from Anthropic's.",
+  "details": [
+    {
+      "label": "Version",
+      "value": "0.14.0",
+      "isCommand": false
+    },
+    {
+      "label": "Plugin id",
+      "value": "buddy-chat",
+      "isCommand": false
+    },
+    {
+      "label": "Run from source",
+      "value": "claude --plugin-dir claude-buddy-chat",
+      "isCommand": true
+    }
+  ],
+  "guide": [
+    {
+      "title": "What it does",
+      "paragraphs": [
+        "Run /buddy to open the pane. Set your name and username, copy your add line and send it to a friend in any app. Your friend pastes it into Add contact, you accept the request in People, and the chat opens.",
+        "In the Desktop app the pane is a chat list beside the open chat, with message bubbles. In the terminal it is a keyboard-first layout: j and k mark a message, and e, x, f and c edit, delete, forward to Claude and copy it. Claude can also send a message for you with the send_to_buddy tool, and you confirm each one."
+      ],
+      "commands": []
+    },
+    {
+      "title": "How it works",
+      "paragraphs": [
+        "Each ID has an ntfy.sh topic that comes from a hash of the ID. To send, the mod posts a sealed message to the recipient's topic. One session on each computer receives for that computer, through one open request held by curl, or by polling every 8 seconds when curl is not available.",
+        "The hooks are session.start, command.run, tool.call, ui.render, ui.scroll, ui.message and ui.close. The mod keeps its keys, contacts and messages in Claude Code's plugin store on your computer. Run claude plugin validate . in the repository to see every call the hooks make."
+      ],
+      "commands": []
+    },
+    {
+      "title": "Set up",
+      "paragraphs": [
+        "Inside Claude Code, add the marketplace and install the mod, then run /reload-plugins and /buddy."
+      ],
+      "commands": [
+        "/plugin marketplace add MrMirhan/claude-buddy-chat",
+        "/plugin install buddy-chat@claude-buddy-chat"
+      ]
+    },
+    {
+      "title": "Download the source",
+      "paragraphs": [
+        "Clone the repository and load it as a plugin folder. To run its tests, run claude plugin test . in that folder."
+      ],
+      "commands": [
+        "git clone https://github.com/MrMirhan/claude-buddy-chat",
+        "claude --plugin-dir claude-buddy-chat"
+      ]
+    }
+  ],
+  "hooks": [
+    "session.start",
+    "command.run",
+    "tool.call",
+    "ui.render",
+    "ui.scroll",
+    "ui.message",
+    "ui.close"
+  ],
+  "tags": [
+    "chat",
+    "messaging",
+    "encryption",
+    "e2ee",
+    "post-quantum",
+    "pane",
+    "function-hooks"
+  ],
+  "links": [
+    {
+      "label": "README",
+      "url": "https://github.com/MrMirhan/claude-buddy-chat/blob/main/README.md"
+    },
+    {
+      "label": "Security limits",
+      "url": "https://github.com/MrMirhan/claude-buddy-chat/blob/main/README.md#security-limits"
+    }
+  ],
+  "stars": null,
+  "isFeatured": false,
+  "verification": {
+    "status": "verified",
+    "checkedAt": "2026-10-24",
+    "sourceUrl": "https://github.com/MrMirhan/claude-buddy-chat"
+  }
+}
